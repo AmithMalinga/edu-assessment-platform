@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT) // 'STUDENT' or 'ADMIN'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  attempts  Attempt[]
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+model Exam {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  duration    Int      // Duration in minutes
+  passingScore Int
+  questions   Question[]
+  attempts    Attempt[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  content   String
+  options   String[] // Array of strings for MCQ options
+  correctAnswer String
+  examId    String
+  exam      Exam     @relation(fields: [examId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attempt {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  examId    String
+  exam      Exam     @relation(fields: [examId], references: [id])
+  score     Int
+  timeTaken Int      // Time taken in seconds
+  completedAt DateTime @default(now())
+}
