@@ -1,6 +1,21 @@
+"use client"
 import Link from "next/link"
+import { useState } from "react"
+import { getAllStudents } from "../lib/services"
 
 export default function Home() {
+    const [students, setStudents] = useState<any[]>([])
+
+    const handleLearnMore = async () => {
+        try {
+            const data = await getAllStudents()
+            console.log(data)
+            setStudents(data)
+        } catch (error) {
+            console.error("Failed to fetch students", error)
+        }
+    }
+
     return (
         <div className="flex flex-col min-h-screen">
             <header className="px-4 lg:px-6 h-14 flex items-center border-b">
@@ -38,12 +53,12 @@ export default function Home() {
                                 >
                                     Get Started
                                 </Link>
-                                <Link
+                                <button
                                     className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                                    href="/about"
+                                    onClick={handleLearnMore}
                                 >
                                     Learn more
-                                </Link>
+                                </button>
                             </div>
                         </div>
                     </div>
