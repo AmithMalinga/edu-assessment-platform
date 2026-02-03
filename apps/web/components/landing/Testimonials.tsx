@@ -1,32 +1,20 @@
 "use client"
 import { motion } from "framer-motion"
 import { Star, Quote } from "lucide-react"
-
-const testimonials = [
-    {
-        name: "Kavindi Perera",
-        role: "A/L Student, Colombo",
-        avatar: "KP",
-        rating: 5,
-        text: "ExamMaster helped me score straight A's in my A/L Combined Maths. The real-time exam simulations prepared me perfectly for the actual exam pressure."
-    },
-    {
-        name: "Arun Kumar",
-        role: "O/L Student, Jaffna",
-        avatar: "AK",
-        rating: 5,
-        text: "Finally a platform with proper Tamil support! The questions are exactly like the real O/L papers. My confidence has improved so much."
-    },
-    {
-        name: "Nadeesha Silva",
-        role: "Teacher, Royal College",
-        avatar: "NS",
-        rating: 5,
-        text: "I recommend ExamMaster to all my students. The progress tracking helps me identify which topics need more attention in class."
-    }
-]
+import { useEffect, useState } from "react"
+import { landingService, Testimonial } from "../../lib/services/landing.service"
 
 export function Testimonials() {
+    const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+
+    useEffect(() => {
+        const loadTestimonials = async () => {
+            const data = await landingService.getTestimonials()
+            setTestimonials(data)
+        }
+        loadTestimonials()
+    }, [])
+
     return (
         <section id="testimonials" className="py-24 relative overflow-hidden">
             {/* Background */}
@@ -59,7 +47,7 @@ export function Testimonials() {
                 <div className="grid md:grid-cols-3 gap-8">
                     {testimonials.map((testimonial, i) => (
                         <motion.div
-                            key={testimonial.name}
+                            key={testimonial.id || i}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -80,7 +68,7 @@ export function Testimonials() {
 
                             {/* Text */}
                             <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
-                                "{testimonial.text}"
+                                "{testimonial.content}"
                             </p>
 
                             {/* Author */}
