@@ -1,0 +1,7 @@
+export { Header } from './Header'
+export { Hero } from './Hero'
+export { Features } from './Features'
+export { FeatureCard } from './FeatureCard'
+export { Stats } from './Stats'
+export { Testimonials } from './Testimonials'
+export { Footer } from './Footer'
