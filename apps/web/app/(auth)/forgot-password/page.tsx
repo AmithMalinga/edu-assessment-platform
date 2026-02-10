@@ -51,10 +51,21 @@ export default function ForgotPasswordPage() {
                     <Button
                         variant="outline"
                         onClick={() => setIsSubmitted(false)}
-                        className="w-full"
+                        className="w-full mb-4"
                     >
                         Try with another email
                     </Button>
+
+                    {/* Dev Only: Simulate clicking email link */}
+                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider font-semibold">Dev: Simulation</p>
+                        <Link
+                            href="/reset-password"
+                            className="text-sm text-indigo-600 hover:text-indigo-500 underline"
+                        >
+                            Click here to simulate email link
+                        </Link>
+                    </div>
                 </CardContent>
                 <CardFooter className="justify-center">
                     <Link
