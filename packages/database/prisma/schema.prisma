@@ -4,24 +4,23 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-}
-
-model Student {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
-
-  @@map("student")
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(STUDENT) // 'STUDENT' or 'ADMIN'
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  attempts  Attempt[]
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  phone           String   @unique
+  age             Int
+  educationalLevel String  // Grade 1, 2, 3, ... 12, 13
+  password        String
+  role            Role     @default(STUDENT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  attempts        Attempt[]
+
+  @@map("users")
 }
 
 enum Role {
