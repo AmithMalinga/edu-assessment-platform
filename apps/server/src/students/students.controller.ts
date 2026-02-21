@@ -17,7 +17,7 @@ export class StudentsController {
     @Get(':id')
     @ApiOperation({ summary: 'Get a student by id' })
     @ApiResponse({ status: 200, description: 'Return the student.' })
-    async findOne(@Param('id', ParseIntPipe) id: number) {
+    async findOne(@Param('id') id: string) {
         return this.studentsService.findOne(id);
     }
 }
