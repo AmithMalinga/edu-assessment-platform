@@ -6,11 +6,13 @@ export class StudentsService {
     constructor(private prisma: PrismaService) { }
 
     async findAll() {
-        return this.prisma.student.findMany();
+        return this.prisma.user.findMany({
+            where: { role: 'STUDENT' },
+        });
     }
 
-    async findOne(id: number) {
-        return this.prisma.student.findUnique({
+    async findOne(id: string) {
+        return this.prisma.user.findUnique({
             where: { id },
         });
     }
