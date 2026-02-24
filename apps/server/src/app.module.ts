@@ -9,6 +9,8 @@ import { PrismaModule } from './prisma/prisma.module';
 
 import { AuthModule } from './auth/auth.module';
 
+import { QuestionModule } from './questions/question.module';
+
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -16,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
         AuthModule,
         StudentsModule,
         TestimonialsModule
+        , QuestionModule
     ],
     controllers: [AppController],
     providers: [AppService],
