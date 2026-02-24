@@ -34,21 +34,9 @@ model Exam {
   description String?
   duration    Int      // Duration in minutes
   passingScore Int
-  questions   Question[]
   attempts    Attempt[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-}
-
-model Question {
-  id        String   @id @default(uuid())
-  content   String
-  options   String[] // Array of strings for MCQ options
-  correctAnswer String
-  examId    String
-  exam      Exam     @relation(fields: [examId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Attempt {
@@ -70,4 +58,37 @@ model Testimonial {
   rating    Int
   avatar    String?
   createdAt DateTime @default(now())
+}
+
+model Grade {
+  id        Int      @id
+  name      String
+  subjects  Subject[]
+}
+
+model Subject {
+  id        String   @id @default(uuid())
+  name      String
+  gradeId   Int
+  grade     Grade    @relation(fields: [gradeId], references: [id])
+  questions Question[]
+}
+
+enum QuestionType {
+  MCQ
+  STRUCTURED
+  ESSAY
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  content       String
+  type          QuestionType
+  images        String[]
+  choices       String[]
+  correctAnswer String?
+  subjectId     String
+  subject       Subject  @relation(fields: [subjectId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
