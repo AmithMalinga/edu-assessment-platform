@@ -15,7 +15,13 @@ export class QuestionService {
   }
 
   async create(dto: CreateQuestionDto) {
-    return this.prisma.question.create({ data: dto });
+    return this.prisma.question.create({
+      data: {
+        ...dto,
+        subjectId: dto.subjectId,
+        // examId: dto.examId // Uncomment if examId is required and present in DTO
+      }
+    });
   }
 
   async update(id: string, dto: UpdateQuestionDto) {

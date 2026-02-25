@@ -1,5 +1,10 @@
 import { IsString, IsEnum, IsOptional, IsArray } from 'class-validator';
-import { QuestionType } from '@prisma/client';
+
+export enum QuestionType {
+  MCQ = 'MCQ',
+  STRUCTURED = 'STRUCTURED',
+  ESSAY = 'ESSAY'
+}
 
 export class CreateQuestionDto {
   @IsString()
