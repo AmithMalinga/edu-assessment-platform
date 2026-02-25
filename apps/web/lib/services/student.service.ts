@@ -20,5 +20,37 @@ export const studentService = {
             console.error("Failed to get students:", error);
             return [];
         }
+    },
+
+    register: async (data: { name: string; email: string; phone: string; age: number; educationalLevel: string; password: string }) => {
+        try {
+            const response = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            return { success: false, message: 'Registration failed.' };
+        }
+    },
+
+    login: async (data: { email: string; password: string }) => {
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            return { success: false, message: 'Login failed.' };
+        }
     }
 };
