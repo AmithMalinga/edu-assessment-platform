@@ -53,4 +53,17 @@ export const studentService = {
             return { success: false, message: 'Login failed.' };
         }
     }
+    ,
+    getProfile: async (token: string) => {
+        try {
+            const response = await fetch(`${API_URL}/auth/profile`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return await response.json();
+        } catch (error) {
+            return { message: 'Failed to fetch profile.' };
+        }
+    }
 };
