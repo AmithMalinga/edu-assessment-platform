@@ -6,6 +6,28 @@ import { CreateQuestionDto, UpdateQuestionDto } from './dto';
 export class QuestionService {
   constructor(private prisma: PrismaService) {}
 
+  async getRandomQuestions(params: {
+    grade: string;
+    subjectId: string;
+    questionType: import('./dto').QuestionType;
+    noOfQuestions: number;
+  }) {
+    const { grade, subjectId, questionType, noOfQuestions } = params;
+    const questions = await this.prisma.question.findMany({
+      where: {
+        subject: {
+          id: subjectId,
+          grade: {
+            name: grade,
+          },
+        },
+        type: questionType,
+      },
+    });
+    const shuffled = questions.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, noOfQuestions);
+  }
+
   async findAll() {
     return this.prisma.question.findMany();
   }

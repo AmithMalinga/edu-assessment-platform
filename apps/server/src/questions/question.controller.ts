@@ -1,10 +1,21 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
 import { QuestionService } from './question.service';
-import { CreateQuestionDto, UpdateQuestionDto } from './dto';
+import { CreateQuestionDto, UpdateQuestionDto, GetRandomQuestionsDto } from './dto';
 
 @Controller('questions')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
+
+  @Get('random-set')
+  getRandomSet(@Query() query: GetRandomQuestionsDto) {
+    const noOfQuestions = query.noOfQuestions ? parseInt(query.noOfQuestions, 10) : 10;
+    return this.questionService.getRandomQuestions({
+      grade: query.grade,
+      subjectId: query.subjectId,
+      questionType: query.questionType,
+      noOfQuestions,
+    });
+  }
 
   @Get()
   findAll() {

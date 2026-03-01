@@ -6,6 +6,93 @@ export enum QuestionType {
   ESSAY = 'ESSAY'
 }
 
+export class GetRandomQuestionsDto {
+  @IsString()
+  grade: string;
+
+  @IsString()
+  subjectId: string;
+
+  @IsEnum(QuestionType)
+  questionType: QuestionType;
+
+  @IsOptional()
+  @IsString()
+  difficulty?: string;
+
+  @IsOptional()
+  @IsString()
+  topic?: string;
+
+  @IsOptional()
+  @IsString()
+  language?: string;
+
+  @IsOptional()
+  @IsString()
+  tags?: string;
+
+  @IsOptional()
+  @IsString()
+  excludeIds?: string;
+
+  @IsOptional()
+  @IsString()
+  includeIds?: string;
+
+  @IsOptional()
+  @IsString()
+  seed?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @IsOptional()
+  @IsString()
+  examId?: string;
+
+  @IsOptional()
+  @IsString()
+  attemptId?: string;
+
+  @IsOptional()
+  @IsString()
+  sessionId?: string;
+
+  @IsOptional()
+  @IsString()
+  customFilter?: string;
+
+  @IsOptional()
+  @IsString()
+  orderBy?: string;
+
+  @IsOptional()
+  @IsString()
+  sort?: string;
+
+  @IsOptional()
+  @IsString()
+  page?: string;
+
+  @IsOptional()
+  @IsString()
+  pageSize?: string;
+
+  @IsOptional()
+  @IsString()
+  offset?: string;
+
+  @IsOptional()
+  @IsString()
+  limit?: string;
+
+  @IsOptional()
+  @IsString()
+  noOfQuestions?: string;
+}
+
 export class CreateQuestionDto {
   @IsString()
   content: string;
