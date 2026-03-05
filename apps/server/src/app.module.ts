@@ -3,13 +3,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 import { ConfigModule } from '@nestjs/config';
+
 import { StudentsModule } from './students/students.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { PrismaModule } from './prisma/prisma.module';
-
 import { AuthModule } from './auth/auth.module';
-
 import { QuestionModule } from './questions/question.module';
+import { AssessmentModule } from './assessments/assessment.module';
+import { SubmissionModule } from './submissions/submission.module';
+import { ResultModule } from './results/result.module';
+import { SubjectModule } from './subjects/subject.module';
 
 @Module({
     imports: [
@@ -17,8 +20,12 @@ import { QuestionModule } from './questions/question.module';
         PrismaModule,
         AuthModule,
         StudentsModule,
-        TestimonialsModule
-        , QuestionModule
+        TestimonialsModule,
+        QuestionModule,
+        AssessmentModule,
+        SubmissionModule,
+        ResultModule,
+        SubjectModule
     ],
     controllers: [AppController],
     providers: [AppService],
