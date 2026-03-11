@@ -1,34 +1,49 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { AssessmentService } from './assessment.service';
+import { CreateExamDto, UpdateExamDto, AddQuestionDto } from './dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('assessments')
 export class AssessmentController {
-  @Get()
-  findAll() {
-    // TODO: Return all assessments
-    return [];
-  }
+    constructor(private readonly assessmentService: AssessmentService) {}
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    // TODO: Return assessment by id
-    return {};
-  }
+    @Get()
+    findAll() {
+        return this.assessmentService.findAll();
+    }
 
-  @Post()
-  create(@Body() dto: any) {
-    // TODO: Create new assessment
-    return {};
-  }
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.assessmentService.findOne(id);
+    }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dto: any) {
-    // TODO: Update assessment
-    return {};
-  }
+    @UseGuards(JwtAuthGuard)
+    @Post()
+    create(@Body() dto: CreateExamDto) {
+        return this.assessmentService.create(dto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    // TODO: Delete assessment
-    return {};
-  }
+    @UseGuards(JwtAuthGuard)
+    @Put(':id')
+    update(@Param('id') id: string, @Body() dto: UpdateExamDto) {
+        return this.assessmentService.update(id, dto);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.assessmentService.remove(id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post(':id/questions')
+    addQuestion(@Param('id') examId: string, @Body() dto: AddQuestionDto) {
+        return this.assessmentService.addQuestion(examId, dto.questionId, dto.marks);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Delete(':id/questions/:questionId')
+    removeQuestion(@Param('id') examId: string, @Param('questionId') questionId: string) {
+        return this.assessmentService.removeQuestion(examId, questionId);
+    }
 }
