@@ -1,22 +1,30 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { SubmissionService } from './submission.service';
+import { SubmitExamDto } from './dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('submissions')
 export class SubmissionController {
-  @Get()
-  findAll() {
-    // TODO: Return all submissions
-    return [];
-  }
+    constructor(private readonly submissionService: SubmissionService) {}
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    // TODO: Return submission by id
-    return {};
-  }
+    @Post()
+    submit(@Request() req, @Body() dto: SubmitExamDto) {
+        return this.submissionService.submit(req.user.userId, dto);
+    }
 
-  @Post()
-  create(@Body() dto: any) {
-    // TODO: Create new submission
-    return {};
-  }
+    @Get()
+    findAll() {
+        return this.submissionService.findAll();
+    }
+
+    @Get('student/:userId')
+    findByStudent(@Param('userId') userId: string) {
+        return this.submissionService.findByStudent(userId);
+    }
+
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.submissionService.findOne(id);
+    }
 }
