@@ -1,10 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { SubjectService } from './subject.service';
 
 @Controller('subjects')
 export class SubjectController {
-  @Get()
-  findAll() {
-    // TODO: Return all subjects
-    return [];
-  }
+    constructor(private readonly subjectService: SubjectService) {}
+
+    @Get()
+    findAll() {
+        return this.subjectService.findAll();
+    }
+
+    @Get('grade/:gradeId')
+    findByGrade(@Param('gradeId', ParseIntPipe) gradeId: number) {
+        return this.subjectService.findByGrade(gradeId);
+    }
 }
