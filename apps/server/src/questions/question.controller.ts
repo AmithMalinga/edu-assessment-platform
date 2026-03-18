@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import { CreateQuestionDto, UpdateQuestionDto, GetRandomQuestionsDto } from './dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('questions')
 export class QuestionController {
@@ -27,16 +28,19 @@ export class QuestionController {
     return this.questionService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() dto: CreateQuestionDto) {
     return this.questionService.create(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateQuestionDto) {
     return this.questionService.update(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.questionService.remove(id);
