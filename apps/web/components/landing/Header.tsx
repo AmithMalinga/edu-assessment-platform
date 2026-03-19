@@ -4,7 +4,12 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Zap, Menu, X } from "lucide-react"
 
-const navItems = ["Features", "Solutions", "Testimonials"]
+const navItems = [
+    { label: "Features", href: "#features" },
+    { label: "Solutions", href: "#solutions" },
+    { label: "Testimonials", href: "#testimonials" },
+    { label: "Dashboard", href: "/dashboard" }
+]
 
 export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -28,11 +33,11 @@ export function Header() {
             <nav className="ml-auto hidden md:flex gap-8 items-center">
                 {navItems.map((item) => (
                     <Link
-                        key={item}
-                        href={`#${item.toLowerCase()}`}
+                        key={item.label}
+                        href={item.href}
                         className="relative text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
                     >
-                        {item}
+                        {item.label}
                         <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 group-hover:w-full transition-all duration-300" />
                     </Link>
                 ))}
@@ -75,12 +80,12 @@ export function Header() {
                         <nav className="flex flex-col gap-4">
                             {navItems.map((item) => (
                                 <Link
-                                    key={item}
-                                    href={`#${item.toLowerCase()}`}
+                                    key={item.label}
+                                    href={item.href}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="text-lg font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition-colors"
                                 >
-                                    {item}
+                                    {item.label}
                                 </Link>
                             ))}
                             <Link
