@@ -29,24 +29,38 @@ enum Role {
 }
 
 model Exam {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  duration    Int      // Duration in minutes
-  passingScore Int
-  attempts    Attempt[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String         @id @default(uuid())
+  title         String
+  description   String?
+  duration      Int            // Duration in minutes
+  passingScore  Int
+  attempts      Attempt[]
+  examQuestions ExamQuestion[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model ExamQuestion {
+  id         String   @id @default(uuid())
+  examId     String
+  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  order      Int
+  marks      Int      @default(1)
+
+  @@unique([examId, questionId])
 }
 
 model Attempt {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  examId    String
-  exam      Exam     @relation(fields: [examId], references: [id])
-  score     Int
-  timeTaken Int      // Time taken in seconds
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  examId      String
+  exam        Exam     @relation(fields: [examId], references: [id])
+  score       Int
+  timeTaken   Int      // Time taken in seconds
+  answers     Json?    // { questionId: selectedAnswer }
   completedAt DateTime @default(now())
 }
 
@@ -81,14 +95,15 @@ enum QuestionType {
 }
 
 model Question {
-  id            String   @id @default(uuid())
+  id            String         @id @default(uuid())
   content       String
   type          QuestionType
   images        String[]
   choices       String[]
   correctAnswer String?
   subjectId     String
-  subject       Subject  @relation(fields: [subjectId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  subject       Subject        @relation(fields: [subjectId], references: [id])
+  examQuestions ExamQuestion[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
