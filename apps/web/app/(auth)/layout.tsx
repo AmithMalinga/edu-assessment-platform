@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
 
 export default function AuthLayout({
     children,
@@ -20,27 +19,15 @@ export default function AuthLayout({
             {/* Grid Pattern */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] -z-10" />
 
-            {/* Logo / Header */}
-            <header className="p-6">
-                <Link href="/" className="inline-flex items-center gap-2 group">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-shadow">
-                        <Sparkles className="w-5 h-5" />
-                    </div>
-                    <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
-                        ExamMaster
-                    </span>
-                </Link>
-            </header>
-
             {/* Main Content Area */}
-            <main className="flex-1 flex items-center justify-center p-6">
-                <div className="w-full max-w-md animate-in fade-in zoom-in duration-500 slide-in-from-bottom-4">
+            <main className="flex-1 flex items-center justify-center p-4 sm:p-6 w-full">
+                <div className="w-full max-w-5xl animate-in fade-in zoom-in duration-500 slide-in-from-bottom-4">
                     {children}
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            <footer className="p-4 text-center text-sm text-slate-500 dark:text-slate-400">
                 <p>&copy; {new Date().getFullYear()} ExamMaster. All rights reserved.</p>
             </footer>
         </div>

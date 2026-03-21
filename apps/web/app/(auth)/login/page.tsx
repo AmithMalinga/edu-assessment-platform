@@ -1,26 +1,20 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
-import { Loader2, Mail, Lock, ArrowRight, Github } from "lucide-react"
+import { Loader2, Mail, Lock, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 import { useState } from "react"
 import { studentService } from "@/lib/services/student.service"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [keepLoggedIn, setKeepLoggedIn] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
@@ -46,7 +40,6 @@ export default function LoginPage() {
             const res = await studentService.login({ email, password })
             if (res.success) {
                 setSuccess("Login successful!")
-                // TODO: Redirect to dashboard or set auth state
             } else {
                 setError(res.message || "Login failed.")
             }
@@ -58,98 +51,183 @@ export default function LoginPage() {
     }
 
     return (
-        <Card className="border-slate-200/60 dark:border-slate-800/60 shadow-xl shadow-slate-200/20 dark:shadow-slate-900/20 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80">
-            <CardHeader className="space-y-1 text-center">
-                <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
-                <CardDescription>
-                    Enter your credentials to access your account
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={onSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                            <Input
-                                id="email"
-                                placeholder="name@example.com"
-                                type="email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                autoCapitalize="none"
-                                autoComplete="email"
-                                autoCorrect="off"
-                                disabled={isLoading}
-                                className={`pl-10 ${validationErrors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                                required
-                            />
+        <div className="w-full h-full flex flex-col md:flex-row bg-transparent rounded-2xl shadow-2xl relative">
+            {/* Left Column: Form */}
+            <div className="md:w-1/2 p-6 md:p-8 lg:p-10 flex flex-col justify-center bg-white dark:bg-slate-950 rounded-2xl md:rounded-r-none md:rounded-l-2xl z-20 relative border border-slate-200/60 dark:border-slate-800/60 md:border-r-0">
+                <div className="w-full max-w-[360px] mx-auto space-y-5">
+                    
+                    {/* Inline Logo from Landing Page */}
+                    <Link href="/" className="inline-flex items-center gap-2 group mb-2">
+                        <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-1.5 rounded-lg shadow-md shadow-indigo-500/25 transition-transform group-hover:scale-105 group-hover:rotate-6">
+                            <Zap className="text-white h-4 w-4 fill-current" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 rounded-lg blur-sm opacity-50 group-hover:opacity-75 transition-opacity" />
                         </div>
-                        {validationErrors.email && <div className="text-red-500 text-sm mt-1">{validationErrors.email}</div>}
-                    </div>
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="password">Password</Label>
-                            <Link
-                                href="/forgot-password"
-                                className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                            >
-                                Forgot password?
-                            </Link>
-                        </div>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                            <Input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                disabled={isLoading}
-                                className={`pl-10 ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                                required
-                            />
-                        </div>
-                        {validationErrors.password && <div className="text-red-500 text-sm mt-1">{validationErrors.password}</div>}
-                    </div>
-                    {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-                    {success && <div className="text-green-500 text-sm mt-2">{success}</div>}
-                    <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 mt-2" disabled={isLoading}>
-                        {isLoading && (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Sign In
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                </form>
-
-                <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                        <Separator />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white dark:bg-slate-950 px-2 text-slate-500">
-                            Or continue with
+                        <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                            ExamMaster
                         </span>
+                    </Link>
+
+                    {/* Header */}
+                    <div className="space-y-1">
+                        <h2 className="text-3xl lg:text-4xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent pb-1">
+                            Sign in
+                        </h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                            Welcome back to your educational journey.
+                        </p>
+                    </div>
+
+                    {/* OAuth Providers */}
+                    <div className="space-y-2.5">
+                        <Button 
+                            variant="outline" 
+                            type="button"
+                            className="w-full h-10 border-slate-200 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 font-semibold shadow-sm transition-colors rounded-lg" 
+                            disabled={isLoading}
+                        >
+                            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                                <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+                            </svg>
+                            Sign in with Google
+                        </Button>
+                    </div>
+
+                    <div className="relative py-1 border-t-0">
+                        <div className="absolute inset-0 flex items-center">
+                            <Separator className="dark:bg-slate-800" />
+                        </div>
+                        <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest">
+                            <span className="bg-white dark:bg-slate-950 px-3 text-slate-400 cursor-default">
+                                OR
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Form */}
+                    <form onSubmit={onSubmit} className="space-y-3">
+                        <div className="space-y-1">
+                            <Label htmlFor="email" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                Email<span className="text-indigo-500">*</span>
+                            </Label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                                <Input
+                                    id="email"
+                                    placeholder="Enter your email"
+                                    type="email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    disabled={isLoading}
+                                    className={`pl-9 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.email ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500'} rounded-lg`}
+                                />
+                            </div>
+                            {validationErrors.email && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.email}</div>}
+                        </div>
+
+                        <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="password" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                    Password<span className="text-indigo-500">*</span>
+                                </Label>
+                                <Link
+                                    href="/forgot-password"
+                                    className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors"
+                                >
+                                    Forgot Password?
+                                </Link>
+                            </div>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    placeholder="Enter a password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    disabled={isLoading}
+                                    className={`pl-9 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500'} rounded-lg`}
+                                />
+                            </div>
+                            {validationErrors.password && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.password}</div>}
+                        </div>
+
+                        <div className="flex items-center space-x-2 pt-1">
+                            <input 
+                                type="checkbox"
+                                id="keep-logged-in" 
+                                checked={keepLoggedIn}
+                                onChange={(e) => setKeepLoggedIn(e.target.checked)}
+                                className="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                            />
+                            <Label 
+                                htmlFor="keep-logged-in" 
+                                className="text-xs font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none"
+                            >
+                                Keep me logged in
+                            </Label>
+                        </div>
+
+                        {error && <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="text-red-600 text-[11px] font-semibold bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-100 dark:border-red-900/50">{error}</motion.div>}
+                        {success && <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="text-indigo-600 text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-900/50">{success}</motion.div>}
+                        
+                        <div className="pt-2">
+                            <Button 
+                                type="submit" 
+                                className="w-full h-11 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 dark:from-indigo-600 dark:to-purple-600 text-white font-bold text-sm hover:shadow-xl hover:shadow-slate-900/20 dark:hover:shadow-indigo-500/25 transition-all duration-300 hover:-translate-y-0.5" 
+                                disabled={isLoading}
+                            >
+                                {isLoading && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Sign in
+                            </Button>
+                        </div>
+                    </form>
+
+                    <div className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-4 pb-2">
+                        Don&apos;t have an account?{" "}
+                        <Link href="/register" className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline hover:underline-offset-4 transition-all tracking-wide">
+                            Sign up
+                        </Link>
                     </div>
                 </div>
+            </div>
 
-                <div className="w-full">
-                    <Button variant="outline" className="w-full" disabled={isLoading}>
-                        <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                            <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
-                        </svg>
-                        Google
-                    </Button>
+            {/* Right Column: Visual/Image with Custom Borders */}
+            <div className="hidden md:flex md:w-1/2 relative bg-slate-50 dark:bg-slate-900/50 pl-0 py-4 pr-4 rounded-r-2xl border-y border-r border-slate-200/60 dark:border-slate-800/60 overflow-hidden">
+                <div className="relative w-full h-full rounded-tl-[80px] rounded-br-[60px] rounded-tr-[24px] rounded-bl-[24px] overflow-hidden group shadow-inner bg-indigo-900">
+                    <Image 
+                        src="/auth_hero.png" 
+                        alt="Student smiling" 
+                        fill 
+                        priority
+                        sizes="50vw"
+                        className="object-cover object-center transform group-hover:scale-[1.03] transition-transform duration-[1.5s]" 
+                    />
+                    
+                    {/* Dark gradient overlay at the bottom for text contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent pointer-events-none" />
+
+                    {/* Text Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10 pointer-events-none">
+                        <motion.h2 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-3xl lg:text-4xl font-serif text-white mb-2 leading-tight drop-shadow-md"
+                        >
+                            Accelerate <span className="italic text-indigo-300 font-light">your potential</span> with ExamMaster
+                        </motion.h2>
+                        <motion.p
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="text-white/80 text-sm font-medium drop-shadow"
+                        >
+                            Join thousands of ambitious students testing their knowledge daily.
+                        </motion.p>
+                    </div>
                 </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-2 text-center text-sm text-slate-500">
-                <div>
-                    Don&apos;t have an account?{" "}
-                    <Link href="/register" className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 underline underline-offset-4">
-                        Sign up
-                    </Link>
-                </div>
-            </CardFooter>
-        </Card>
+            </div>
+        </div>
     )
 }
