@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { Loader2, Mail, Lock, User, ArrowRight } from "lucide-react"
+import { Loader2, Mail, Lock, User, ArrowRight, Phone, Calendar, GraduationCap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,17 +15,69 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { studentService } from "@/lib/services/student.service"
 
 export default function RegisterPage() {
-    const [isLoading, setIsLoading] = useState(false)
-    async function onSubmit(event: React.FormEvent) {
-        event.preventDefault()
-        setIsLoading(true)
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [age, setAge] = useState("");
+    const [educationalLevel, setEducationalLevel] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
-        setTimeout(() => {
-            setIsLoading(false)
-        }, 3000)
-    }
+    const validate = () => {
+        const errors: { [key: string]: string } = {};
+        if (!name || name.length < 2) errors.name = "Name is required (min 2 chars).";
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = "Valid email is required.";
+        if (!phone || !/^\+?\d{7,15}$/.test(phone)) errors.phone = "Valid phone number is required.";
+        if (!age || Number.isNaN(Number(age)) || Number(age) < 10 || Number(age) > 100) errors.age = "Valid age (10-100) required.";
+        if (!educationalLevel) errors.educationalLevel = "Educational level is required.";
+        if (!password || password.length < 6) errors.password = "Password must be at least 6 characters.";
+        return errors;
+    };
+
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
+        setSuccess("");
+        const errors = validate();
+        setValidationErrors(errors);
+        if (Object.keys(errors).length > 0) return;
+        
+        setIsLoading(true);
+        try {
+            const res = await studentService.register({
+                name,
+                email,
+                phone,
+                age: Number(age),
+                educationalLevel,
+                password
+            });
+            console.log(name,email,phone,age,educationalLevel,password);
+            console.log(res);
+            if (res.success) {
+                setSuccess("Registration successful! Please login.");
+                setName("");
+                setEmail("");
+                setPhone("");
+                setAge("");
+                setEducationalLevel("");
+                setPassword("");
+                setValidationErrors({});
+            } else {
+                setError(res.message || "Registration failed.");
+            }
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Registration failed.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <Card className="border-slate-200/60 dark:border-slate-800/60 shadow-xl shadow-slate-200/20 dark:shadow-slate-900/20 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 w-full">
@@ -36,7 +88,7 @@ export default function RegisterPage() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={onSubmit} className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="name">Full Name</Label>
                         <div className="relative">
@@ -45,14 +97,18 @@ export default function RegisterPage() {
                                 id="name"
                                 placeholder="John Doe"
                                 type="text"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
                                 autoCapitalize="words"
                                 autoComplete="name"
                                 autoCorrect="off"
                                 disabled={isLoading}
-                                className="pl-10"
+                                className={`pl-10 ${validationErrors.name ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                             />
                         </div>
+                        {validationErrors.name && <div className="text-red-500 text-sm">{validationErrors.name}</div>}
                     </div>
+                    
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <div className="relative">
@@ -61,14 +117,71 @@ export default function RegisterPage() {
                                 id="email"
                                 placeholder="name@example.com"
                                 type="email"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
                                 autoCapitalize="none"
                                 autoComplete="email"
                                 autoCorrect="off"
                                 disabled={isLoading}
-                                className="pl-10"
+                                className={`pl-10 ${validationErrors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                             />
                         </div>
+                        {validationErrors.email && <div className="text-red-500 text-sm">{validationErrors.email}</div>}
                     </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="phone">Phone</Label>
+                        <div className="relative">
+                            <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                            <Input
+                                id="phone"
+                                placeholder="+1234567890"
+                                type="text"
+                                value={phone}
+                                onChange={e => setPhone(e.target.value)}
+                                disabled={isLoading}
+                                className={`pl-10 ${validationErrors.phone ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                            />
+                        </div>
+                        {validationErrors.phone && <div className="text-red-500 text-sm">{validationErrors.phone}</div>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="age">Age</Label>
+                            <div className="relative">
+                                <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                                <Input
+                                    id="age"
+                                    placeholder="Age"
+                                    type="number"
+                                    value={age}
+                                    onChange={e => setAge(e.target.value)}
+                                    disabled={isLoading}
+                                    className={`pl-10 ${validationErrors.age ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                                />
+                            </div>
+                            {validationErrors.age && <div className="text-red-500 text-sm">{validationErrors.age}</div>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="educationalLevel">Education Level</Label>
+                            <div className="relative">
+                                <GraduationCap className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                                <Input
+                                    id="educationalLevel"
+                                    placeholder="Grade 10"
+                                    type="text"
+                                    value={educationalLevel}
+                                    onChange={e => setEducationalLevel(e.target.value)}
+                                    disabled={isLoading}
+                                    className={`pl-10 ${validationErrors.educationalLevel ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                                />
+                            </div>
+                            {validationErrors.educationalLevel && <div className="text-red-500 text-sm">{validationErrors.educationalLevel}</div>}
+                        </div>
+                    </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="password">Password</Label>
                         <div className="relative">
@@ -76,12 +189,19 @@ export default function RegisterPage() {
                             <Input
                                 id="password"
                                 type="password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
                                 disabled={isLoading}
-                                className="pl-10"
+                                className={`pl-10 ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                             />
                         </div>
+                        {validationErrors.password && <div className="text-red-500 text-sm">{validationErrors.password}</div>}
                     </div>
-                    <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25" disabled={isLoading}>
+
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
+                    {success && <div className="text-green-500 text-sm">{success}</div>}
+
+                    <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 mt-2" disabled={isLoading}>
                         {isLoading && (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}

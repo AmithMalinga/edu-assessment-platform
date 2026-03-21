@@ -6,7 +6,6 @@ import { Loader2, Mail, Lock, ArrowRight, Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import {
     Card,
@@ -17,17 +16,45 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { useState } from "react"
+import { studentService } from "@/lib/services/student.service"
 
 export default function LoginPage() {
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
+    const [success, setSuccess] = useState("")
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
+
+    const validate = () => {
+        const errors: { [key: string]: string } = {}
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = "Valid email is required."
+        if (!password || password.length < 6) errors.password = "Password must be at least 6 characters."
+        return errors
+    }
 
     async function onSubmit(event: React.FormEvent) {
         event.preventDefault()
-        setIsLoading(true)
+        setError("")
+        setSuccess("")
+        const errors = validate()
+        setValidationErrors(errors)
+        if (Object.keys(errors).length > 0) return
 
-        setTimeout(() => {
+        setIsLoading(true)
+        try {
+            const res = await studentService.login({ email, password })
+            if (res.success) {
+                setSuccess("Login successful!")
+                // TODO: Redirect to dashboard or set auth state
+            } else {
+                setError(res.message || "Login failed.")
+            }
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Login failed.")
+        } finally {
             setIsLoading(false)
-        }, 3000)
+        }
     }
 
     return (
@@ -48,14 +75,17 @@ export default function LoginPage() {
                                 id="email"
                                 placeholder="name@example.com"
                                 type="email"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
                                 autoCapitalize="none"
                                 autoComplete="email"
                                 autoCorrect="off"
                                 disabled={isLoading}
-                                className="pl-10"
+                                className={`pl-10 ${validationErrors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                 required
                             />
                         </div>
+                        {validationErrors.email && <div className="text-red-500 text-sm mt-1">{validationErrors.email}</div>}
                     </div>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
@@ -72,13 +102,18 @@ export default function LoginPage() {
                             <Input
                                 id="password"
                                 type="password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
                                 disabled={isLoading}
-                                className="pl-10"
+                                className={`pl-10 ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                 required
                             />
                         </div>
+                        {validationErrors.password && <div className="text-red-500 text-sm mt-1">{validationErrors.password}</div>}
                     </div>
-                    <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25" disabled={isLoading}>
+                    {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+                    {success && <div className="text-green-500 text-sm mt-2">{success}</div>}
+                    <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 mt-2" disabled={isLoading}>
                         {isLoading && (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
