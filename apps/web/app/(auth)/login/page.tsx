@@ -40,11 +40,7 @@ export default function LoginPage() {
         try {
             const res = await studentService.login({ email, password })
             if (res.access_token || res.success) {
-                setSuccess("Login successful!")
-                // Small delay to show the success message before redirecting
-                setTimeout(() => {
-                    router.push("/dashboard")
-                }, 500)
+                router.push("/loading?to=/dashboard")
             } else {
                 const errorMessage = Array.isArray(res.message) ? res.message[0] : res.message;
                 setError(errorMessage || "Login failed.")
