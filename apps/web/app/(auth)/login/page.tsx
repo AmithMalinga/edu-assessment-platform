@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Loader2, Mail, Lock, Zap } from "lucide-react"
+import { Loader2, Mail, Lock, Zap, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,6 +16,7 @@ export default function LoginPage() {
     const router = useRouter()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
@@ -40,7 +41,10 @@ export default function LoginPage() {
         try {
             const res = await studentService.login({ email, password })
             if (res.access_token || res.success) {
-                router.push("/loading?to=/dashboard")
+                setSuccess("Login successful!")
+                setTimeout(() => {
+                    router.push("/loading?to=/dashboard")
+                }, 800)
             } else {
                 const errorMessage = Array.isArray(res.message) ? res.message[0] : res.message;
                 setError(errorMessage || "Login failed.")
@@ -142,13 +146,21 @@ export default function LoginPage() {
                                 <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                                 <Input
                                     id="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="Enter a password"
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
                                     disabled={isLoading}
-                                    className={`pl-9 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500'} rounded-lg`}
+                                    className={`pl-9 pr-10 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500'} rounded-lg`}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-2.5 text-slate-400 hover:text-indigo-500 transition-colors outline-none"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
                             </div>
                             {validationErrors.password && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.password}</div>}
                         </div>

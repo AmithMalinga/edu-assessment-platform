@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Loader2, Lock, ArrowRight, CheckCircle2, ArrowLeft, Zap } from "lucide-react"
+import { Loader2, Lock, ArrowRight, CheckCircle2, ArrowLeft, Zap, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,6 +12,8 @@ import { useState } from "react"
 export default function ResetPasswordPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     async function onSubmit(event: React.FormEvent) {
         event.preventDefault()
@@ -97,13 +99,21 @@ export default function ResetPasswordPage() {
                                         <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                                         <Input
                                             id="password"
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             placeholder="••••••••"
                                             disabled={isLoading}
                                             required
                                             minLength={8}
-                                            className="pl-9 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500 transition-colors rounded-lg"
+                                            className="pl-9 pr-10 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500 transition-colors rounded-lg"
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-2.5 text-slate-400 hover:text-indigo-500 transition-colors outline-none"
+                                            tabIndex={-1}
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="space-y-1">
@@ -114,13 +124,21 @@ export default function ResetPasswordPage() {
                                         <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                                         <Input
                                             id="confirmPassword"
-                                            type="password"
+                                            type={showConfirmPassword ? "text" : "password"}
                                             placeholder="••••••••"
                                             disabled={isLoading}
                                             required
                                             minLength={8}
-                                            className="pl-9 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500 transition-colors rounded-lg"
+                                            className="pl-9 pr-10 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500 transition-colors rounded-lg"
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-2.5 text-slate-400 hover:text-indigo-500 transition-colors outline-none"
+                                            tabIndex={-1}
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
                                     </div>
                                 </div>
                                 

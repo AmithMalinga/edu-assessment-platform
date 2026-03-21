@@ -15,7 +15,7 @@ function LoadingSequence() {
         
         // Wait 2 seconds for the animation to play before navigating
         const timer = setTimeout(() => {
-            router.push(destination)
+            router.replace(destination)
         }, 2000)
 
         return () => clearTimeout(timer)

@@ -3,21 +3,24 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Loader2, Zap } from "lucide-react"
+import { Loader2, Zap, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { studentService } from "@/lib/services/student.service"
 
 export default function RegisterPage() {
+    const router = useRouter();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [age, setAge] = useState("");
     const [educationalLevel, setEducationalLevel] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -54,9 +57,12 @@ export default function RegisterPage() {
             });
             console.log("res", res);
             if (res.access_token || res.success) {
-                setSuccess("Registration successful! Please login.");
+                setSuccess("Registration successful! Redirecting to login...");
                 setName(""); setEmail(""); setPhone(""); setAge(""); setEducationalLevel(""); setPassword("");
                 setValidationErrors({});
+                setTimeout(() => {
+                    router.push("/loading?to=/login")
+                }, 800)
             } else {
                 const errorMessage = Array.isArray(res.message) ? res.message[0] : res.message;
                 setError(errorMessage || "Registration failed.");
@@ -213,15 +219,25 @@ export default function RegisterPage() {
                             <Label htmlFor="password" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                 Password<span className="text-indigo-500">*</span>
                             </Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="Create a password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                disabled={isLoading}
-                                className={`h-10 text-sm bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500'} rounded-lg`}
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Create a password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    disabled={isLoading}
+                                    className={`pr-10 h-10 text-sm bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500'} rounded-lg`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-2.5 text-slate-400 hover:text-indigo-500 transition-colors outline-none"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
+                            </div>
                             {validationErrors.password && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.password}</div>}
                         </div>
 
