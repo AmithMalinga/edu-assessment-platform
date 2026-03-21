@@ -14,7 +14,6 @@ import { studentService } from "@/lib/services/student.service"
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [keepLoggedIn, setKeepLoggedIn] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
@@ -149,22 +148,6 @@ export default function LoginPage() {
                                 />
                             </div>
                             {validationErrors.password && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.password}</div>}
-                        </div>
-
-                        <div className="flex items-center space-x-2 pt-1">
-                            <input 
-                                type="checkbox"
-                                id="keep-logged-in" 
-                                checked={keepLoggedIn}
-                                onChange={(e) => setKeepLoggedIn(e.target.checked)}
-                                className="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                            />
-                            <Label 
-                                htmlFor="keep-logged-in" 
-                                className="text-xs font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none"
-                            >
-                                Keep me logged in
-                            </Label>
                         </div>
 
                         {error && <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="text-red-600 text-[11px] font-semibold bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-100 dark:border-red-900/50">{error}</motion.div>}
