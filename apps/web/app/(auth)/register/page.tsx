@@ -52,12 +52,14 @@ export default function RegisterPage() {
                 educationalLevel,
                 password
             });
-            if (res.success) {
+            console.log("res", res);
+            if (res.access_token || res.success) {
                 setSuccess("Registration successful! Please login.");
                 setName(""); setEmail(""); setPhone(""); setAge(""); setEducationalLevel(""); setPassword("");
                 setValidationErrors({});
             } else {
-                setError(res.message || "Registration failed.");
+                const errorMessage = Array.isArray(res.message) ? res.message[0] : res.message;
+                setError(errorMessage || "Registration failed.");
             }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Registration failed.");

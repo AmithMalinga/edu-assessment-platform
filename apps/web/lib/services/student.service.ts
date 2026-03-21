@@ -24,6 +24,7 @@ export const studentService = {
 
     register: async (data: { name: string; email: string; phone: string; age: number; educationalLevel: string; password: string }) => {
         try {
+            console.log(data);
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
@@ -31,6 +32,7 @@ export const studentService = {
                 },
                 body: JSON.stringify(data)
             });
+            console.log("response", response);
             const result = await response.json();
             return result;
         } catch (error) {

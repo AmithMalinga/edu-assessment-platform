@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { studentService } from "@/lib/services/student.service"
 
 export default function LoginPage() {
+    const router = useRouter()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -37,10 +39,15 @@ export default function LoginPage() {
         setIsLoading(true)
         try {
             const res = await studentService.login({ email, password })
-            if (res.success) {
+            if (res.access_token || res.success) {
                 setSuccess("Login successful!")
+                // Small delay to show the success message before redirecting
+                setTimeout(() => {
+                    router.push("/dashboard")
+                }, 500)
             } else {
-                setError(res.message || "Login failed.")
+                const errorMessage = Array.isArray(res.message) ? res.message[0] : res.message;
+                setError(errorMessage || "Login failed.")
             }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Login failed.")
