@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { studentService } from "@/lib/services/student.service"
@@ -202,15 +209,33 @@ export default function RegisterPage() {
                                 <Label htmlFor="educationalLevel" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                     Education Level<span className="text-indigo-500">*</span>
                                 </Label>
-                                <Input
-                                    id="educationalLevel"
-                                    type="text"
-                                    placeholder="E.g. Grade 10"
-                                    value={educationalLevel}
-                                    onChange={e => setEducationalLevel(e.target.value)}
+                                <Select 
+                                    value={educationalLevel} 
+                                    onValueChange={setEducationalLevel}
                                     disabled={isLoading}
-                                    className={`h-10 text-sm bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors gap-0 ${validationErrors.educationalLevel ? 'border-red-500' : ''} rounded-lg`}
-                                />
+                                >
+                                    <SelectTrigger className={`h-10 text-sm bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.educationalLevel ? 'border-red-500' : ''} rounded-lg`}>
+                                        <SelectValue placeholder="Select level" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Grade 1">Grade 1</SelectItem>
+                                        <SelectItem value="Grade 2">Grade 2</SelectItem>
+                                        <SelectItem value="Grade 3">Grade 3</SelectItem>
+                                        <SelectItem value="Grade 4">Grade 4</SelectItem>
+                                        <SelectItem value="Grade 5">Grade 5</SelectItem>
+                                        <SelectItem value="Grade 6">Grade 6</SelectItem>
+                                        <SelectItem value="Grade 7">Grade 7</SelectItem>
+                                        <SelectItem value="Grade 8">Grade 8</SelectItem>
+                                        <SelectItem value="Grade 9">Grade 9</SelectItem>
+                                        <SelectItem value="Grade 10">Grade 10</SelectItem>
+                                        <SelectItem value="Grade 11">Grade 11</SelectItem>
+                                        <SelectItem value="Grade 12">Grade 12</SelectItem>
+                                        <SelectItem value="Grade 13">Grade 13</SelectItem>
+                                        <SelectItem value="Undergraduate">Undergraduate</SelectItem>
+                                        <SelectItem value="Graduate">Graduate</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 {validationErrors.educationalLevel && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.educationalLevel}</div>}
                             </div>
                         </div>
