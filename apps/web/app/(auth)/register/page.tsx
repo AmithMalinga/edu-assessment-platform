@@ -37,10 +37,14 @@ export default function RegisterPage() {
         const errors: { [key: string]: string } = {};
         if (!name || name.length < 2) errors.name = "Name is required (min 2 chars).";
         if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = "Valid email is required.";
-        if (!phone || !/^\+?\d{7,15}$/.test(phone)) errors.phone = "Valid phone is required.";
+        if (!phone || !/^[\d\s\+\-\(\)]+$/.test(phone) || phone.replace(/\D/g, "").length < 10) {
+            errors.phone = "Valid phone is required (minimum 10 digits).";
+        }
         if (!age || Number.isNaN(Number(age)) || Number(age) < 10 || Number(age) > 100) errors.age = "Valid age required.";
         if (!educationalLevel) errors.educationalLevel = "Level is required.";
-        if (!password || password.length < 6) errors.password = "Min 6 chars.";
+        if (!password || password.length < 8 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+            errors.password = "Min 8 chars with uppercase, lowercase, and number.";
+        }
         return errors;
     };
 
@@ -62,18 +66,16 @@ export default function RegisterPage() {
                 educationalLevel,
                 password
             });
-            console.log("res", res);
-            if (res.access_token || res.success) {
-                setSuccess("Registration successful! Redirecting to login...");
-                setName(""); setEmail(""); setPhone(""); setAge(""); setEducationalLevel(""); setPassword("");
-                setValidationErrors({});
-                setTimeout(() => {
-                    router.push("/loading?to=/login")
-                }, 800)
-            } else {
-                const errorMessage = Array.isArray(res.message) ? res.message[0] : res.message;
-                setError(errorMessage || "Registration failed.");
-            }
+
+            localStorage.setItem("token", res.access_token)
+            localStorage.setItem("currentUser", JSON.stringify(res.user))
+
+            setSuccess("Registration successful! Redirecting to dashboard...");
+            setName(""); setEmail(""); setPhone(""); setAge(""); setEducationalLevel(""); setPassword("");
+            setValidationErrors({});
+            setTimeout(() => {
+                router.push("/loading?to=/dashboard")
+            }, 800)
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Registration failed.");
         } finally {
@@ -231,9 +233,6 @@ export default function RegisterPage() {
                                         <SelectItem value="Grade 11">Grade 11</SelectItem>
                                         <SelectItem value="Grade 12">Grade 12</SelectItem>
                                         <SelectItem value="Grade 13">Grade 13</SelectItem>
-                                        <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                                        <SelectItem value="Graduate">Graduate</SelectItem>
-                                        <SelectItem value="Other">Other</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 {validationErrors.educationalLevel && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.educationalLevel}</div>}

@@ -25,7 +25,7 @@ export default function LoginPage() {
     const validate = () => {
         const errors: { [key: string]: string } = {}
         if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = "Valid email is required."
-        if (!password || password.length < 6) errors.password = "Password must be at least 6 characters."
+        if (!password || password.length < 8) errors.password = "Password must be at least 8 characters."
         return errors
     }
 
@@ -40,15 +40,13 @@ export default function LoginPage() {
         setIsLoading(true)
         try {
             const res = await studentService.login({ email, password })
-            if (res.access_token || res.success) {
-                setSuccess("Login successful!")
-                setTimeout(() => {
-                    router.push("/loading?to=/dashboard")
-                }, 800)
-            } else {
-                const errorMessage = Array.isArray(res.message) ? res.message[0] : res.message;
-                setError(errorMessage || "Login failed.")
-            }
+            localStorage.setItem("token", res.access_token)
+            localStorage.setItem("currentUser", JSON.stringify(res.user))
+
+            setSuccess("Login successful!")
+            setTimeout(() => {
+                router.push("/loading?to=/dashboard")
+            }, 800)
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Login failed.")
         } finally {
