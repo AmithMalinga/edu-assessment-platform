@@ -4,7 +4,31 @@ export interface Student {
     email: string;
 }
 
+export interface AuthUser {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    age: number;
+    educationalLevel: string;
+    role: string;
+}
+
+export interface AuthResponse {
+    access_token: string;
+    user: AuthUser;
+}
+
+type ApiErrorShape = {
+    message?: string | string[];
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+const getErrorMessage = (body: ApiErrorShape | null, fallback: string) => {
+    if (!body?.message) return fallback;
+    return Array.isArray(body.message) ? body.message[0] : body.message;
+};
 
 export const studentService = {
     getAllStudents: async (): Promise<Student[]> => {
@@ -22,50 +46,51 @@ export const studentService = {
         }
     },
 
-    register: async (data: { name: string; email: string; phone: string; age: number; educationalLevel: string; password: string }) => {
-        try {
-            console.log(data);
-            const response = await fetch(`${API_URL}/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            console.log("response", response);
-            const result = await response.json();
-            return result;
-        } catch (error) {
-            return { success: false, message: 'Registration failed.' };
+    register: async (data: { name: string; email: string; phone: string; age: number; educationalLevel: string; password: string }): Promise<AuthResponse> => {
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(getErrorMessage(result, 'Registration failed.'));
         }
+
+        return result;
     },
 
-    login: async (data: { email: string; password: string }) => {
-        try {
-            const response = await fetch(`${API_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-            return result;
-        } catch (error) {
-            return { success: false, message: 'Login failed.' };
+    login: async (data: { email: string; password: string }): Promise<AuthResponse> => {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(getErrorMessage(result, 'Login failed.'));
         }
+
+        return result;
     }
     ,
     getProfile: async (token: string) => {
-        try {
-            const response = await fetch(`${API_URL}/auth/profile`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            return await response.json();
-        } catch (error) {
-            return { message: 'Failed to fetch profile.' };
+        const response = await fetch(`${API_URL}/auth/profile`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(getErrorMessage(result, 'Failed to fetch profile.'));
         }
+
+        return result;
     }
 };
