@@ -14,6 +14,7 @@ import { studentService } from "@/lib/services/student.service"
 
 export default function LoginPage() {
     const router = useRouter()
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
@@ -54,6 +55,10 @@ export default function LoginPage() {
         }
     }
 
+    const handleGoogleSignIn = () => {
+        window.location.href = `${apiUrl}/auth/google`
+    }
+
     return (
         <div className="w-full h-full flex flex-col md:flex-row bg-transparent rounded-2xl shadow-2xl relative">
             {/* Left Column: Form */}
@@ -86,6 +91,7 @@ export default function LoginPage() {
                         <Button 
                             variant="outline" 
                             type="button"
+                            onClick={handleGoogleSignIn}
                             className="w-full h-10 border-slate-200 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 font-semibold shadow-sm transition-colors rounded-lg" 
                             disabled={isLoading}
                         >

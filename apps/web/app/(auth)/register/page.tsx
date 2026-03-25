@@ -21,6 +21,7 @@ import { studentService } from "@/lib/services/student.service"
 
 export default function RegisterPage() {
     const router = useRouter();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
@@ -83,6 +84,10 @@ export default function RegisterPage() {
         }
     };
 
+    const handleGoogleSignUp = () => {
+        window.location.href = `${apiUrl}/auth/google`;
+    };
+
     return (
         <div className="w-full h-full flex flex-col md:flex-row bg-transparent rounded-2xl shadow-2xl relative">
             {/* Left Column: Form */}
@@ -115,6 +120,7 @@ export default function RegisterPage() {
                         <Button 
                             variant="outline" 
                             type="button"
+                            onClick={handleGoogleSignUp}
                             className="w-full h-10 border-slate-200 dark:border-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 font-semibold shadow-sm transition-colors rounded-lg" 
                             disabled={isLoading}
                         >
