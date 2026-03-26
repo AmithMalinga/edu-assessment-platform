@@ -1,4 +1,4 @@
-import { Controller, Request, Post, UseGuards, Body, Get, Req, Res } from '@nestjs/common';
+import { Controller, Request, Post, UseGuards, Body, Get, Req, Res, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -18,6 +18,14 @@ export class AuthController {
     @Post('register')
     async register(@Body() registerDto: RegisterDto) {
         return this.authService.register(registerDto);
+    }
+
+    @Post('register-admin')
+    async registerAdmin(
+        @Body() registerDto: RegisterDto,
+        @Headers('x-admin-registration-secret') adminRegistrationSecret?: string,
+    ) {
+        return this.authService.registerAdmin(registerDto, adminRegistrationSecret);
     }
 
     @UseGuards(JwtAuthGuard)

@@ -86,10 +86,9 @@ export class AuthService {
         return this.toAuthResponse(this.sanitizeUser(user));
     }
 
-    async register(registerDto: RegisterDto) {
-        // Check if user already exists
+    private async ensureUserCanRegister(registerDto: RegisterDto) {
         const existingUserByEmail = await this.prisma.user.findUnique({
-            where: { email: registerDto.email }
+            where: { email: registerDto.email },
         });
 
         if (existingUserByEmail) {
@@ -97,17 +96,19 @@ export class AuthService {
         }
 
         const existingUserByPhone = await this.prisma.user.findUnique({
-            where: { phone: registerDto.phone }
+            where: { phone: registerDto.phone },
         });
 
         if (existingUserByPhone) {
             throw new ConflictException('Phone number already registered');
         }
+    }
 
-        // Hash password
+    private async createUser(registerDto: RegisterDto, role: 'STUDENT' | 'ADMIN') {
+        await this.ensureUserCanRegister(registerDto);
+
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
-        // Create user
         const user = await this.prisma.user.create({
             data: {
                 name: registerDto.name,
@@ -116,14 +117,25 @@ export class AuthService {
                 age: registerDto.age,
                 educationalLevel: registerDto.educationalLevel,
                 password: hashedPassword,
-                role: 'STUDENT'
-            }
+                role,
+            },
         });
 
-        // Remove password from response
         const { password, ...result } = user;
-
         return this.toAuthResponse(this.sanitizeUser(result));
+    }
+
+    async register(registerDto: RegisterDto) {
+        return this.createUser(registerDto, 'STUDENT');
+    }
+
+    async registerAdmin(registerDto: RegisterDto, providedSecret?: string) {
+        const configuredSecret = this.configService.get<string>('ADMIN_REGISTRATION_SECRET');
+        if (!configuredSecret || providedSecret !== configuredSecret) {
+            throw new UnauthorizedException('Invalid admin registration secret');
+        }
+
+        return this.createUser(registerDto, 'ADMIN');
     }
 
     async validateOrCreateGoogleUser(data: GoogleAuthUser) {
