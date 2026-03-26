@@ -98,6 +98,7 @@ model Question {
   id            String         @id @default(uuid())
   content       String
   type          QuestionType
+  lesson        String         @default("General")
   images        String[]
   choices       String[]
   correctAnswer String?
