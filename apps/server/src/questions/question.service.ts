@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { CreateQuestionDto, UpdateQuestionDto } from './dto';
+import { CreateQuestionDto, CreateAdminQuestionDto, UpdateQuestionDto } from './dto';
 
 @Injectable()
 export class QuestionService {
@@ -40,9 +40,71 @@ export class QuestionService {
     return this.prisma.question.create({
       data: {
         ...dto,
+        lesson: dto.lesson ?? 'General',
         subjectId: dto.subjectId,
         // examId: dto.examId // Uncomment if examId is required and present in DTO
       }
+    });
+  }
+
+  async createForAdmin(userId: string, dto: CreateAdminQuestionDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user || user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admins can add exam questions');
+    }
+
+    const subject = await this.prisma.subject.findUnique({
+      where: { id: dto.subjectId },
+      select: { id: true, gradeId: true, name: true, grade: { select: { name: true } } },
+    });
+
+    if (!subject) {
+      throw new NotFoundException('Subject not found');
+    }
+
+    if (subject.gradeId !== dto.gradeId) {
+      throw new BadRequestException('Subject does not belong to the selected grade');
+    }
+
+    const images = dto.imageLink
+      ? [dto.imageLink]
+      : dto.images ?? [];
+
+    if (dto.type === 'MCQ') {
+      if (!dto.choices || dto.choices.length < 2) {
+        throw new BadRequestException('MCQ questions require at least 2 choices');
+      }
+
+      if (!dto.correctAnswer) {
+        throw new BadRequestException('MCQ questions require a correct answer');
+      }
+
+      if (!dto.choices.includes(dto.correctAnswer)) {
+        throw new BadRequestException('Correct answer must be one of the provided choices');
+      }
+    }
+
+    return this.prisma.question.create({
+      data: {
+        content: dto.content,
+        type: dto.type,
+        lesson: dto.lesson,
+        choices: dto.choices ?? [],
+        correctAnswer: dto.correctAnswer,
+        images,
+        subjectId: dto.subjectId,
+      },
+      include: {
+        subject: {
+          include: {
+            grade: true,
+          },
+        },
+      },
     });
   }
 

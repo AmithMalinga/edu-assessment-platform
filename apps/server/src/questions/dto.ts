@@ -1,4 +1,5 @@
-import { IsString, IsEnum, IsOptional, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsEnum, IsOptional, IsArray, IsInt, IsUrl } from 'class-validator';
 
 export enum QuestionType {
   MCQ = 'MCQ',
@@ -114,6 +115,44 @@ export class CreateQuestionDto {
 
   @IsString()
   subjectId: string;
+
+  @IsOptional()
+  @IsString()
+  lesson?: string;
+}
+
+export class CreateAdminQuestionDto {
+  @Type(() => Number)
+  @IsInt()
+  gradeId: number;
+
+  @IsString()
+  subjectId: string;
+
+  @IsEnum(QuestionType)
+  type: QuestionType;
+
+  @IsString()
+  lesson: string;
+
+  @IsString()
+  content: string;
+
+  @IsArray()
+  @IsOptional()
+  choices?: string[];
+
+  @IsString()
+  @IsOptional()
+  correctAnswer?: string;
+
+  @IsOptional()
+  @IsUrl()
+  imageLink?: string;
+
+  @IsArray()
+  @IsOptional()
+  images?: string[];
 }
 
 export class UpdateQuestionDto {
@@ -136,4 +175,8 @@ export class UpdateQuestionDto {
   @IsString()
   @IsOptional()
   correctAnswer?: string;
+
+  @IsString()
+  @IsOptional()
+  lesson?: string;
 }

@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { QuestionService } from './question.service';
-import { CreateQuestionDto, UpdateQuestionDto, GetRandomQuestionsDto } from './dto';
+import { CreateQuestionDto, UpdateQuestionDto, GetRandomQuestionsDto, CreateAdminQuestionDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('questions')
@@ -32,6 +32,12 @@ export class QuestionController {
   @Post()
   create(@Body() dto: CreateQuestionDto) {
     return this.questionService.create(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('admin')
+  createForAdmin(@Req() req: any, @Body() dto: CreateAdminQuestionDto) {
+    return this.questionService.createForAdmin(req.user.userId, dto);
   }
 
   @UseGuards(JwtAuthGuard)
