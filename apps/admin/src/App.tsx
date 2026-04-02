@@ -5,6 +5,7 @@ import Students from './pages/Students';
 import Grades from './pages/Grades';
 import Subjects from './pages/Subjects';
 import Questions from './pages/Questions';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
@@ -12,11 +13,16 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/students" element={<Students />} />
-        <Route path="/grades" element={<Grades />} />
-        <Route path="/subjects" element={<Subjects />} />
-        <Route path="/questions" element={<Questions />} />
+        
+        {/* Protected Admin Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/students" element={<Students />} />
+          <Route path="/grades" element={<Grades />} />
+          <Route path="/subjects" element={<Subjects />} />
+          <Route path="/questions" element={<Questions />} />
+        </Route>
+
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>

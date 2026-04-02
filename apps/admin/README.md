@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# Edu Assessment Platform - Admin Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a premium, glassmorphic admin dashboard built for managing the **Edu Assessment Platform**. It allows administrators to manage students, grades, subjects, and the question bank.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Prerequisites
+- Node.js installed
+- The **NestJS Server** running on `http://localhost:3001`
 
-## React Compiler
+### Running the App
+1. Navigate to the root of the project:
+   ```bash
+   cd apps/admin
+   ```
+2. Install dependencies (if not already done via the monorepo):
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open your browser and navigate to **`http://localhost:3002`**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🔑 Admin Registration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+To register a new admin account, follow these steps:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. Configure the Server
+Ensure you have an `ADMIN_REGISTRATION_SECRET` defined in your **`apps/server/.env`** file:
+```env
+ADMIN_REGISTRATION_SECRET="your-secret-key"
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Register via API
+Send a **POST** request to `http://localhost:3001/auth/register-admin` with the following:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**Headers:**
+`x-admin-registration-secret: your-secret-key`
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Body:**
+```json
+{
+  "name": "Admin Name",
+  "email": "admin@example.com",
+  "phone": "0771234567",
+  "age": 30,
+  "educationalLevel": "Grade 13",
+  "password": "Password123"
+}
 ```
+
+---
+
+## 🛠 Features
+- **Secure Login**: Role-based access for admins only.
+- **Student Management**: View and search all registered students.
+- **Grades & Subjects**: CRUD operations for academic levels and subjects.
+- **Question Bank**: Comprehensive tool for creating MCQs and structured questions.
+
+## 🎨 UI Design
+Built with:
+- **Vite + React**
+- **Vanilla CSS** (Premium Glassmorphism)
+- **Framer Motion** (Smooth Animations)
+- **Lucide Icons**
