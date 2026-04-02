@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import { isValidEmail } from "@/lib/validation"
 
 export default function ContactPage() {
     const [name, setName] = useState("")
@@ -10,27 +11,6 @@ export default function ContactPage() {
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
-
-    const isValidEmail = (value: string) => {
-        const trimmed = value.trim()
-        if (!trimmed || trimmed.includes(" ")) return false
-
-        const atIndex = trimmed.indexOf("@")
-        if (atIndex <= 0 || atIndex !== trimmed.lastIndexOf("@") || atIndex === trimmed.length - 1) {
-            return false
-        }
-
-        const local = trimmed.slice(0, atIndex)
-        const domain = trimmed.slice(atIndex + 1)
-
-        if (!local || !domain || domain.startsWith(".") || domain.endsWith(".")) return false
-        if (!domain.includes(".")) return false
-
-        const domainParts = domain.split(".")
-        if (domainParts.some((part) => part.length === 0)) return false
-
-        return true
-    }
 
     const validate = () => {
         const errors: { [key: string]: string } = {}

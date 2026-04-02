@@ -1,13 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { motion } from "framer-motion"
 import { Loader2, Lock, ArrowRight, CheckCircle2, ArrowLeft, Zap, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
+import { AuthSplitLayout } from "@/components/auth/auth-split-layout"
 
 export default function ResetPasswordPage() {
     const [isLoading, setIsLoading] = useState(false)
@@ -27,23 +27,14 @@ export default function ResetPasswordPage() {
     }
 
     return (
-        <div className="w-full h-full flex flex-col md:flex-row bg-transparent rounded-2xl shadow-2xl relative">
-            {/* Left Column: Form/Success State */}
-            <div className="md:w-1/2 p-6 md:p-8 lg:p-10 flex flex-col justify-center bg-white dark:bg-slate-950 rounded-2xl md:rounded-r-none md:rounded-l-2xl z-20 relative border border-slate-200/60 dark:border-slate-800/60 md:border-r-0">
-                <div className="w-full max-w-[360px] mx-auto space-y-5">
-                    
-                    {/* Inline Logo from Landing Page */}
-                    <Link href="/" className="inline-flex items-center gap-2 group mb-2">
-                        <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-1.5 rounded-lg shadow-md shadow-indigo-500/25 transition-transform group-hover:scale-105 group-hover:rotate-6">
-                            <Zap className="text-white h-4 w-4 fill-current" />
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 rounded-lg blur-sm opacity-50 group-hover:opacity-75 transition-opacity" />
-                        </div>
-                        <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                            ExamMaster
-                        </span>
-                    </Link>
-
-                    {isSubmitted ? (
+        <AuthSplitLayout
+            imageSrc="/auth_hero.png"
+            imageAlt="Student smiling"
+            headline={<>Accelerate <span className="italic text-indigo-300 font-light">your potential</span> with ExamMaster</>}
+            description="Join thousands of ambitious students testing their knowledge daily."
+        >
+            <div className="w-full max-w-[360px] mx-auto space-y-5">
+                {isSubmitted ? (
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.95 }} 
                             animate={{ opacity: 1, scale: 1 }} 
@@ -73,7 +64,7 @@ export default function ResetPasswordPage() {
                                 </Link>
                             </Button>
                         </motion.div>
-                    ) : (
+                ) : (
                         <motion.div 
                             initial={{ opacity: 0, x: -20 }} 
                             animate={{ opacity: 1, x: 0 }}
@@ -157,51 +148,15 @@ export default function ResetPasswordPage() {
                                 </div>
                             </form>
                         </motion.div>
-                    )}
+                )}
 
-                    <div className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-6 pb-2">
-                        <Link href="/login" className="inline-flex items-center font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all tracking-wide">
-                            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
-                            Back to sign in
-                        </Link>
-                    </div>
+                <div className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-6 pb-2">
+                    <Link href="/login" className="inline-flex items-center font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all tracking-wide">
+                        <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                        Back to sign in
+                    </Link>
                 </div>
             </div>
-
-            {/* Right Column: Visual/Image with Custom Borders */}
-            <div className="hidden md:flex md:w-1/2 relative bg-slate-50 dark:bg-slate-900/50 pl-0 py-4 pr-4 rounded-r-2xl border-y border-r border-slate-200/60 dark:border-slate-800/60 overflow-hidden">
-                <div className="relative w-full h-full rounded-tl-[80px] rounded-br-[60px] rounded-tr-[24px] rounded-bl-[24px] overflow-hidden group shadow-inner bg-indigo-900">
-                    <Image 
-                        src="/auth_hero.png" 
-                        alt="Student smiling" 
-                        fill 
-                        priority
-                        className="object-cover object-center transform group-hover:scale-[1.03] transition-transform duration-[1.5s]" 
-                    />
-                    
-                    {/* Dark gradient overlay at the bottom for text contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent pointer-events-none" />
-
-                    {/* Text Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10 pointer-events-none">
-                        <motion.h2 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="text-3xl lg:text-4xl font-serif text-white mb-2 leading-tight drop-shadow-md"
-                        >
-                            Accelerate <span className="italic text-indigo-300 font-light">your potential</span> with ExamMaster
-                        </motion.h2>
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-white/80 text-sm font-medium drop-shadow"
-                        >
-                            Join thousands of ambitious students testing their knowledge daily.
-                        </motion.p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </AuthSplitLayout>
     )
 }
