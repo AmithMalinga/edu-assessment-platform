@@ -34,16 +34,72 @@ export default function RegisterPage() {
     const [success, setSuccess] = useState("");
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
+    const isValidEmail = (value: string) => {
+        const trimmed = value.trim();
+        if (!trimmed || trimmed.includes(" ")) return false;
+
+        const atIndex = trimmed.indexOf("@");
+        if (atIndex <= 0 || atIndex !== trimmed.lastIndexOf("@") || atIndex === trimmed.length - 1) {
+            return false;
+        }
+
+        const local = trimmed.slice(0, atIndex);
+        const domain = trimmed.slice(atIndex + 1);
+
+        if (!local || !domain || domain.startsWith(".") || domain.endsWith(".")) return false;
+        if (!domain.includes(".")) return false;
+
+        const domainParts = domain.split(".");
+        if (domainParts.some((part) => part.length === 0)) return false;
+
+        return true;
+    };
+
+    const isAllowedPhoneChar = (ch: string) => {
+        return (ch >= "0" && ch <= "9") || ch === " " || ch === "+" || ch === "-" || ch === "(" || ch === ")";
+    };
+
+    const isValidPhone = (value: string) => {
+        const trimmed = value.trim();
+        if (!trimmed) return false;
+
+        let digitCount = 0;
+        for (const ch of trimmed) {
+            if (!isAllowedPhoneChar(ch)) return false;
+            if (ch >= "0" && ch <= "9") digitCount += 1;
+        }
+
+        return digitCount >= 10;
+    };
+
+    const isStrongPassword = (value: string) => {
+        if (!value || value.length < 8) return false;
+
+        let hasUpper = false;
+        let hasLower = false;
+        let hasDigit = false;
+
+        for (const ch of value) {
+            if (ch >= "A" && ch <= "Z") hasUpper = true;
+            else if (ch >= "a" && ch <= "z") hasLower = true;
+            else if (ch >= "0" && ch <= "9") hasDigit = true;
+
+            if (hasUpper && hasLower && hasDigit) return true;
+        }
+
+        return false;
+    };
+
     const validate = () => {
         const errors: { [key: string]: string } = {};
         if (!name || name.length < 2) errors.name = "Name is required (min 2 chars).";
-        if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = "Valid email is required.";
-        if (!phone || !/^[\d\s\+\-\(\)]+$/.test(phone) || phone.replace(/\D/g, "").length < 10) {
+        if (!isValidEmail(email)) errors.email = "Valid email is required.";
+        if (!isValidPhone(phone)) {
             errors.phone = "Valid phone is required (minimum 10 digits).";
         }
         if (!age || Number.isNaN(Number(age)) || Number(age) < 10 || Number(age) > 100) errors.age = "Valid age required.";
         if (!educationalLevel) errors.educationalLevel = "Level is required.";
-        if (!password || password.length < 8 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+        if (!isStrongPassword(password)) {
             errors.password = "Min 8 chars with uppercase, lowercase, and number.";
         }
         return errors;

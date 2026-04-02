@@ -3,17 +3,9 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const app = express();
 
-app.use(express.json());
+app.disable('x-powered-by');
 
-// Hardcoded credentials
-const USERS = {
-    'admin@test.com': {
-        id: '1',
-        email: 'admin@test.com',
-        password: 'password123',
-        role: 'ADMIN'
-    }
-};
+app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
