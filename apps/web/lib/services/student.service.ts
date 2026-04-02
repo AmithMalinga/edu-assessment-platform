@@ -19,6 +19,11 @@ export interface AuthResponse {
     user: AuthUser;
 }
 
+export interface StudentProfile extends AuthUser {
+    createdAt: string;
+    updatedAt: string;
+}
+
 type ApiErrorShape = {
     message?: string | string[];
 };
@@ -80,7 +85,7 @@ export const studentService = {
         return result;
     }
     ,
-    getProfile: async (token: string) => {
+    getProfile: async (token: string): Promise<StudentProfile> => {
         const response = await fetch(`${API_URL}/auth/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
