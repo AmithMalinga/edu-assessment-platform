@@ -11,12 +11,22 @@ export class CreateSubjectDto {
     gradeId: number;
 }
 
+export class UpdateSubjectDto {
+    @IsString()
+    name: string;
+}
+
 export class CreateGradeDto {
     @Type(() => Number)
     @IsInt()
     @Min(1)
     id: number;
 
+    @IsString()
+    name: string;
+}
+
+export class UpdateGradeDto {
     @IsString()
     name: string;
 }
