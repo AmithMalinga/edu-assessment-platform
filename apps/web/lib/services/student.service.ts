@@ -24,6 +24,16 @@ export interface StudentProfile extends AuthUser {
     updatedAt: string;
 }
 
+export interface StudentSubject {
+    id: string;
+    name: string;
+    gradeId: number;
+    grade?: {
+        id: number;
+        name: string;
+    };
+}
+
 type ApiErrorShape = {
     message?: string | string[];
 };
@@ -94,6 +104,24 @@ export const studentService = {
         const result = await response.json();
         if (!response.ok) {
             throw new Error(getErrorMessage(result, 'Failed to fetch profile.'));
+        }
+
+        return result;
+    },
+
+    getSubjectsForStudent: async (studentId: string, token?: string): Promise<StudentSubject[]> => {
+        const response = await fetch(`${API_URL}/subjects/${studentId}`, {
+            headers: token
+                ? {
+                      Authorization: `Bearer ${token}`,
+                  }
+                : undefined,
+            cache: 'no-store',
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(getErrorMessage(result, 'Failed to fetch student subjects.'));
         }
 
         return result;
