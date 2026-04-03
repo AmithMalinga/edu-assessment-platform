@@ -10,7 +10,8 @@ const Subjects: React.FC = () => {
   const [grades, setGrades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newSubject, setNewSubject] = useState({ name: '', gradeId: '' });
+  const [editingSubject, setEditingSubject] = useState<any>(null);
+  const [subjectForm, setSubjectForm] = useState({ name: '', gradeId: '' });
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -32,26 +33,56 @@ const Subjects: React.FC = () => {
     }
   };
 
-  const handleAddSubject = async (e: React.FormEvent) => {
+  const handleOpenModal = (subject: any = null) => {
+    if (subject) {
+      setEditingSubject(subject);
+      setSubjectForm({ name: subject.name, gradeId: subject.gradeId.toString() });
+    } else {
+      setEditingSubject(null);
+      setSubjectForm({ name: '', gradeId: '' });
+    }
+    setError('');
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
-      await api.post('/subjects', {
-        name: newSubject.name,
-        gradeId: parseInt(newSubject.gradeId)
-      });
+      if (editingSubject) {
+        await api.put(`/subjects/${editingSubject.id}`, {
+          name: subjectForm.name,
+          gradeId: parseInt(subjectForm.gradeId)
+        });
+      } else {
+        await api.post('/subjects', {
+          name: subjectForm.name,
+          gradeId: parseInt(subjectForm.gradeId)
+        });
+      }
       setIsModalOpen(false);
-      setNewSubject({ name: '', gradeId: '' });
+      setSubjectForm({ name: '', gradeId: '' });
+      setEditingSubject(null);
       fetchData();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to add subject');
+      setError(err.response?.data?.message || 'Failed to save subject');
+    }
+  };
+
+  const handleDeleteSubject = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this subject? This may affect associated questions.')) return;
+    try {
+      await api.delete(`/subjects/${id}`);
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete subject');
     }
   };
 
   return (
     <Layout title="Subjects Management">
       <div className="page-header-actions">
-        <button className="add-btn" onClick={() => setIsModalOpen(true)}>
+        <button className="add-btn" onClick={() => handleOpenModal()}>
           <Plus size={18} /> Add Subject
         </button>
       </div>
@@ -79,8 +110,8 @@ const Subjects: React.FC = () => {
                 <td>{subject.grade?.name}</td>
                 <td>
                   <div className="table-actions">
-                    <button className="icon-btn edit"><Edit2 size={16} /></button>
-                    <button className="icon-btn delete"><Trash2 size={16} /></button>
+                    <button className="icon-btn edit" onClick={() => handleOpenModal(subject)}><Edit2 size={16} /></button>
+                    <button className="icon-btn delete" onClick={() => handleDeleteSubject(subject.id)}><Trash2 size={16} /></button>
                   </div>
                 </td>
               </tr>
@@ -96,14 +127,14 @@ const Subjects: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="modal-content glass"
           >
-            <h3>Add New Subject</h3>
-            <form onSubmit={handleAddSubject}>
+            <h3>{editingSubject ? 'Edit Subject' : 'Add New Subject'}</h3>
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Subject Name</label>
                 <input 
                   type="text" 
-                  value={newSubject.name} 
-                  onChange={(e) => setNewSubject({...newSubject, name: e.target.value})}
+                  value={subjectForm.name} 
+                  onChange={(e) => setSubjectForm({...subjectForm, name: e.target.value})}
                   placeholder="e.g. Mathematics" 
                   required
                 />
@@ -111,8 +142,8 @@ const Subjects: React.FC = () => {
               <div className="form-group">
                 <label>Grade Level</label>
                 <select 
-                  value={newSubject.gradeId} 
-                  onChange={(e) => setNewSubject({...newSubject, gradeId: e.target.value})}
+                  value={subjectForm.gradeId} 
+                  onChange={(e) => setSubjectForm({...subjectForm, gradeId: e.target.value})}
                   required
                 >
                   <option value="">Select Grade</option>
@@ -124,7 +155,9 @@ const Subjects: React.FC = () => {
               {error && <p className="form-error"><AlertCircle size={14} /> {error}</p>}
               <div className="modal-footer">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="cancel-btn">Cancel</button>
-                <button type="submit" className="confirm-btn">Create Subject</button>
+                <button type="submit" className="confirm-btn">
+                   {editingSubject ? 'Update Subject' : 'Create Subject'}
+                </button>
               </div>
             </form>
           </motion.div>

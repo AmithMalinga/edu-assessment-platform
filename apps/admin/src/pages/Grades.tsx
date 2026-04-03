@@ -9,7 +9,8 @@ const Grades: React.FC = () => {
   const [grades, setGrades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newGrade, setNewGrade] = useState({ id: '', name: '' });
+  const [editingGrade, setEditingGrade] = useState<any>(null);
+  const [gradeForm, setGradeForm] = useState({ id: '', name: '' });
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -27,26 +28,55 @@ const Grades: React.FC = () => {
     }
   };
 
-  const handleAddGrade = async (e: React.FormEvent) => {
+  const handleOpenModal = (grade: any = null) => {
+    if (grade) {
+      setEditingGrade(grade);
+      setGradeForm({ id: grade.id.toString(), name: grade.name });
+    } else {
+      setEditingGrade(null);
+      setGradeForm({ id: '', name: '' });
+    }
+    setError('');
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
-      await api.post('/subjects/grades', {
-        id: parseInt(newGrade.id),
-        name: newGrade.name
-      });
+      if (editingGrade) {
+        await api.put(`/subjects/grades/${editingGrade.id}`, {
+          name: gradeForm.name
+        });
+      } else {
+        await api.post('/subjects/grades', {
+          id: parseInt(gradeForm.id),
+          name: gradeForm.name
+        });
+      }
       setIsModalOpen(false);
-      setNewGrade({ id: '', name: '' });
+      setGradeForm({ id: '', name: '' });
+      setEditingGrade(null);
       fetchGrades();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to add grade');
+      setError(err.response?.data?.message || 'Failed to save grade');
+    }
+  };
+
+  const handleDeleteGrade = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this grade level? This may affect associated subjects.')) return;
+    try {
+      await api.delete(`/subjects/grades/${id}`);
+      fetchGrades();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete grade');
     }
   };
 
   return (
     <Layout title="Grades Management">
       <div className="page-header-actions">
-        <button className="add-btn" onClick={() => setIsModalOpen(true)}>
+        <button className="add-btn" onClick={() => handleOpenModal()}>
           <Plus size={18} /> Add Grade Level
         </button>
       </div>
@@ -71,8 +101,8 @@ const Grades: React.FC = () => {
                 <td>{grade._count?.subjects || 0}</td>
                 <td>
                   <div className="table-actions">
-                    <button className="icon-btn edit"><Edit2 size={16} /></button>
-                    <button className="icon-btn delete"><Trash2 size={16} /></button>
+                    <button className="icon-btn edit" onClick={() => handleOpenModal(grade)}><Edit2 size={16} /></button>
+                    <button className="icon-btn delete" onClick={() => handleDeleteGrade(grade.id)}><Trash2 size={16} /></button>
                   </div>
                 </td>
               </tr>
@@ -88,15 +118,16 @@ const Grades: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="modal-content glass"
           >
-            <h3>Add New Grade</h3>
-            <form onSubmit={handleAddGrade}>
+            <h3>{editingGrade ? 'Edit Grade Level' : 'Add New Grade'}</h3>
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Grade ID (Numeric)</label>
                 <input 
                   type="number" 
-                  value={newGrade.id} 
-                  onChange={(e) => setNewGrade({...newGrade, id: e.target.value})}
+                  value={gradeForm.id} 
+                  onChange={(e) => setGradeForm({...gradeForm, id: e.target.value})}
                   placeholder="e.g. 1" 
+                  disabled={!!editingGrade}
                   required
                 />
               </div>
@@ -104,8 +135,8 @@ const Grades: React.FC = () => {
                 <label>Grade Name</label>
                 <input 
                   type="text" 
-                  value={newGrade.name} 
-                  onChange={(e) => setNewGrade({...newGrade, name: e.target.value})}
+                  value={gradeForm.name} 
+                  onChange={(e) => setGradeForm({...gradeForm, name: e.target.value})}
                   placeholder="e.g. Grade 1" 
                   required
                 />
@@ -113,7 +144,9 @@ const Grades: React.FC = () => {
               {error && <p className="form-error"><AlertCircle size={14} /> {error}</p>}
               <div className="modal-footer">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="cancel-btn">Cancel</button>
-                <button type="submit" className="confirm-btn">Create Grade</button>
+                <button type="submit" className="confirm-btn">
+                  {editingGrade ? 'Update Grade' : 'Create Grade'}
+                </button>
               </div>
             </form>
           </motion.div>
