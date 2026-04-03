@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import { isValidEmail } from "@/lib/validation"
 
 export default function ContactPage() {
     const [name, setName] = useState("")
@@ -14,7 +15,7 @@ export default function ContactPage() {
     const validate = () => {
         const errors: { [key: string]: string } = {}
         if (!name || name.length < 2) errors.name = "Name is required (min 2 chars)."
-        if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = "Valid email is required."
+        if (!isValidEmail(email)) errors.email = "Valid email is required."
         if (!subject || subject.length < 3) errors.subject = "Subject is required (min 3 chars)."
         if (!message || message.length < 10) errors.message = "Message must be at least 10 characters."
         return errors

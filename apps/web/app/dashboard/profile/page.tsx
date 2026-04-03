@@ -37,25 +37,21 @@ export default function StudentProfilePage() {
     }, [router])
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950">
-            <div className="w-full max-w-lg p-8 rounded-3xl shadow-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/50 dark:border-slate-700/50">
-                <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Student Profile</h2>
-                {loading ? (
-                    <div className="text-center text-slate-500">Loading...</div>
-                ) : error ? (
-                    <div className="text-center text-red-500">{error}</div>
-                ) : profile ? (
-                    <div className="space-y-4">
-                        <div><span className="font-semibold">Name:</span> {profile.name}</div>
-                        <div><span className="font-semibold">Email:</span> {profile.email}</div>
-                        <div><span className="font-semibold">Phone:</span> {profile.phone}</div>
-                        <div><span className="font-semibold">Age:</span> {profile.age}</div>
-                        <div><span className="font-semibold">Educational Level:</span> {profile.educationalLevel}</div>
-                        <div><span className="font-semibold">Role:</span> {profile.role}</div>
-                        <div><span className="font-semibold">Joined:</span> {profile.createdAt && new Date(profile.createdAt).toLocaleDateString()}</div>
-                    </div>
-                ) : null}
-            </div>
-        </div>
+        <main>
+            <h2>Student Profile</h2>
+            {loading ? <p>Loading...</p> : null}
+            {error ? <p>{error}</p> : null}
+            {!loading && !error && profile ? (
+                <section>
+                    <p>Name: {profile.name}</p>
+                    <p>Email: {profile.email}</p>
+                    <p>Phone: {profile.phone}</p>
+                    <p>Age: {profile.age}</p>
+                    <p>Educational Level: {profile.educationalLevel}</p>
+                    <p>Role: {profile.role}</p>
+                    <p>Joined: {profile.createdAt && new Date(profile.createdAt).toLocaleDateString()}</p>
+                </section>
+            ) : null}
+        </main>
     )
 }

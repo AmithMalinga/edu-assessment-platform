@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { randomInt } from 'crypto';
 import { PrismaService } from '../prisma.service';
 import { CreateQuestionDto, CreateAdminQuestionDto, UpdateQuestionDto } from './dto';
 
@@ -24,7 +25,11 @@ export class QuestionService {
         type: questionType,
       },
     });
-    const shuffled = questions.sort(() => 0.5 - Math.random());
+    const shuffled = [...questions];
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = randomInt(i + 1);
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
     return shuffled.slice(0, noOfQuestions);
   }
 
