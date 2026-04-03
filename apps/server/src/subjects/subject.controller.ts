@@ -57,4 +57,10 @@ export class SubjectController {
     findByGrade(@Param('gradeId', ParseIntPipe) gradeId: number) {
         return this.subjectService.findByGrade(gradeId);
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':studentId')
+    getSubjectListForStudent(@Param('studentId', ParseUUIDPipe) studentId: string) {
+        return this.subjectService.getSubjectListForStudent(studentId);
+    }
 }

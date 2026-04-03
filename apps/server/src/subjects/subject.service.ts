@@ -210,4 +210,26 @@ export class SubjectService {
             where: { id },
         });
     }
+
+    async getSubjectListForStudent(studentId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: studentId },
+            select: { educationalLevel: true },
+        });
+
+        if (!user) {
+            throw new NotFoundException('Student not found');
+        }
+
+        const educationalLevel = user.educationalLevel?.trim();
+        if (!educationalLevel) {
+            throw new BadRequestException('Student educational level is not set');
+        }
+
+        return this.prisma.subject.findMany({
+            where: { grade: { name: educationalLevel } },
+            include: { grade: true },
+            orderBy: { name: 'asc' },
+        });
+    }
 }
