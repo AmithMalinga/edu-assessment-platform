@@ -1,9 +1,0 @@
-/* Reuses styles from Grades.css, only specific subject styles here */
-.flex-center {
-  display: flex;
-  align-items: center;
-}
-
-.gap-2 {
-  gap: 8px;
-}
