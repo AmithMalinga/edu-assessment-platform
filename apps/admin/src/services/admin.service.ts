@@ -5,6 +5,7 @@ export interface DashboardStats {
   grades: number;
   subjects: number;
   questions: number;
+  recentStudents: any[];
 }
 
 export const adminService = {
@@ -21,7 +22,8 @@ export const adminService = {
       students: students.data.length,
       grades: grades.data.length,
       subjects: subjects.data.length,
-      questions: questions.data.length
+      questions: questions.data.length,
+      recentStudents: students.data.slice(-5).reverse()
     };
   },
 

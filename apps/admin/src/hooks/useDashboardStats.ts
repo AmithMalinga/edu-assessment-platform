@@ -6,7 +6,8 @@ export const useDashboardStats = () => {
     students: 0,
     grades: 0,
     subjects: 0,
-    questions: 0
+    questions: 0,
+    recentStudents: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
