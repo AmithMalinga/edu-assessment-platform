@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
-import api from '../api';
+import Layout from '../components/layout/Layout';
+import api from '../api/client';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, Edit2, AlertCircle } from 'lucide-react';
 import './Grades.css';

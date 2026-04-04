@@ -5,7 +5,7 @@ import Students from './pages/Students';
 import Grades from './pages/Grades';
 import Subjects from './pages/Subjects';
 import Questions from './pages/Questions';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import './App.css';
 
 function App() {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
-import api from '../api';
+import Layout from '../components/layout/Layout';
+import api from '../api/client';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, Calendar, Search } from 'lucide-react';
 import './Students.css';

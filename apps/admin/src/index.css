@@ -1,50 +1,43 @@
-:root {
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --bg-dark: #0f172a;
-  --bg-card: rgba(30, 41, 59, 0.7);
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
-  --glass-bg: rgba(15, 23, 42, 0.6);
-  --glass-blur: blur(12px);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-dark: #0f172a;
+    --border: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-50 min-h-screen overflow-x-hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * {
+    @apply border-slate-800;
+  }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer components {
+  .glass {
+    @apply bg-slate-900/40 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+  
+  .glass-card {
+    @apply glass rounded-2xl p-6 transition-all duration-300 hover:border-white/20 hover:bg-slate-900/60;
+  }
 }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--bg-dark);
-  color: var(--text-main);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-input {
-  outline: none;
-}
-
-/* Scrollbar styling */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: #020617;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+  background: #1e293b;
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
