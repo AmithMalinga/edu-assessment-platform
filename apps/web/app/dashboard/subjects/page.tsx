@@ -54,10 +54,16 @@ export default function StudentSubjectsPage() {
                 subjects.length > 0 ? (
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {subjects.map((subject) => (
-                            <article key={subject.id} className="rounded-lg border border-slate-200 p-4">
+                            <article key={subject.id} className="rounded-lg border border-slate-200 p-4 flex flex-col">
                                 <p className="text-sm text-slate-500">{subject.grade?.name ?? `Grade ${subject.gradeId}`}</p>
                                 <h2 className="mt-1 text-lg font-medium text-slate-900">{subject.name}</h2>
                                 <p className="mt-2 text-xs text-slate-500">Subject ID: {subject.id}</p>
+                                <button
+                                    onClick={() => router.push(`/dashboard/subjects/${subject.id}`)}
+                                    className="mt-4 inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                                >
+                                    View & Take Exam
+                                </button>
                             </article>
                         ))}
                     </div>
