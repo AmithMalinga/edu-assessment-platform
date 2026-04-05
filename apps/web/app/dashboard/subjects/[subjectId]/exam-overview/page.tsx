@@ -1,39 +1,25 @@
 "use client"
 
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import { studentService, type StudentSubject } from "@/lib/services/student.service"
-
-interface ExamInfo {
-    id: string
-    title: string
-    description: string
-    duration: number // in minutes
-    totalQuestions: number
-    totalMarks: number
-    passingScore: number
-}
+import { assessmentService, examCategoryToLabel, type AssessmentExamDetail } from "@/lib/services/assessment.service"
 
 export default function ExamOverviewPage() {
     const router = useRouter()
     const params = useParams()
+    const searchParams = useSearchParams()
     const subjectId = params.subjectId as string
+    const examType = searchParams.get("type") || "random-new"
+    const examId = searchParams.get("examId") || ""
     const [subject, setSubject] = useState<StudentSubject | null>(null)
+    const [exam, setExam] = useState<AssessmentExamDetail | null>(null)
     const [loading, setLoading] = useState(true)
-
-    // Dummy exam data
-    const examInfo: ExamInfo = {
-        id: `exam-${subjectId}`,
-        title: `${subject?.name || "Subject"} Examination`,
-        description: `Comprehensive exam covering all topics from ${subject?.name || "the subject"}.`,
-        duration: 120, // 2 hours
-        totalQuestions: 50,
-        totalMarks: 100,
-        passingScore: 60,
-    }
+    const [error, setError] = useState("")
 
     useEffect(() => {
         const loadSubject = async () => {
+            setError("")
             try {
                 const token = localStorage.getItem("token")
                 if (!token) {
@@ -44,21 +30,61 @@ export default function ExamOverviewPage() {
                 const subjects = await studentService.getSubjectsForStudent("", token)
                 const found = subjects.find((s) => s.id === subjectId)
                 setSubject(found || null)
+
+                let resolvedExamId = examId
+                if (!resolvedExamId) {
+                    const exams = await assessmentService.getAvailableExamsForSubject(subjectId, examType)
+                    if (exams.length === 0) {
+                        setError("No exams available for this type yet.")
+                        return
+                    }
+                    resolvedExamId = exams[0].id
+                }
+
+                const examDetails = await assessmentService.getExamById(resolvedExamId)
+                setExam(examDetails)
             } catch (err) {
                 console.error("Failed to load subject:", err)
+                setError("Failed to load exam details")
             } finally {
                 setLoading(false)
             }
         }
 
         loadSubject()
-    }, [router, subjectId])
+    }, [router, subjectId, examId, examType])
 
     const handleStartExam = () => {
-        router.push(`/dashboard/subjects/${subjectId}/exam-types`)
+        if (!exam) return
+        router.push(`/dashboard/subjects/${subjectId}/exam?type=${examType}&examId=${exam.id}`)
     }
 
     if (loading) return <p>Loading exam details...</p>
+
+    if (error) {
+        return (
+            <div className="space-y-4">
+                <button
+                    onClick={() => router.back()}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                    ← Back
+                </button>
+                <p className="text-red-600">{error}</p>
+            </div>
+        )
+    }
+
+    if (!exam) return <p className="text-red-600">Exam not found</p>
+
+    const rules = exam.metadata?.rules?.length
+        ? exam.metadata.rules
+        : [
+              `You have ${exam.duration} minutes to complete this exam.`,
+              "Once the exam starts, the timer cannot be paused.",
+              "You can navigate between questions and review before final submit.",
+          ]
+    const totalMarks = exam.metadata?.totalMarks ?? exam.examQuestions.reduce((sum, item) => sum + item.marks, 0)
 
     return (
         <div className="space-y-6 max-w-3xl">
@@ -74,6 +100,7 @@ export default function ExamOverviewPage() {
             <div>
                 <h1 className="text-3xl font-bold text-slate-900">Exam Overview</h1>
                 <p className="text-slate-600 mt-1">Subject: {subject?.name || "Loading..."}</p>
+                <p className="text-sm text-slate-500 mt-1">Exam Type: {examCategoryToLabel(exam.metadata?.examTypeCategory)}</p>
             </div>
 
             {/* Exam Details */}
@@ -82,19 +109,19 @@ export default function ExamOverviewPage() {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <p className="text-sm text-slate-500">Total Questions</p>
-                        <p className="text-lg font-semibold text-slate-900">{examInfo.totalQuestions}</p>
+                        <p className="text-lg font-semibold text-slate-900">{exam.examQuestions.length}</p>
                     </div>
                     <div>
                         <p className="text-sm text-slate-500">Time Allocated</p>
-                        <p className="text-lg font-semibold text-slate-900">{examInfo.duration} minutes</p>
+                        <p className="text-lg font-semibold text-slate-900">{exam.duration} minutes</p>
                     </div>
                     <div>
                         <p className="text-sm text-slate-500">Total Marks</p>
-                        <p className="text-lg font-semibold text-slate-900">{examInfo.totalMarks}</p>
+                        <p className="text-lg font-semibold text-slate-900">{totalMarks}</p>
                     </div>
                     <div>
                         <p className="text-sm text-slate-500">Passing Score</p>
-                        <p className="text-lg font-semibold text-slate-900">{examInfo.passingScore}%</p>
+                        <p className="text-lg font-semibold text-slate-900">{exam.passingScore}%</p>
                     </div>
                 </div>
             </div>
@@ -103,38 +130,12 @@ export default function ExamOverviewPage() {
             <div className="bg-amber-50 rounded-lg border border-amber-200 p-6">
                 <h2 className="text-lg font-semibold text-amber-900 mb-4">Exam Rules & Instructions</h2>
                 <ul className="space-y-3 text-sm text-amber-900">
-                    <li className="flex gap-3">
-                        <span className="font-semibold">1.</span>
-                        <span>You have <strong>{examInfo.duration} minutes</strong> to complete the exam from the moment you start.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="font-semibold">2.</span>
-                        <span>Once you start the exam, the timer will begin and cannot be paused.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="font-semibold">3.</span>
-                        <span>You can navigate between questions using the <strong>Next</strong> and <strong>Previous</strong> buttons.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="font-semibold">4.</span>
-                        <span>You can review all questions before submitting. Use the question panel to jump to any question.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="font-semibold">5.</span>
-                        <span>Once submitted, you cannot modify your answers. Review carefully before submitting.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="font-semibold">6.</span>
-                        <span>You need to score at least <strong>{examInfo.passingScore}%</strong> to pass the exam.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="font-semibold">7.</span>
-                        <span>Ensure you have a stable internet connection before starting the exam.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="font-semibold">8.</span>
-                        <span>Do not close your browser or refresh the page during the exam.</span>
-                    </li>
+                    {rules.map((rule, index) => (
+                        <li key={`${rule}-${index}`} className="flex gap-3">
+                            <span className="font-semibold">{index + 1}.</span>
+                            <span>{rule}</span>
+                        </li>
+                    ))}
                 </ul>
             </div>
 

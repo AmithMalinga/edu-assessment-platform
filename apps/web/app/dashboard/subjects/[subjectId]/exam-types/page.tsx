@@ -3,6 +3,7 @@
 import { useRouter, useParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import { studentService, type StudentSubject } from "@/lib/services/student.service"
+import { assessmentService } from "@/lib/services/assessment.service"
 
 interface ExamType {
     id: string
@@ -48,10 +49,13 @@ export default function ExamTypesPage() {
     const params = useParams()
     const subjectId = params.subjectId as string
     const [subject, setSubject] = useState<StudentSubject | null>(null)
+    const [availableTypes, setAvailableTypes] = useState<Record<string, number>>({})
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
 
     useEffect(() => {
         const loadSubject = async () => {
+            setError("")
             try {
                 const token = localStorage.getItem("token")
                 if (!token) {
@@ -62,8 +66,18 @@ export default function ExamTypesPage() {
                 const subjects = await studentService.getSubjectsForStudent("", token)
                 const found = subjects.find((s) => s.id === subjectId)
                 setSubject(found || null)
+
+                const examCounts = await Promise.all(
+                    EXAM_TYPES.map(async (examType) => {
+                        const exams = await assessmentService.getAvailableExamsForSubject(subjectId, examType.id)
+                        return [examType.id, exams.length] as const
+                    }),
+                )
+
+                setAvailableTypes(Object.fromEntries(examCounts))
             } catch (err) {
                 console.error("Failed to load subject:", err)
+                setError("Failed to load exam types")
             } finally {
                 setLoading(false)
             }
@@ -72,8 +86,19 @@ export default function ExamTypesPage() {
         loadSubject()
     }, [router, subjectId])
 
-    const handleSelectExamType = (examTypeId: string) => {
-        router.push(`/dashboard/subjects/${subjectId}/exam?type=${examTypeId}`)
+    const handleSelectExamType = async (examTypeId: string) => {
+        try {
+            const exams = await assessmentService.getAvailableExamsForSubject(subjectId, examTypeId)
+            if (exams.length === 0) {
+                setError("No exams are available for this type yet.")
+                return
+            }
+
+            const latestExam = exams[0]
+            router.push(`/dashboard/subjects/${subjectId}/exam-overview?type=${examTypeId}&examId=${latestExam.id}`)
+        } catch {
+            setError("Unable to load the selected exam type right now.")
+        }
     }
 
     if (loading) return <p>Loading exam types...</p>
@@ -95,6 +120,8 @@ export default function ExamTypesPage() {
                 <p className="text-sm text-slate-500 mt-2">Select the type of exam you'd like to take</p>
             </div>
 
+            {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
             {/* Exam Types Grid */}
             <div className="grid gap-4 sm:grid-cols-2">
                 {EXAM_TYPES.map((examType) => (
@@ -111,6 +138,9 @@ export default function ExamTypesPage() {
                         {/* Card Body */}
                         <div className="p-6 flex flex-col">
                             <p className="text-slate-600 text-sm mb-4 flex-1">{examType.description}</p>
+                            <p className="text-xs text-slate-500 mb-3">
+                                Available exams: {availableTypes[examType.id] ?? 0}
+                            </p>
 
                             {/* Details based on type */}
                             <div className="bg-slate-50 rounded-lg p-3 mb-4 text-xs space-y-1">
@@ -147,6 +177,7 @@ export default function ExamTypesPage() {
                             {/* Button */}
                             <button
                                 onClick={() => handleSelectExamType(examType.id)}
+                                disabled={(availableTypes[examType.id] ?? 0) === 0}
                                 className={`w-full py-2 px-4 rounded-lg font-medium text-white transition-colors bg-gradient-to-r ${examType.color} hover:opacity-90`}
                             >
                                 Take {examType.title}
