@@ -1,11 +1,29 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, Req, UseGuards } from '@nestjs/common';
 import { AssessmentService } from './assessment.service';
-import { CreateExamDto, UpdateExamDto, AddQuestionDto } from './dto';
+import {
+    AddQuestionDto,
+    CreateAdminExamDto,
+    CreateExamDto,
+    GetRelevantQuestionsForExamDto,
+    UpdateExamDto,
+} from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('assessments')
 export class AssessmentController {
     constructor(private readonly assessmentService: AssessmentService) {}
+
+    @UseGuards(JwtAuthGuard)
+    @Get('admin/relevant-questions')
+    getRelevantQuestions(@Req() req: any, @Query() query: GetRelevantQuestionsForExamDto) {
+        return this.assessmentService.getRelevantQuestionsForAdmin(req.user.userId, query);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('admin/create-exam')
+    createExamForAdmin(@Req() req: any, @Body() dto: CreateAdminExamDto) {
+        return this.assessmentService.createExamForAdmin(req.user.userId, dto);
+    }
 
     @Get()
     findAll() {
