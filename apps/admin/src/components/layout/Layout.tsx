@@ -6,6 +6,7 @@ import {
   BookOpen, 
   GraduationCap, 
   HelpCircle, 
+  ClipboardList,
   LogOut,
   ChevronRight
 } from 'lucide-react';
@@ -31,6 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
     { to: '/grades', label: 'Grades', icon: GraduationCap },
     { to: '/subjects', label: 'Subjects', icon: BookOpen },
     { to: '/questions', label: 'Questions', icon: HelpCircle },
+    { to: '/exams', label: 'Exams', icon: ClipboardList },
   ];
 
   return (

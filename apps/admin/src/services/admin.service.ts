@@ -8,6 +8,70 @@ export interface DashboardStats {
   recentStudents: any[];
 }
 
+export type ExamQuestionType = 'MCQ' | 'STRUCTURED' | 'ESSAY';
+export type ExamTypeCategory = 'RANDOM_NEW' | 'LESSON_WISE' | 'PAST_PAPERS' | 'LIVE';
+
+export interface RelevantQuestionsParams {
+  gradeId: number;
+  subjectId: string;
+  examQuestionType: ExamQuestionType;
+  examTypeCategory?: ExamTypeCategory;
+  lesson?: string;
+}
+
+export interface RelevantQuestion {
+  id: string;
+  content: string;
+  type: ExamQuestionType;
+  lesson: string;
+  choices: string[];
+  correctAnswer: string;
+  createdAt: string;
+}
+
+export interface RelevantQuestionsResponse {
+  totalQuestions: number;
+  questions: RelevantQuestion[];
+}
+
+export interface SelectedExamQuestion {
+  questionId: string;
+  marks?: number;
+}
+
+export interface CreateAdminExamPayload {
+  gradeId: number;
+  subjectId: string;
+  examQuestionType: ExamQuestionType;
+  examTypeCategory: ExamTypeCategory;
+  title: string;
+  description?: string;
+  timeAllocationMinutes: number;
+  rules: string[];
+  selectedQuestions: SelectedExamQuestion[];
+  passingScorePercent?: number;
+  totalMarks?: number;
+  lesson?: string;
+  shuffleQuestions?: boolean;
+  allowReviewBeforeSubmit?: boolean;
+  negativeMarkingPerWrongAnswer?: number;
+  startsAt?: string;
+  endsAt?: string;
+}
+
+export interface ExamSummary {
+  id: string;
+  title: string;
+  description: string;
+  duration: number;
+  passingScore: number;
+  createdAt: string;
+  _count: {
+    examQuestions: number;
+    attempts: number;
+  };
+}
+
 export const adminService = {
   // Stats
   getStats: async (): Promise<DashboardStats> => {
@@ -80,6 +144,20 @@ export const adminService = {
   },
   deleteQuestion: async (id: string) => {
     const response = await api.delete(`/questions/${id}`);
+    return response.data;
+  },
+
+  // Exams
+  getRelevantQuestions: async (params: RelevantQuestionsParams): Promise<RelevantQuestionsResponse> => {
+    const response = await api.get('/assessments/admin/relevant-questions', { params });
+    return response.data;
+  },
+  createExam: async (payload: CreateAdminExamPayload) => {
+    const response = await api.post('/assessments/admin/create-exam', payload);
+    return response.data;
+  },
+  getExams: async (): Promise<ExamSummary[]> => {
+    const response = await api.get('/assessments');
     return response.data;
   }
 };

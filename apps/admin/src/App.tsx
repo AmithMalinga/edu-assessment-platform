@@ -5,6 +5,7 @@ import Students from './pages/Students';
 import Grades from './pages/Grades';
 import Subjects from './pages/Subjects';
 import Questions from './pages/Questions';
+import Exams from './pages/Exams';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import './App.css';
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/grades" element={<Grades />} />
           <Route path="/subjects" element={<Subjects />} />
           <Route path="/questions" element={<Questions />} />
+          <Route path="/exams" element={<Exams />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/login" replace />} />
