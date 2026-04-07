@@ -13,7 +13,9 @@ import {
     LogOut,
     Zap,
     User,
-    Library
+    Library,
+    Activity,
+    LineChart
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -21,11 +23,13 @@ const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Profile", href: "/dashboard/profile", icon: User },
     { name: "Subjects", href: "/dashboard/subjects", icon: Library },
-    { name: "Class Schedule", href: "/dashboard/schedule", icon: Calendar },
-    { name: "Courses", href: "/dashboard/courses", icon: BookOpen },
-    { name: "Assignments", href: "/dashboard/assignments", icon: ClipboardList },
-    { name: "Resources", href: "/dashboard/resources", icon: FileText },
-    { name: "Certificates", href: "/dashboard/certificates", icon: Trophy },
+    // { name: "Class Schedule", href: "/dashboard/schedule", icon: Calendar },
+    // { name: "Courses", href: "/dashboard/courses", icon: BookOpen },
+    // { name: "Assignments", href: "/dashboard/assignments", icon: ClipboardList },
+    { name: "Results", href: "/dashboard/results", icon: Activity },
+    { name: "Analytics", href: "/dashboard/analytics", icon: LineChart },
+    // { name: "Resources", href: "/dashboard/resources", icon: FileText },
+    // { name: "Certificates", href: "/dashboard/certificates", icon: Trophy },
 ]
 
 const footerNav = [

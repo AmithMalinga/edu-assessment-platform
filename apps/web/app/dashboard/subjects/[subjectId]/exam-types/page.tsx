@@ -86,19 +86,8 @@ export default function ExamTypesPage() {
         loadSubject()
     }, [router, subjectId])
 
-    const handleSelectExamType = async (examTypeId: string) => {
-        try {
-            const exams = await assessmentService.getAvailableExamsForSubject(subjectId, examTypeId)
-            if (exams.length === 0) {
-                setError("No exams are available for this type yet.")
-                return
-            }
-
-            const latestExam = exams[0]
-            router.push(`/dashboard/subjects/${subjectId}/exam-overview?type=${examTypeId}&examId=${latestExam.id}`)
-        } catch {
-            setError("Unable to load the selected exam type right now.")
-        }
+    const handleSelectExamType = (examTypeId: string) => {
+        router.push(`/dashboard/subjects/${subjectId}/exam-types/${examTypeId}`)
     }
 
     if (loading) return <p>Loading exam types...</p>
@@ -180,7 +169,7 @@ export default function ExamTypesPage() {
                                 disabled={(availableTypes[examType.id] ?? 0) === 0}
                                 className={`w-full py-2 px-4 rounded-lg font-medium text-white transition-colors bg-gradient-to-r ${examType.color} hover:opacity-90`}
                             >
-                                Take {examType.title}
+                                View {examType.title} Exams
                             </button>
                         </div>
                     </div>

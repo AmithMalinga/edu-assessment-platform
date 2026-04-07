@@ -47,10 +47,11 @@ export default function SubjectDetailPage() {
 
     const handleTakeExam = (examType?: string) => {
         if (examType) {
-            router.push(`/dashboard/subjects/${subjectId}/exam?type=${examType}`)
-        } else {
-            router.push(`/dashboard/subjects/${subjectId}/exam-types`)
+            router.push(`/dashboard/subjects/${subjectId}/exam-types/${examType}`)
+            return
         }
+
+        router.push(`/dashboard/subjects/${subjectId}/exam-types`)
     }
 
     if (loading) {

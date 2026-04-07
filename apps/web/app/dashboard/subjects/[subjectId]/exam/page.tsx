@@ -11,6 +11,7 @@ import {
     type AssessmentExamDetail,
     type AssessmentQuestion,
 } from "@/lib/services/assessment.service"
+import { resultService } from "@/lib/services/result.service"
 
 interface ExamState {
     currentQuestionIndex: number
@@ -46,7 +47,11 @@ export default function ExamPage() {
     })
     const [timeRemaining, setTimeRemaining] = useState(0)
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [submissionError, setSubmissionError] = useState("")
+    const [submitting, setSubmitting] = useState(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
+    const examStateRef = useRef<ExamState>(examState)
+    const timeRemainingRef = useRef<number>(0)
 
     useEffect(() => {
         const loadExam = async () => {
@@ -97,13 +102,21 @@ export default function ExamPage() {
     const currentQuestion = questions[examState.currentQuestionIndex]
 
     useEffect(() => {
+        examStateRef.current = examState
+    }, [examState])
+
+    useEffect(() => {
+        timeRemainingRef.current = timeRemaining
+    }, [timeRemaining])
+
+    useEffect(() => {
         if (!exam || questions.length === 0) return
 
         timerRef.current = setInterval(() => {
             setTimeRemaining((prev) => {
                 if (prev <= 1) {
                     if (timerRef.current) clearInterval(timerRef.current)
-                    handleSubmitExam(true)
+                    void handleSubmitExam(true)
                     return 0
                 }
                 return prev - 1
@@ -175,21 +188,39 @@ export default function ExamPage() {
         }))
     }
 
-    const handleSubmitExam = (autoSubmit = false) => {
+    const handleSubmitExam = async (autoSubmit = false) => {
+        if (!exam || submitting) return
+
         if (!autoSubmit) {
             const confirmed = confirm("Are you sure you want to submit the exam? You cannot change your answers after submission.")
             if (!confirmed) return
         }
 
-        setIsSubmitted(true)
+        try {
+            setSubmitting(true)
+            setSubmissionError("")
 
-        setTimeout(() => {
-            if (exam) {
-                router.push(`/dashboard/subjects/${subjectId}/exam-result?examId=${exam.id}`)
+            const token = localStorage.getItem("token")
+            if (!token) {
+                router.push("/login")
                 return
             }
-            router.push(`/dashboard/subjects/${subjectId}/exam-result`)
-        }, 1500)
+
+            const totalTime = exam.duration * 60
+            const timeTaken = Math.max(0, totalTime - timeRemainingRef.current)
+            const response = await resultService.submitExam(token, {
+                examId: exam.id,
+                answers: examStateRef.current.answers,
+                timeTaken,
+            })
+
+            setIsSubmitted(true)
+            router.push(`/dashboard/subjects/${subjectId}/exam-result?examId=${exam.id}&attemptId=${response.id}&type=${examType}`)
+        } catch (err: any) {
+            setSubmissionError(err?.message || "Failed to submit exam. Please try again.")
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     if (loading) return (
@@ -383,7 +414,7 @@ export default function ExamPage() {
                                 onClick={() => handleSubmitExam(false)}
                                 className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-500 text-white font-black hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 active:scale-95 transition-all"
                             >
-                                Submit Exam
+                                {submitting ? "Submitting..." : "Submit Exam"}
                             </button>
                         </div>
                     </div>
