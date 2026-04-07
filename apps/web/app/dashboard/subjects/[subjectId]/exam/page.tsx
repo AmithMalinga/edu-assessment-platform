@@ -3,7 +3,7 @@
 import { useRouter, useParams, useSearchParams } from "next/navigation"
 import { useState, useEffect, useMemo, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { CheckCircle2, Flag, ArrowLeft, ArrowRight, Timer, AlertCircle } from "lucide-react"
+import { CheckCircle2, Flag, ArrowLeft, ArrowRight, Timer, AlertCircle, AlertTriangle, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
     assessmentService,
@@ -49,9 +49,23 @@ export default function ExamPage() {
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [submissionError, setSubmissionError] = useState("")
     const [submitting, setSubmitting] = useState(false)
+    const [showSubmitModal, setShowSubmitModal] = useState(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
     const examStateRef = useRef<ExamState>(examState)
     const timeRemainingRef = useRef<number>(0)
+
+    // Intercept browser back button
+    useEffect(() => {
+        window.history.pushState(null, "", window.location.href)
+        
+        const handlePopState = (e: PopStateEvent) => {
+            window.history.pushState(null, "", window.location.href)
+            setShowSubmitModal(true)
+        }
+        
+        window.addEventListener("popstate", handlePopState)
+        return () => window.removeEventListener("popstate", handlePopState)
+    }, [])
 
     useEffect(() => {
         const loadExam = async () => {
@@ -116,7 +130,7 @@ export default function ExamPage() {
             setTimeRemaining((prev) => {
                 if (prev <= 1) {
                     if (timerRef.current) clearInterval(timerRef.current)
-                    void handleSubmitExam(true)
+                    void performSubmit()
                     return 0
                 }
                 return prev - 1
@@ -188,13 +202,13 @@ export default function ExamPage() {
         }))
     }
 
-    const handleSubmitExam = async (autoSubmit = false) => {
+    const handleSubmitExam = () => {
         if (!exam || submitting) return
+        setShowSubmitModal(true)
+    }
 
-        if (!autoSubmit) {
-            const confirmed = confirm("Are you sure you want to submit the exam? You cannot change your answers after submission.")
-            if (!confirmed) return
-        }
+    const performSubmit = async () => {
+        if (!exam || submitting) return
 
         try {
             setSubmitting(true)
@@ -411,7 +425,7 @@ export default function ExamPage() {
                                 <ArrowRight className="h-5 w-5" />
                             </button>
                             <button
-                                onClick={() => handleSubmitExam(false)}
+                                onClick={handleSubmitExam}
                                 className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-500 text-white font-black hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 active:scale-95 transition-all"
                             >
                                 {submitting ? "Submitting..." : "Submit Exam"}
@@ -477,6 +491,55 @@ export default function ExamPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Submission Modal */}
+            <AnimatePresence>
+                {showSubmitModal && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800"
+                        >
+                            <div className="p-8">
+                                <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 text-amber-500 rounded-2xl flex items-center justify-center mb-6">
+                                    <AlertTriangle className="h-8 w-8" />
+                                </div>
+                                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
+                                    Submit Examination?
+                                </h3>
+                                <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                                    You are about to submit your exam. Please note that once submitted, you cannot change your answers or return to this session. Are you sure you want to proceed?
+                                </p>
+                                
+                                <div className="mt-8 grid sm:grid-cols-2 gap-4">
+                                    <button 
+                                        onClick={() => setShowSubmitModal(false)}
+                                        className="px-6 py-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                    >
+                                        Resume Exam
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            setShowSubmitModal(false)
+                                            performSubmit()
+                                        }}
+                                        className="px-6 py-4 rounded-xl bg-emerald-500 text-white font-black hover:bg-emerald-600 shadow-xl shadow-emerald-500/20 transition-colors"
+                                    >
+                                        Yes, Submit Now
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
