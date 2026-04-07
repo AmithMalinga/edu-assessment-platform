@@ -83,6 +83,16 @@ const parseExamConfig = (description: string | null): ExamConfigMetadata | null 
     }
 }
 
+const stripExamConfigFromDescription = (description: string | null): string | null => {
+    if (!description) return null
+
+    const markerIndex = description.indexOf(EXAM_CONFIG_PREFIX)
+    if (markerIndex === -1) return description.trim() || null
+
+    const plainDescription = description.slice(0, markerIndex).trim()
+    return plainDescription || null
+}
+
 export const examTypeSlugToCategory = (slug: string): ExamTypeCategory => {
     switch (slug) {
         case "lesson-wise":
@@ -127,7 +137,7 @@ export const assessmentService = {
             return {
                 id: exam.id,
                 title: exam.title,
-                description: exam.description ?? null,
+                description: stripExamConfigFromDescription(exam.description ?? null),
                 duration: exam.duration,
                 passingScore: exam.passingScore,
                 createdAt: exam.createdAt,
@@ -161,7 +171,7 @@ export const assessmentService = {
         return {
             id: result.id,
             title: result.title,
-            description: result.description ?? null,
+            description: stripExamConfigFromDescription(result.description ?? null),
             duration: result.duration,
             passingScore: result.passingScore,
             metadata: parseExamConfig(result.description ?? null),
