@@ -13,6 +13,21 @@ export class SubmissionController {
         return this.submissionService.submit(req.user.userId, dto);
     }
 
+    @Get('me')
+    findMine(@Request() req) {
+        return this.submissionService.findByStudent(req.user.userId);
+    }
+
+    @Get('me/analytics')
+    getMyAnalytics(@Request() req) {
+        return this.submissionService.getMyAnalytics(req.user.userId);
+    }
+
+    @Get(':id/review')
+    getAttemptReview(@Request() req, @Param('id') id: string) {
+        return this.submissionService.getAttemptReview(req.user.userId, id);
+    }
+
     @Get()
     findAll() {
         return this.submissionService.findAll();
