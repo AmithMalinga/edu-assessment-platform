@@ -58,6 +58,23 @@ export default function DashboardPage() {
                             <p className="mt-1 font-medium text-slate-900">{profile.age}</p>
                         </div>
                     </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <button
+                            onClick={() => router.push("/dashboard/results")}
+                            className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-left hover:bg-slate-100"
+                        >
+                            <p className="text-sm font-medium text-slate-900">My Results</p>
+                            <p className="text-xs text-slate-600 mt-1">View scores, answer reviews, and retake options.</p>
+                        </button>
+                        <button
+                            onClick={() => router.push("/dashboard/analytics")}
+                            className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-left hover:bg-slate-100"
+                        >
+                            <p className="text-sm font-medium text-slate-900">Performance Analytics</p>
+                            <p className="text-xs text-slate-600 mt-1">Track progress trends, pass rate, and strengths by subject.</p>
+                        </button>
+                    </div>
                 </>
             ) : null}
         </div>

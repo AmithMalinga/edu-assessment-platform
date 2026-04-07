@@ -20,6 +20,8 @@ const navItems = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "My Profile", href: "/dashboard/profile" },
     { label: "My Subjects", href: "/dashboard/subjects" },
+    { label: "My Results", href: "/dashboard/results" },
+    { label: "Analytics", href: "/dashboard/analytics" },
 ]
 
 export default function StudentDashboardLayout({
@@ -84,7 +86,7 @@ export default function StudentDashboardLayout({
 
                     <nav className="mt-5 space-y-1">
                         {navItems.map((item) => {
-                            const active = pathname === item.href
+                            const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
                             return (
                                 <Link
                                     key={item.href}

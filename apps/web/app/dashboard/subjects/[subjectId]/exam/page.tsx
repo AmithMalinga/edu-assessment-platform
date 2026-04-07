@@ -8,6 +8,7 @@ import {
     type AssessmentExamDetail,
     type AssessmentQuestion,
 } from "@/lib/services/assessment.service"
+import { resultService } from "@/lib/services/result.service"
 
 interface ExamState {
     currentQuestionIndex: number
@@ -43,7 +44,11 @@ export default function ExamPage() {
     })
     const [timeRemaining, setTimeRemaining] = useState(0)
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [submissionError, setSubmissionError] = useState("")
+    const [submitting, setSubmitting] = useState(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
+    const examStateRef = useRef<ExamState>(examState)
+    const timeRemainingRef = useRef<number>(0)
 
     useEffect(() => {
         const loadExam = async () => {
@@ -94,13 +99,21 @@ export default function ExamPage() {
     const currentQuestion = questions[examState.currentQuestionIndex]
 
     useEffect(() => {
+        examStateRef.current = examState
+    }, [examState])
+
+    useEffect(() => {
+        timeRemainingRef.current = timeRemaining
+    }, [timeRemaining])
+
+    useEffect(() => {
         if (!exam || questions.length === 0) return
 
         timerRef.current = setInterval(() => {
             setTimeRemaining((prev) => {
                 if (prev <= 1) {
                     if (timerRef.current) clearInterval(timerRef.current)
-                    handleSubmitExam(true)
+                    void handleSubmitExam(true)
                     return 0
                 }
                 return prev - 1
@@ -172,21 +185,39 @@ export default function ExamPage() {
         }))
     }
 
-    const handleSubmitExam = (autoSubmit = false) => {
+    const handleSubmitExam = async (autoSubmit = false) => {
+        if (!exam || submitting) return
+
         if (!autoSubmit) {
             const confirmed = confirm("Are you sure you want to submit the exam? You cannot change your answers after submission.")
             if (!confirmed) return
         }
 
-        setIsSubmitted(true)
+        try {
+            setSubmitting(true)
+            setSubmissionError("")
 
-        setTimeout(() => {
-            if (exam) {
-                router.push(`/dashboard/subjects/${subjectId}/exam-result?examId=${exam.id}`)
+            const token = localStorage.getItem("token")
+            if (!token) {
+                router.push("/login")
                 return
             }
-            router.push(`/dashboard/subjects/${subjectId}/exam-result`)
-        }, 1500)
+
+            const totalTime = exam.duration * 60
+            const timeTaken = Math.max(0, totalTime - timeRemainingRef.current)
+            const response = await resultService.submitExam(token, {
+                examId: exam.id,
+                answers: examStateRef.current.answers,
+                timeTaken,
+            })
+
+            setIsSubmitted(true)
+            router.push(`/dashboard/subjects/${subjectId}/exam-result?examId=${exam.id}&attemptId=${response.id}&type=${examType}`)
+        } catch (err: any) {
+            setSubmissionError(err?.message || "Failed to submit exam. Please try again.")
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     if (loading) return <p>Loading exam...</p>
@@ -246,6 +277,8 @@ export default function ExamPage() {
             <div className="max-w-7xl mx-auto p-4 flex gap-4 min-h-[calc(100vh-70px)]">
                 <div className="flex-1">
                     <div className="bg-white rounded-lg shadow-md p-6">
+                        {submissionError ? <p className="mb-4 text-sm text-red-600">{submissionError}</p> : null}
+
                         <div className="border-b pb-4 mb-6">
                             <div className="flex items-start justify-between mb-2">
                                 <h2 className="text-xl font-semibold text-slate-900">{currentQuestion.title}</h2>
@@ -315,10 +348,11 @@ export default function ExamPage() {
                                 Next →
                             </button>
                             <button
-                                onClick={() => handleSubmitExam(false)}
-                                className="flex-1 px-4 py-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
+                                onClick={() => void handleSubmitExam(false)}
+                                disabled={submitting}
+                                className="flex-1 px-4 py-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-                                Submit Exam
+                                {submitting ? "Submitting..." : "Submit Exam"}
                             </button>
                         </div>
                     </div>
