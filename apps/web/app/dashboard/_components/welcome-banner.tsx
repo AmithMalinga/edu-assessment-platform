@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import Image from "next/image"
+import { Sparkles, TrendingUp } from "lucide-react"
 
 interface WelcomeBannerProps {
     name?: string;
@@ -18,53 +18,42 @@ export function WelcomeBanner({ name, progress = 85 }: WelcomeBannerProps) {
     const firstName = name ? name.split(' ')[0] : "Student"
 
     return (
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-400 p-8 lg:p-10 shadow-xl shadow-indigo-500/20">
-            {/* Background decorative circles */}
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-48 h-48 bg-indigo-300/20 rounded-full blur-2xl pointer-events-none" />
-
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="space-y-4 max-w-xl text-center md:text-left">
-                    <motion.p 
+        <div className="relative overflow-hidden rounded-[24px] bg-indigo-600 dark:bg-indigo-900/40 p-6 lg:p-8 shadow-sm">
+            {/* Background decorative fields */}
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-900/50 dark:via-violet-900/50 dark:to-purple-900/50 opacity-90" />
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="relative z-10 flex flex-col">
+                <div className="space-y-2 max-w-xl">
+                    <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-indigo-100 font-bold text-sm lg:text-base tracking-wide"
+                        className="flex items-center gap-2"
                     >
-                        {today}
-                    </motion.p>
+                        <Sparkles className="h-4 w-4 text-indigo-200" />
+                        <p className="text-indigo-100 font-bold text-xs uppercase tracking-widest">
+                            {today}
+                        </p>
+                    </motion.div>
+                    
                     <motion.h1 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-3xl lg:text-5xl font-black text-white leading-tight"
+                        className="text-2xl lg:text-3xl font-black text-white leading-tight"
                     >
                         Welcome back, {firstName}!
                     </motion.h1>
+
                     <motion.p 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-indigo-50 font-medium text-sm lg:text-base opacity-90"
+                        className="text-indigo-100 font-medium text-sm pt-1 leading-relaxed"
                     >
-                        You&apos;ve finished <span className="font-black text-white">{progress}%</span> of your weekly goal!<br/>
                         Keep up the great work and reach new heights.
                     </motion.p>
                 </div>
-
-                <motion.div 
-                    initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    transition={{ type: "spring", stiffness: 100, delay: 0.3 }}
-                    className="relative w-48 h-48 lg:w-56 lg:h-56 shrink-0 drop-shadow-2xl"
-                >
-                    <Image 
-                        src="/dashboard/welcome.png" 
-                        alt="Education" 
-                        fill
-                        className="object-contain"
-                        priority
-                    />
-                </motion.div>
             </div>
         </div>
     )
