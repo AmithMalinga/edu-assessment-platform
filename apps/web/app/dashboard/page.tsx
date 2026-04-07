@@ -9,17 +9,11 @@ import { AchievementCard } from "./_components/achievement-card"
 import { RightSidebar } from "./_components/right-sidebar"
 import { studentService, type StudentProfile, type StudentSubject } from "@/lib/services/student.service"
 
-const SUBJECT_IMAGES = [
-    "/dashboard/physics.png",
-    "/dashboard/chemistry.png",
-    "/dashboard/maths.png"
-]
-
 const SUBJECT_COLORS = [
-    "bg-blue-50 dark:bg-blue-900/20",
-    "bg-purple-50 dark:bg-purple-900/20",
-    "bg-orange-50 dark:bg-orange-900/20",
-    "bg-emerald-50 dark:bg-emerald-900/20"
+    "from-teal-500 to-emerald-600",
+    "from-blue-500 to-indigo-600",
+    "from-purple-500 to-violet-600",
+    "from-rose-500 to-pink-600"
 ]
 
 export default function DashboardPage() {
@@ -89,10 +83,7 @@ export default function DashboardPage() {
                                     <CourseCard 
                                         id={subject.id}
                                         title={subject.name}
-                                        instructor="Expert Instructor"
-                                        lessons={index + 1}
-                                        progress={index === 0 ? 85 : 0}
-                                        image={SUBJECT_IMAGES[index % SUBJECT_IMAGES.length]}
+                                        category={subject.grade?.name || "Subject"}
                                         color={SUBJECT_COLORS[index % SUBJECT_COLORS.length]}
                                     />
                                 </motion.div>
