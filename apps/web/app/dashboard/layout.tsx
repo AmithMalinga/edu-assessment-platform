@@ -1,8 +1,10 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { DashboardSidebar } from "./_components/sidebar"
 import { DashboardTopBar } from "./_components/topbar"
+import { studentService, type StudentProfile } from "@/lib/services/student.service"
 
 export default function DashboardLayout({
     children,
@@ -10,6 +12,29 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     const pathname = usePathname()
+    const [profile, setProfile] = useState<StudentProfile | null>(null)
+    const [loading, setLoading] = useState(true)
+    const router = useRouter()
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                if (!token) {
+                    router.push("/login")
+                    return
+                }
+                const data = await studentService.getProfile(token)
+                setProfile(data)
+            } catch (error) {
+                console.error("Layout Profile Fetch Error:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchProfile()
+    }, [router])
 
     // Full-screen mode for exam — hide sidebar & topbar completely
     const isExamPage = pathname?.includes("/exam")
@@ -27,7 +52,7 @@ export default function DashboardLayout({
             <DashboardSidebar />
 
             <div className="pl-64 flex flex-col min-h-screen">
-                <DashboardTopBar />
+                <DashboardTopBar profile={profile} loading={loading} />
                 <main className="flex-1">
                     {children}
                 </main>

@@ -1,9 +1,11 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CourseCardProps {
+    id: string
     title: string
     instructor: string
     lessons: number
@@ -12,11 +14,14 @@ interface CourseCardProps {
     color: string
 }
 
-export function CourseCard({ title, instructor, lessons, progress, image, color }: CourseCardProps) {
+export function CourseCard({ id, title, instructor, lessons, progress, image, color }: CourseCardProps) {
+    const router = useRouter()
+
     return (
         <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-white dark:bg-slate-900 rounded-[28px] p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col gap-4 group"
+            onClick={() => router.push(`/dashboard/subjects/${id}`)}
+            className="bg-white dark:bg-slate-900 rounded-[28px] p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col gap-4 group cursor-pointer active:scale-[0.98] transition-all"
         >
             <div className={cn(
                 "relative aspect-[4/3] rounded-2xl overflow-hidden p-6 flex items-center justify-center transition-transform group-hover:scale-105 duration-500",
