@@ -133,63 +133,64 @@ export default function ExamResultPage() {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="w-full min-h-screen bg-slate-50 dark:bg-slate-950 p-4 lg:p-8 xl:p-10"
+            className="w-full min-h-screen bg-slate-50 dark:bg-slate-950/50 p-4 lg:p-6"
         >
-            <div className="max-w-6xl mx-auto space-y-8">
+            <div className="max-w-6xl mx-auto space-y-6">
                 {/* Header / Back Button */}
                 <motion.button
                     variants={itemVariants}
                     onClick={() => router.push(`/dashboard/subjects/${subjectId}`)}
                     className="group flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold transition-colors w-fit"
                 >
-                    <div className="h-8 w-8 rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center transition-transform group-hover:-translate-x-1">
-                        <ChevronLeft className="h-4 w-4" />
+                    <div className="h-6 w-6 rounded-lg bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center transition-transform group-hover:-translate-x-1">
+                        <ChevronLeft className="h-3.5 w-3.5" />
                     </div>
-                    <span className="text-xs tracking-wide">Back to Subject</span>
+                    <span className="text-[11px] tracking-wide">Back to Subject</span>
                 </motion.button>
 
                 {/* Hero Banner */}
                 <motion.div 
                     variants={itemVariants}
                     className={cn(
-                        "relative overflow-hidden rounded-[32px] p-8 lg:p-10 shadow-lg text-white",
+                        "relative overflow-hidden rounded-[24px] p-6 shadow-lg text-white",
                         "bg-gradient-to-br",
                         themeClass
                     )}
                 >
-                    <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-32 h-32 bg-black/10 rounded-full blur-2xl pointer-events-none" />
                     
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                        <div className="space-y-4">
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="space-y-3">
                             <div className="flex items-center gap-3">
-                                <div className={cn("h-12 w-12 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border", iconWrapperClass)}>
-                                    {isPassed ? <Trophy className="h-6 w-6" /> : <AlertTriangle className="h-6 w-6" />}
+                                <div className={cn("h-10 w-10 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner border", iconWrapperClass)}>
+                                    {isPassed ? <Trophy className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                                    <h1 className="text-xl md:text-2xl font-black tracking-tight leading-tight">
                                         {isPassed ? "Exam Passed!" : "Exam Completed"}
                                     </h1>
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">Result Overview</span>
                                 </div>
                             </div>
 
-                            <div className="pt-2">
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <div className="bg-black/20 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium">
-                                        <span className="text-white/80 line-clamp-1">{review.examTitle}</span>
+                            <div className="pt-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <div className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-md text-[9px] font-black border border-white/10 uppercase tracking-wider">
+                                        <span className="text-white line-clamp-1">{review.examTitle}</span>
                                     </div>
-                                    <div className="bg-black/10 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-semibold text-white/90 uppercase tracking-wider">
+                                    <div className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-md text-[9px] font-black border border-white/10 uppercase tracking-wider">
                                         {formatDateTime(review.completedAt)}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-[28px] p-6 text-center shadow-inner shrink-0 min-w-[200px]">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">Final Score</p>
-                            <p className="text-6xl font-black tracking-tighter">{percentage}<span className="text-3xl text-white/60 ml-1">%</span></p>
-                            <div className="mt-4 pt-4 border-t border-white/10">
-                                <p className="text-xs font-medium text-white/80">Passing Criteria: <span className="font-bold text-white">{review.scoreSummary.passingScore}%</span></p>
+                        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-[16px] p-4 text-center shadow-inner shrink-0 min-w-[160px]">
+                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">Final Score</p>
+                            <p className="text-4xl font-black tracking-tighter">{percentage}<span className="text-xl text-white/60 ml-1">%</span></p>
+                            <div className="mt-3 pt-3 border-t border-white/10">
+                                <p className="text-[10px] font-medium text-white/80">Passing Criteria: <span className="font-bold text-white">{review.scoreSummary.passingScore}%</span></p>
                             </div>
                         </div>
                     </div>
@@ -226,21 +227,21 @@ export default function ExamResultPage() {
                 {/* Answer Review */}
                 <motion.div 
                     variants={itemVariants}
-                    className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 p-6 lg:p-8 shadow-sm space-y-6 overflow-hidden"
+                    className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-100 dark:border-slate-800 p-6 lg:p-7 shadow-sm space-y-5 overflow-hidden"
                 >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-2xl flex items-center justify-center">
-                                <List className="h-6 w-6" />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-3.5">
+                            <div className="h-10 w-10 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center">
+                                <List className="h-5 w-5" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Answer Review</h2>
-                                <p className="text-xs text-slate-500 font-medium mt-1">Review your answers against the correct solutions</p>
+                                <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Answer Review</h2>
+                                <p className="text-[11px] text-slate-500 font-bold mt-0.5">Review your answers against the correct solutions</p>
                             </div>
                         </div>
                         <button
                             onClick={() => setShowAnswers(!showAnswers)}
-                            className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-sm transition-colors active:scale-95"
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-sm transition-colors active:scale-95 border border-slate-200 dark:border-slate-700"
                         >
                             {showAnswers ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                             {showAnswers ? "Hide Answers" : "Reveal Answers"}
@@ -268,23 +269,23 @@ export default function ExamResultPage() {
                                         <article key={question.questionId} className={cn("rounded-2xl border p-5 transition-colors", statusClass)}>
                                             <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                                                 <div className="flex items-start gap-4 flex-1">
-                                                    <div className="mt-0.5 h-6 w-6 shrink-0 flex items-center justify-center rounded-full bg-white dark:bg-slate-950 shadow-sm text-xs font-black">
+                                                    <div className="mt-0.5 h-5 w-5 shrink-0 flex items-center justify-center rounded-full bg-white dark:bg-slate-950 shadow-sm text-[10px] font-black">
                                                         {question.order}
                                                     </div>
-                                                    <div className="space-y-4 flex-1">
-                                                        <h3 className="font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
+                                                    <div className="space-y-3 flex-1">
+                                                        <h3 className="text-[13px] font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
                                                             {question.content}
                                                         </h3>
                                                         <div className="grid sm:grid-cols-2 gap-3">
-                                                            <div className="bg-white/60 dark:bg-slate-950/40 p-3 rounded-xl border border-black/5 dark:border-white/5">
-                                                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Your Answer</p>
-                                                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                            <div className="bg-white/60 dark:bg-slate-950/40 p-2.5 rounded-lg border border-black/5 dark:border-white/5">
+                                                                <p className="text-[9px] font-black uppercase text-slate-400 mb-0.5">Your Answer</p>
+                                                                <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
                                                                     {question.selectedAnswer || "Not answered"}
                                                                 </p>
                                                             </div>
-                                                            <div className="bg-white/60 dark:bg-slate-950/40 p-3 rounded-xl border border-black/5 dark:border-white/5">
-                                                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Correct Answer</p>
-                                                                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-500">
+                                                            <div className="bg-white/60 dark:bg-slate-950/40 p-2.5 rounded-lg border border-black/5 dark:border-white/5">
+                                                                <p className="text-[9px] font-black uppercase text-slate-400 mb-0.5">Correct Answer</p>
+                                                                <p className="text-[13px] font-semibold text-emerald-700 dark:text-emerald-500">
                                                                     {question.correctAnswer || "Manual grading required"}
                                                                 </p>
                                                             </div>
@@ -316,29 +317,29 @@ export default function ExamResultPage() {
                 </motion.div>
 
                 {/* Bottom Actions */}
-                <motion.div variants={itemVariants} className="grid grid-cols-2 lg:flex lg:flex-wrap items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <motion.div variants={itemVariants} className="grid grid-cols-2 lg:flex lg:flex-wrap items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
                     <button
                         onClick={() => router.push(`/dashboard/subjects/${subjectId}/exam-overview?type=${examType}&examId=${review.examId}`)}
-                        className="col-span-2 lg:col-auto flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+                        className="col-span-2 lg:col-auto flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-lg shadow-md shadow-indigo-600/20 transition-all active:scale-95 text-sm"
                     >
-                        <RotateCcw className="h-5 w-5" />
+                        <RotateCcw className="h-4 w-4" />
                         <span>Retake Exam</span>
                     </button>
                     
                     <button
                         onClick={() => router.push("/dashboard/results")}
-                        className="flex items-center justify-center gap-2 px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm text-sm"
                     >
-                        <List className="h-5 w-5 opacity-50" />
+                        <List className="h-4 w-4 opacity-50" />
                         <span className="hidden sm:inline">All Results</span>
                         <span className="sm:hidden">Results</span>
                     </button>
                     
                     <button
                         onClick={() => router.push("/dashboard/analytics")}
-                        className="flex items-center justify-center gap-2 px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm text-sm ml-auto"
                     >
-                        <BarChart2 className="h-5 w-5 opacity-50" />
+                        <BarChart2 className="h-4 w-4 opacity-50" />
                         <span>Analytics</span>
                     </button>
                 </motion.div>
@@ -349,13 +350,13 @@ export default function ExamResultPage() {
 
 function StatCard({ icon: Icon, label, value, colorClass }: { icon: any, label: string, value: string, colorClass: string }) {
     return (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-[24px] border border-slate-100 dark:border-slate-800 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/5 hover:border-indigo-100">
-            <div className={cn("h-12 w-12 shrink-0 flex items-center justify-center rounded-2xl", colorClass)}>
-                <Icon className="h-6 w-6" />
+        <div className="bg-white dark:bg-slate-900 px-5 py-4 rounded-[20px] border border-slate-100 dark:border-slate-800 flex items-center gap-3.5 transition-transform hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/5 hover:border-indigo-100 dark:hover:border-indigo-900/30">
+            <div className={cn("h-10 w-10 shrink-0 flex items-center justify-center rounded-xl", colorClass)}>
+                <Icon className="h-5 w-5 shrink-0" />
             </div>
             <div className="flex flex-col">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</span>
-                <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">{value}</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5">{label}</span>
+                <span className="text-xl font-black text-slate-900 dark:text-white leading-none tracking-tight">{value}</span>
             </div>
         </div>
     )
