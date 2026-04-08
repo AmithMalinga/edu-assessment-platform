@@ -2,14 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { 
-    LayoutDashboard, 
-    Calendar, 
-    BookOpen, 
-    ClipboardList, 
-    FileText, 
-    Trophy, 
-    Settings, 
+import {
+    LayoutDashboard,
+    Calendar,
+    BookOpen,
+    ClipboardList,
+    FileText,
+    Trophy,
+    Settings,
     LogOut,
     Zap,
     User,
@@ -21,19 +21,19 @@ import { cn } from "@/lib/utils"
 
 const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Profile", href: "/dashboard/profile", icon: User },
     { name: "Subjects", href: "/dashboard/subjects", icon: Library },
     // { name: "Class Schedule", href: "/dashboard/schedule", icon: Calendar },
     // { name: "Courses", href: "/dashboard/courses", icon: BookOpen },
     // { name: "Assignments", href: "/dashboard/assignments", icon: ClipboardList },
     { name: "Results", href: "/dashboard/results", icon: Activity },
     { name: "Analytics", href: "/dashboard/analytics", icon: LineChart },
+    { name: "Profile", href: "/dashboard/profile", icon: User },
     // { name: "Resources", href: "/dashboard/resources", icon: FileText },
     // { name: "Certificates", href: "/dashboard/certificates", icon: Trophy },
 ]
 
 const footerNav = [
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    // { name: "Settings", href: "/dashboard/settings", icon: Settings },
     { name: "Log out", href: "/login", icon: LogOut },
 ]
 
@@ -64,8 +64,8 @@ export function DashboardSidebar() {
                             href={item.href}
                             className={cn(
                                 "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group",
-                                isActive 
-                                    ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400" 
+                                isActive
+                                    ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
                                     : "text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
                             )}
                         >

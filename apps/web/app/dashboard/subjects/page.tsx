@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation"
 import { studentService, type StudentProfile, type StudentSubject } from "@/lib/services/student.service"
 import { motion } from "framer-motion"
 import { BookOpen, Sparkles, ChevronRight, Library } from "lucide-react"
+import { CourseCard } from "../_components/course-card"
+
+const SUBJECT_COLORS = [
+    "from-teal-500 to-emerald-600",
+    "from-blue-500 to-indigo-600",
+    "from-purple-500 to-violet-600",
+    "from-rose-500 to-pink-600"
+]
 
 export default function StudentSubjectsPage() {
     const [subjects, setSubjects] = useState<StudentSubject[]>([])
@@ -39,37 +47,27 @@ export default function StudentSubjectsPage() {
     return (
         <div className="p-8 lg:p-10 space-y-10 min-h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
             {/* Header Banner */}
-            <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 lg:p-10 shadow-xl shadow-indigo-500/20">
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-48 h-48 bg-indigo-300/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 shadow-sm">
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-32 h-32 bg-indigo-300/20 rounded-full blur-2xl pointer-events-none" />
 
-                <div className="relative z-10 flex flex-col gap-2">
+                <div className="relative z-10 flex flex-col gap-1.5 hover:scale-[1.01] transition-transform origin-left">
                     <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-indigo-100 font-bold text-sm tracking-wide"
+                        className="flex items-center gap-2 text-indigo-100 font-bold text-xs tracking-wider"
                     >
-                        <Library className="h-4 w-4" />
+                        <Library className="h-3.5 w-3.5" />
                         ACADEMIC WORKSPACE
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-3xl lg:text-5xl font-black text-white leading-tight"
+                        className="text-2xl lg:text-3xl font-black text-white leading-tight"
                     >
                         My Enrolled Subjects
                     </motion.h1>
-                    {profile && (
-                        <motion.p 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-indigo-50 font-medium opacity-90 max-w-lg mt-2"
-                        >
-                            Showing syllabus mapped to <span className="font-bold text-white">{profile.educationalLevel}</span>. Select a subject to view course content and start an exam.
-                        </motion.p>
-                    )}
                 </div>
             </div>
 
@@ -81,7 +79,7 @@ export default function StudentSubjectsPage() {
 
             {/* Subjects Grid */}
             {!error && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {loading ? (
                         [...Array(3)].map((_, i) => (
                             <div key={i} className="h-[280px] rounded-[28px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm animate-pulse p-6">
@@ -98,31 +96,14 @@ export default function StudentSubjectsPage() {
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
-                                className="group relative bg-white dark:bg-slate-900 rounded-[28px] p-6 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col min-h-[280px]"
                             >
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                                
-                                <div className="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                                    <BookOpen className="h-7 w-7" />
-                                </div>
-                                
-                                <div className="mb-2">
-                                    <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">
-                                        {subject.grade?.name ?? `Grade ${subject.gradeId}`} • ID: {subject.id.substring(0, 8)}
-                                    </span>
-                                </div>
-                                
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight mb-auto">
-                                    {subject.name}
-                                </h3>
-
-                                <button
-                                    onClick={() => router.push(`/dashboard/subjects/${subject.id}`)}
-                                    className="mt-8 flex items-center justify-between w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300"
-                                >
-                                    <span>Explore Subject</span>
-                                    <ChevronRight className="h-5 w-5" />
-                                </button>
+                                <CourseCard 
+                                    id={subject.id}
+                                    title={subject.name}
+                                    category={subject.grade?.name || "Subject"}
+                                    color={SUBJECT_COLORS[index % SUBJECT_COLORS.length]}
+                                    showExploreButton={true}
+                                />
                             </motion.div>
                         ))
                     ) : (

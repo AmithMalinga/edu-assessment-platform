@@ -20,6 +20,7 @@ export default function DashboardPage() {
     const [profile, setProfile] = useState<StudentProfile | null>(null)
     const [subjects, setSubjects] = useState<StudentSubject[]>([])
     const [loading, setLoading] = useState(true)
+    const [showAllSubjects, setShowAllSubjects] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
@@ -62,7 +63,14 @@ export default function DashboardPage() {
                 <section className="space-y-6">
                     <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-black text-slate-900 dark:text-white">My Subjects</h2>
-                        <button className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">View All</button>
+                        {subjects.length > 3 && (
+                            <button 
+                                onClick={() => setShowAllSubjects(!showAllSubjects)}
+                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                            >
+                                {showAllSubjects ? "Show Less" : "View All"}
+                            </button>
+                        )}
                     </div>
                     
                     {loading ? (
@@ -73,7 +81,7 @@ export default function DashboardPage() {
                         </div>
                     ) : subjects.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {subjects.map((subject, index) => (
+                            {(showAllSubjects ? subjects : subjects.slice(0, 3)).map((subject, index) => (
                                 <motion.div
                                     key={subject.id}
                                     initial={{ opacity: 0, y: 20 }}

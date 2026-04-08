@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CourseCardProps {
@@ -8,9 +8,10 @@ interface CourseCardProps {
     title: string
     category?: string
     color: string
+    showExploreButton?: boolean
 }
 
-export function CourseCard({ id, title, category, color }: CourseCardProps) {
+export function CourseCard({ id, title, category, color, showExploreButton }: CourseCardProps) {
     const router = useRouter()
 
     return (
@@ -50,6 +51,13 @@ export function CourseCard({ id, title, category, color }: CourseCardProps) {
             <div className="space-y-1">
                 <h3 className="font-bold text-slate-900 dark:text-white truncate" title={title}>{title}</h3>
             </div>
+
+            {showExploreButton && (
+                <div className="mt-2 flex items-center justify-between w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                    <span>Explore Subject</span>
+                    <ChevronRight className="h-5 w-5" />
+                </div>
+            )}
         </motion.div>
     )
 }
