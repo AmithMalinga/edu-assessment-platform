@@ -151,7 +151,7 @@ export default function ExamListByTypePage() {
                 className={cn(
                     "relative overflow-hidden rounded-[24px] p-6 shadow-lg text-white",
                     "bg-gradient-to-br",
-                    examTypeInfo?.gradient || "from-slate-800 via-slate-700 to-slate-800"
+                    "from-blue-600 via-blue-500 to-indigo-500"
                 )}
             >
                 {/* Decorative Elements */}
@@ -159,14 +159,6 @@ export default function ExamListByTypePage() {
                 <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-32 h-32 bg-black/10 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="relative z-10 space-y-3 max-w-2xl">
-                    <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center shadow-inner">
-                            <Zap className="text-white h-3.5 w-3.5 fill-current" />
-                        </div>
-                        <div className="h-1 w-1 rounded-full bg-white/40" />
-                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/80">Available Category</span>
-                    </div>
-
                     <div className="space-y-0.5">
                         <h1 className="text-xl md:text-2xl font-black tracking-tight leading-tight">
                             {examTypeInfo?.title} Exams
@@ -214,67 +206,67 @@ export default function ExamListByTypePage() {
                     </button>
                 </div>
             ) : (
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {sortedExams.map((exam, index) => (
                         <motion.article
                             key={exam.id}
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.03, duration: 0.3 }}
-                            whileHover={{ y: -3 }}
-                            className="group relative bg-white dark:bg-slate-900 p-5 rounded-[20px] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 flex flex-col gap-4"
+                            whileHover={{ y: -2 }}
+                            className="bg-white dark:bg-slate-900 rounded-[12px] border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
                         >
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="space-y-0.5 flex-1 overflow-hidden">
-                                    <h2 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight truncate">{exam.title}</h2>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{subject?.name}</p>
-                                </div>
-                                <div className={cn(
-                                    "px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest shrink-0",
-                                    examTypeInfo?.accent || "bg-slate-100 text-slate-700"
-                                )}>
-                                    {exam.metadata?.examQuestionType || "MCQ"}
-                                </div>
+                            <div className="flex justify-between items-start mb-1">
+                                <h2 className="text-[17px] font-bold text-slate-800 dark:text-slate-100 truncate pr-4">{exam.title}</h2>
                             </div>
-
-                            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-relaxed min-h-[32px] line-clamp-2">
-                                {exam.description || "Take this opportunity to test your knowledge and track your progress in this area."}
+                            
+                            <p className="text-[12px] text-slate-500 dark:text-slate-400 mb-2.5">
+                                {subject?.name || "Topic"} | {exam.metadata?.examQuestionType || "MCQ"}
                             </p>
 
-                            <div className="grid grid-cols-2 gap-2">
-                                <DetailBox icon={FileText} label="Questions" value={exam.questionCount.toString()} />
-                                <DetailBox icon={Clock} label="Duration" value={`${exam.duration}m`} />
-                                <DetailBox icon={Trophy} label="Passing" value={`${exam.passingScore}%`} />
-                                <DetailBox icon={Calendar} label="Updated" value={formatDate(exam.updatedAt)} />
+                            <div className="mb-4">
+                               <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold rounded-md">
+                                  {examTypeInfo?.title || "Online Exam"}
+                               </span>
                             </div>
 
-                            <button
-                                onClick={() => handleViewExam(exam.id)}
-                                className="mt-1 flex items-center justify-between px-5 py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black rounded-xl shadow-md shadow-slate-900/5 hover:shadow-indigo-500/10 active:scale-95 transition-all group/btn text-xs"
-                            >
-                                <span>View & Take Exam</span>
-                                <div className="h-6 w-6 bg-white/10 rounded-lg flex items-center justify-center transition-transform group-hover/btn:scale-110">
-                                    <ArrowRight className="h-3.5 w-3.5" />
+                            <hr className="border-slate-100 dark:border-slate-800 mb-4" />
+
+                            <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-sm mb-5 px-0.5">
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-slate-400 text-[10px] font-medium tracking-wide uppercase">Date</span>
+                                    <span className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">{formatDate(exam.updatedAt)}</span>
                                 </div>
-                            </button>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-slate-400 text-[10px] font-medium tracking-wide uppercase">Duration</span>
+                                    <span className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">{exam.duration} Mins</span>
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-slate-400 text-[10px] font-medium tracking-wide uppercase">Questions</span>
+                                    <span className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">{exam.questionCount}</span>
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-slate-400 text-[10px] font-medium tracking-wide uppercase">Passing</span>
+                                    <span className="font-bold text-slate-700 dark:text-slate-200 text-[13px]">{exam.passingScore}%</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-auto flex items-center justify-between pt-1">
+                                <div className="flex flex-col">
+                                   <span className="text-orange-500 text-[10px] font-bold tracking-wider uppercase">Status</span>
+                                   <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300">Available</span>
+                                </div>
+                                <button
+                                    onClick={() => handleViewExam(exam.id)}
+                                    className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors text-xs shadow-sm"
+                                >
+                                    Start
+                                </button>
+                            </div>
                         </motion.article>
                     ))}
                 </div>
             )}
-        </div>
-    )
-}
-
-function DetailBox({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
-    return (
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-[14px] border border-slate-100/50 dark:border-slate-800/50 flex items-center gap-2 group/box hover:bg-white dark:hover:bg-slate-800 transition-colors">
-            <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-900 shadow-sm text-slate-400 group-hover/box:text-indigo-500 transition-colors shrink-0">
-                <Icon className="h-3 w-3" />
-            </div>
-            <div className="flex flex-col overflow-hidden">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter leading-none">{label}</span>
-                <span className="text-[11px] font-black text-slate-900 dark:text-white leading-none mt-0.5 truncate">{value}</span>
-            </div>
         </div>
     )
 }

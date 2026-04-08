@@ -37,7 +37,7 @@ export default function DashboardLayout({
     }, [router])
 
     // Full-screen mode for exam — hide sidebar & topbar completely
-    const isExamPage = pathname?.includes("/exam")
+    const isExamPage = pathname?.endsWith("/exam")
 
     if (isExamPage) {
         return (

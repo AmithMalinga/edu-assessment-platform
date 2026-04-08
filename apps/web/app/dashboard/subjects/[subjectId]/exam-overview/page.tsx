@@ -11,7 +11,8 @@ import {
     Zap,
     AlertTriangle,
     ClipboardList,
-    Play
+    Play,
+    X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { studentService, type StudentSubject } from "@/lib/services/student.service"
@@ -59,6 +60,7 @@ export default function ExamOverviewPage() {
     const [exam, setExam] = useState<AssessmentExamDetail | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const [showConfirm, setShowConfirm] = useState(false)
 
     const examTypeInfo = useMemo(() => EXAM_TYPE_INFO[examType], [examType])
 
@@ -100,6 +102,10 @@ export default function ExamOverviewPage() {
     }, [router, subjectId, examId, examType])
 
     const handleStartExam = () => {
+        setShowConfirm(true)
+    }
+
+    const confirmStartExam = () => {
         if (!exam) return
         router.push(`/dashboard/subjects/${subjectId}/exam?type=${examType}&examId=${exam.id}`)
     }
@@ -166,59 +172,48 @@ export default function ExamOverviewPage() {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="w-full min-h-screen bg-slate-50 dark:bg-slate-950 p-4 lg:p-8 xl:p-10"
+            className="w-full min-h-screen bg-slate-50 dark:bg-slate-950 p-3 lg:p-4 xl:p-6"
         >
-            <div className="max-w-[1600px] mx-auto space-y-8">
+            <div className="max-w-[1600px] mx-auto space-y-5">
                 {/* Header / Back Button */}
                 <motion.button
                     variants={itemVariants}
                     onClick={() => router.back()}
-                    className="group flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold transition-colors w-fit"
+                    className="group flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold transition-colors w-fit mb-2"
                 >
-                    <div className="h-8 w-8 rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center transition-transform group-hover:-translate-x-1">
-                        <ChevronLeft className="h-4 w-4" />
+                    <div className="h-6 w-6 rounded-lg bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center transition-transform group-hover:-translate-x-1">
+                        <ChevronLeft className="h-3.5 w-3.5" />
                     </div>
-                    <span className="text-xs tracking-wide">Back to Subject</span>
+                    <span className="text-[11px] tracking-wide">Back to Exams</span>
                 </motion.button>
 
-                <div className="grid lg:grid-cols-12 gap-8 items-start">
+                <div className="grid lg:grid-cols-12 gap-6 items-start">
                     {/* Left content area */}
-                    <div className="lg:col-span-8 xl:col-span-9 space-y-8">
+                    <div className="lg:col-span-8 xl:col-span-9 space-y-5">
                         {/* Banner Section */}
                         <motion.div 
                             variants={itemVariants}
                             className={cn(
-                                "relative overflow-hidden rounded-[32px] p-8 lg:p-10 shadow-lg text-white",
-                                "bg-gradient-to-br",
-                                examTypeInfo?.gradient || "from-slate-800 via-slate-700 to-slate-800"
+                                "relative overflow-hidden rounded-[20px] px-6 py-5 lg:px-8 lg:py-6 shadow-md text-white border border-blue-400/20",
+                                "bg-gradient-to-r",
+                                "from-blue-600 to-indigo-600"
                             )}
                         >
-                            <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-                            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-64 h-64 bg-black/10 rounded-full blur-3xl pointer-events-none" />
+                            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-48 h-48 bg-black/10 rounded-full blur-2xl pointer-events-none" />
                             
-                            <div className="relative z-10 space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner border border-white/10">
-                                        <ClipboardList className="text-white h-5 w-5" />
-                                    </div>
-                                    <div className="h-1.5 w-1.5 rounded-full bg-white/40" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/90">Information Overview</span>
-                                </div>
-
-                                <div className="space-y-4 mt-8">
-                                    <h1 className="text-3xl lg:text-5xl font-black tracking-tight leading-tight max-w-2xl">
+                            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                    <h1 className="text-xl lg:text-2xl font-black tracking-tight leading-tight">
                                         {exam.title}
                                     </h1>
-                                    <div className="flex flex-wrap items-center gap-4 pt-2">
-                                        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium">
-                                            <span className="text-white/70">Subject:</span>
-                                            <span className="font-extrabold text-white">{subject?.name || "Topic"}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium uppercase tracking-wider">
-                                            <Zap className="h-4 w-4 text-amber-300" />
-                                            {examCategoryToLabel(exam.metadata?.examTypeCategory)}
-                                        </div>
-                                    </div>
+                                    <p className="text-xs lg:text-sm font-medium text-white/80">
+                                        Subject: <span className="font-bold text-white tracking-wide">{subject?.name || "Topic"}</span>
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest shrink-0 border border-white/10 w-fit">
+                                    <Zap className="h-3.5 w-3.5 text-amber-300 mix-blend-screen" />
+                                    {examCategoryToLabel(exam.metadata?.examTypeCategory)}
                                 </div>
                             </div>
                         </motion.div>
@@ -234,25 +229,25 @@ export default function ExamOverviewPage() {
                         {/* Rules & Instructions */}
                         <motion.div 
                             variants={itemVariants}
-                            className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 p-8 shadow-sm space-y-6"
+                            className="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 p-6 shadow-sm space-y-5"
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-2xl flex items-center justify-center">
-                                    <ClipboardList className="h-6 w-6" />
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-xl flex items-center justify-center">
+                                    <ClipboardList className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">Rules & Instructions</h2>
+                                    <h2 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-wider">Rules & Instructions</h2>
                                     <p className="text-xs text-slate-500 font-medium mt-1">Please read carefully before proceeding</p>
                                 </div>
                             </div>
 
-                            <ul className="space-y-4 pt-4">
+                            <ul className="space-y-2 pt-2">
                                 {rules.map((rule, index) => (
-                                    <li key={index} className="flex gap-5 group items-start p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
-                                        <div className="h-8 w-8 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-black text-slate-400 group-hover:bg-indigo-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-500/20 transition-all">
+                                    <li key={index} className="flex gap-4 group items-start p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
+                                        <div className="h-8 w-8 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-black text-slate-400 group-hover:bg-blue-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-all">
                                             {(index + 1).toString().padStart(2, '0')}
                                         </div>
-                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed pt-1 flex-1">
+                                        <p className="text-[13px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed pt-1 flex-1">
                                             {rule}
                                         </p>
                                     </li>
@@ -262,10 +257,10 @@ export default function ExamOverviewPage() {
                     </div>
 
                     {/* Right content area - Sticky sidebar */}
-                    <div className="lg:col-span-4 xl:col-span-3 space-y-6 sticky top-8">
+                    <div className="lg:col-span-4 xl:col-span-3 space-y-6 sticky top-6">
                         <motion.div 
                             variants={itemVariants}
-                            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[32px] p-6 shadow-sm overflow-hidden relative"
+                            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[24px] p-5 shadow-sm overflow-hidden relative"
                         >
                             {/* Decorative background element */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -289,17 +284,17 @@ export default function ExamOverviewPage() {
                                 </div>
 
                                 <div className="pt-2">
-                                    <div className="flex flex-col gap-3">
+                                    <div className="flex flex-col gap-2.5">
                                         <button
                                             onClick={handleStartExam}
-                                            className="w-full flex items-center justify-center gap-2.5 px-6 py-5 bg-slate-900 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-slate-900/20 active:scale-95 transition-all group/start hover:-translate-y-1"
+                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-lg shadow-blue-600/20 active:scale-95 transition-all group/start hover:-translate-y-0.5"
                                         >
-                                            <Play className="h-5 w-5 fill-current group-hover:translate-x-1 transition-transform" />
+                                            <Play className="h-4 w-4 fill-current group-hover:translate-x-1 transition-transform" />
                                             <span className="text-sm">Start Examination</span>
                                         </button>
                                         <button
                                             onClick={() => router.back()}
-                                            className="w-full px-6 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-black rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all text-xs"
+                                            className="w-full px-5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-xs"
                                         >
                                             Cancel & Return
                                         </button>
@@ -310,19 +305,68 @@ export default function ExamOverviewPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Confirmation Modal */}
+            {showConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800"
+                    >
+                        <div className="relative p-6 text-center space-y-6">
+                            <button 
+                                onClick={() => setShowConfirm(false)}
+                                className="absolute top-4 right-4 h-8 w-8 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 rounded-full flex items-center justify-center transition-colors"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+
+                            <div className="mx-auto h-16 w-16 bg-blue-50 dark:bg-blue-900/30 text-blue-500 rounded-full flex items-center justify-center mt-2 shadow-inner border border-blue-100 dark:border-blue-800/50">
+                                <AlertTriangle className="h-7 w-7" />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                                    Ready to begin?
+                                </h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium px-2 leading-relaxed">
+                                    Once started, the timer cannot be paused. Ensure you are ready and have a stable connection.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                <button
+                                    onClick={() => setShowConfirm(false)}
+                                    className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all active:scale-95 text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmStartExam}
+                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-95 text-sm"
+                                >
+                                    <Play className="h-4 w-4 fill-current" />
+                                    Start Now
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </motion.div>
     )
 }
 
 function OverviewDetail({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
     return (
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 flex items-center gap-4 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/5 hover:border-indigo-100 min-h-[96px]">
-            <div className="h-12 w-12 shrink-0 flex items-center justify-center rounded-2xl bg-indigo-50/50 dark:bg-slate-800 text-indigo-500 dark:text-slate-400">
-                <Icon className="h-5 w-5" />
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-[16px] border border-slate-100 dark:border-slate-800 flex items-center gap-3 transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-blue-100 min-h-[80px]">
+            <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-blue-50/50 dark:bg-slate-800 text-blue-500 dark:text-slate-400">
+                <Icon className="h-4 w-4" />
             </div>
             <div className="flex flex-col overflow-hidden">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider leading-none mb-1.5">{label}</span>
-                <span className="text-sm font-black text-slate-900 dark:text-white leading-none truncate">{value}</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider leading-none mb-1">{label}</span>
+                <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-none truncate">{value}</span>
             </div>
         </div>
     )
