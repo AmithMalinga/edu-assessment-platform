@@ -344,28 +344,27 @@ export default function ExamPage() {
 
                         {/* Question Content */}
                         <div className="p-8 flex-1 flex flex-col">
-                            <div className="prose dark:prose-invert max-w-none mb-10">
+                            <div className="prose dark:prose-invert max-w-none mb-6">
                                 <p className="text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{currentQuestion.content}</p>
                             </div>
 
                             <div className="mt-auto">
                                 {currentQuestion.type === "MCQ" && currentQuestion.options ? (
                                     <div className="space-y-3">
-                                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4">Select the correct option:</p>
-                                        <div className="grid gap-3">
+                                        <div className="grid gap-2.5">
                                             {currentQuestion.options.map((option, idx) => {
                                                 const isSelected = examState.answers[currentQuestion.id] === option;
                                                 return (
                                                     <label 
                                                         key={idx} 
                                                         className={cn(
-                                                            "group flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200",
+                                                            "group flex items-center gap-3 py-3 px-4 rounded-xl border-2 cursor-pointer transition-all duration-200",
                                                             isSelected 
                                                                 ? "bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-500 shadow-sm shadow-indigo-500/10" 
                                                                 : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700"
                                                         )}
                                                     >
-                                                        <div className="relative pt-0.5 mt-px shrink-0">
+                                                        <div className="relative shrink-0">
                                                             <div className={cn(
                                                                 "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
                                                                 isSelected ? "border-indigo-500" : "border-slate-300 dark:border-slate-600 group-hover:border-indigo-400"
@@ -382,7 +381,7 @@ export default function ExamPage() {
                                                             />
                                                         </div>
                                                         <span className={cn(
-                                                            "text-base font-medium leading-relaxed",
+                                                            "text-[15px] font-medium leading-normal",
                                                             isSelected ? "text-indigo-950 dark:text-indigo-100" : "text-slate-700 dark:text-slate-300"
                                                         )}>
                                                             {option}
@@ -407,26 +406,26 @@ export default function ExamPage() {
                         </div>
 
                         {/* Actions Footer */}
-                        <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center gap-4">
+                        <div className="px-6 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
                             <button
                                 onClick={handlePreviousQuestion}
                                 disabled={examState.currentQuestionIndex === 0}
-                                className="flex items-center gap-2 px-6 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all w-[110px] sm:w-[130px]"
                             >
-                                <ArrowLeft className="h-5 w-5" />
+                                <ArrowLeft className="h-4 w-4" />
                                 <span className="hidden sm:inline">Previous</span>
                             </button>
                             <button
                                 onClick={handleNextQuestion}
                                 disabled={examState.currentQuestionIndex === questions.length - 1}
-                                className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all w-[110px] sm:w-[130px]"
                             >
-                                <span className="hidden sm:inline">Next Question</span>
-                                <ArrowRight className="h-5 w-5" />
+                                <span className="hidden sm:inline">Next</span>
+                                <ArrowRight className="h-4 w-4" />
                             </button>
                             <button
                                 onClick={handleSubmitExam}
-                                className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-500 text-white font-black hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 active:scale-95 transition-all"
+                                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-emerald-500 text-white font-black text-sm hover:bg-emerald-600 shadow-md shadow-emerald-500/25 active:scale-95 transition-all ml-auto"
                             >
                                 {submitting ? "Submitting..." : "Submit Exam"}
                             </button>
@@ -502,37 +501,48 @@ export default function ExamPage() {
                         className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
                     >
                         <motion.div 
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            initial={{ scale: 0.95, opacity: 0, y: 10 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800"
+                            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                            className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800"
                         >
-                            <div className="p-8">
-                                <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 text-amber-500 rounded-2xl flex items-center justify-center mb-6">
-                                    <AlertTriangle className="h-8 w-8" />
+                            <div className="relative p-6 text-center space-y-6">
+                                <button 
+                                    onClick={() => setShowSubmitModal(false)}
+                                    className="absolute top-4 right-4 h-8 w-8 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 rounded-full flex items-center justify-center transition-colors"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+
+                                <div className="mx-auto h-16 w-16 bg-amber-50 dark:bg-amber-900/30 text-amber-500 rounded-full flex items-center justify-center mt-2 shadow-inner border border-amber-100 dark:border-amber-800/50">
+                                    <AlertTriangle className="h-7 w-7" />
                                 </div>
-                                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
-                                    Submit Examination?
-                                </h3>
-                                <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                                    You are about to submit your exam. Please note that once submitted, you cannot change your answers or return to this session. Are you sure you want to proceed?
-                                </p>
                                 
-                                <div className="mt-8 grid sm:grid-cols-2 gap-4">
-                                    <button 
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                                        Submit Examination?
+                                    </h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium px-2 leading-relaxed">
+                                        Once submitted, you cannot change your answers or return to this session. Are you sure you want to proceed?
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 pt-2">
+                                    <button
                                         onClick={() => setShowSubmitModal(false)}
-                                        className="px-6 py-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                        className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all active:scale-95 text-sm"
                                     >
                                         Resume Exam
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             setShowSubmitModal(false)
                                             performSubmit()
                                         }}
-                                        className="px-6 py-4 rounded-xl bg-emerald-500 text-white font-black hover:bg-emerald-600 shadow-xl shadow-emerald-500/20 transition-colors"
+                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95 text-sm"
                                     >
-                                        Yes, Submit Now
+                                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                                        Submit Now
                                     </button>
                                 </div>
                             </div>
