@@ -31,8 +31,14 @@ export default function RegisterPage() {
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [otpLoading, setOtpLoading] = useState(false)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
+    const [otpCode, setOtpCode] = useState("")
+    const [otpSent, setOtpSent] = useState(false)
+    const [otpVerified, setOtpVerified] = useState(false)
+    const [emailVerificationToken, setEmailVerificationToken] = useState("")
+    const [otpExpiryLabel, setOtpExpiryLabel] = useState("")
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
 
     const validate = () => {
@@ -46,6 +52,68 @@ export default function RegisterPage() {
         return errors
     }
 
+    const resetOtpFlow = () => {
+        setOtpCode("")
+        setOtpSent(false)
+        setOtpVerified(false)
+        setEmailVerificationToken("")
+        setOtpExpiryLabel("")
+    }
+
+    const handleSendOtp = async () => {
+        setError("")
+        setSuccess("")
+
+        const errors = validate()
+        setValidationErrors(errors)
+        if (Object.keys(errors).length > 0) return
+
+        setOtpLoading(true)
+        try {
+            const result = await studentService.requestRegisterOtp({ email })
+            const expiresInMinutes = Math.max(1, Math.floor(result.expiresInSeconds / 60))
+            setOtpSent(true)
+            setOtpVerified(false)
+            setEmailVerificationToken("")
+            setOtpExpiryLabel(`${expiresInMinutes} minute${expiresInMinutes > 1 ? "s" : ""}`)
+            setSuccess("OTP sent to your email. Enter it below to verify your email address.")
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Failed to send OTP.")
+        } finally {
+            setOtpLoading(false)
+        }
+    }
+
+    const handleVerifyOtp = async () => {
+        setError("")
+        setSuccess("")
+
+        if (!otpSent) {
+            setError("Request an OTP first.")
+            return
+        }
+
+        if (!/^\d{6}$/.test(otpCode)) {
+            setError("OTP must be a 6-digit code.")
+            return
+        }
+
+        setOtpLoading(true)
+        try {
+            const result = await studentService.verifyRegisterOtp({
+                email,
+                otp: otpCode,
+            })
+            setEmailVerificationToken(result.emailVerificationToken)
+            setOtpVerified(true)
+            setSuccess("Email verified. You can now complete registration.")
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "OTP verification failed.")
+        } finally {
+            setOtpLoading(false)
+        }
+    }
+
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault()
         setError("")
@@ -53,6 +121,11 @@ export default function RegisterPage() {
         const errors = validate()
         setValidationErrors(errors)
         if (Object.keys(errors).length > 0) return
+
+        if (!otpVerified || !emailVerificationToken) {
+            setError("Verify your email with OTP before creating your account.")
+            return
+        }
 
         setIsLoading(true)
         try {
@@ -63,6 +136,7 @@ export default function RegisterPage() {
                 age: Number(age),
                 educationalLevel,
                 password,
+                emailVerificationToken,
             })
 
             localStorage.setItem("token", res.access_token)
@@ -75,6 +149,7 @@ export default function RegisterPage() {
             setAge("")
             setEducationalLevel("")
             setPassword("")
+            resetOtpFlow()
             setValidationErrors({})
             setTimeout(() => {
                 router.push("/loading?to=/dashboard")
@@ -174,11 +249,71 @@ export default function RegisterPage() {
                             placeholder="Enter your email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            disabled={isLoading}
+                            onChange={(e) => {
+                                setEmail(e.target.value)
+                                if (otpSent || otpVerified) {
+                                    resetOtpFlow()
+                                }
+                            }}
+                            disabled={isLoading || otpSent}
                             className={`h-10 text-sm bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors ${validationErrors.email ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-indigo-600 dark:focus-visible:ring-indigo-500"} rounded-lg`}
                         />
                         {validationErrors.email && <div className="text-red-500 text-[10px] font-semibold">{validationErrors.email}</div>}
+                        {otpSent && !otpVerified && (
+                            <button
+                                type="button"
+                                onClick={resetOtpFlow}
+                                className="text-[10px] font-semibold text-indigo-600 hover:underline"
+                                disabled={isLoading || otpLoading}
+                            >
+                                Change email
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="space-y-2 rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-slate-50/60 dark:bg-slate-900/30">
+                        <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Email verification</p>
+                            {!otpVerified && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="h-8 text-xs"
+                                    onClick={handleSendOtp}
+                                    disabled={isLoading || otpLoading || !isValidEmail(email)}
+                                >
+                                    {otpSent ? "Resend OTP" : "Send OTP"}
+                                </Button>
+                            )}
+                        </div>
+
+                        {otpSent && !otpVerified && (
+                            <div className="space-y-2">
+                                <Input
+                                    placeholder="Enter 6-digit OTP"
+                                    value={otpCode}
+                                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                    disabled={isLoading || otpLoading}
+                                    className="h-10 text-sm rounded-lg"
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={handleVerifyOtp}
+                                    className="w-full h-9 text-xs font-semibold"
+                                    disabled={isLoading || otpLoading || otpCode.length !== 6}
+                                >
+                                    {otpLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Verify OTP
+                                </Button>
+                                {otpExpiryLabel && (
+                                    <p className="text-[10px] text-slate-500">Code expires in {otpExpiryLabel}.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {otpVerified && (
+                            <p className="text-[11px] font-semibold text-emerald-600">Email verified successfully.</p>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -258,10 +393,10 @@ export default function RegisterPage() {
                         <Button
                             type="submit"
                             className="w-full h-11 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 dark:from-indigo-600 dark:to-purple-600 text-white font-bold text-sm hover:shadow-xl hover:shadow-slate-900/20 dark:hover:shadow-indigo-500/25 transition-all duration-300 hover:-translate-y-0.5"
-                            disabled={isLoading}
+                            disabled={isLoading || otpLoading || !otpVerified}
                         >
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Sign up
+                            {otpVerified ? "Sign up" : "Verify Email to Continue"}
                         </Button>
                     </div>
 
