@@ -42,7 +42,12 @@ const footerNav = [
     { name: "Log out", href: "/login", icon: LogOut },
 ]
 
-export function DashboardSidebar() {
+interface SidebarProps {
+    isOpen: boolean;
+    setIsOpen: (isOpen: boolean) => void;
+}
+
+export function DashboardSidebar({ isOpen, setIsOpen }: SidebarProps) {
     const pathname = usePathname()
     const router = useRouter()
     const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -54,10 +59,27 @@ export function DashboardSidebar() {
     }
 
     return (
-        <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col z-50">
+        <>
+            {/* Mobile Overlay */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsOpen(false)}
+                        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] md:hidden"
+                    />
+                )}
+            </AnimatePresence>
+
+            <aside className={cn(
+                "fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col z-[70] transition-transform duration-300",
+                isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+            )}>
             {/* Logo */}
-            <div className="p-6">
-                <Link href="/" className="flex items-center gap-3 group">
+            <div className="p-6 flex items-center justify-between">
+                <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
                     <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-2 rounded-xl shadow-lg shadow-indigo-500/25 transition-transform group-hover:scale-110 group-hover:rotate-6">
                         <Zap className="text-white h-5 w-5 fill-current" />
                     </div>
@@ -65,6 +87,12 @@ export function DashboardSidebar() {
                         ExamMaster
                     </span>
                 </Link>
+                <button 
+                    onClick={() => setIsOpen(false)} 
+                    className="md:hidden p-2 -mr-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl"
+                >
+                    <X className="h-5 w-5" />
+                </button>
             </div>
 
             {/* Main Nav */}
@@ -75,6 +103,7 @@ export function DashboardSidebar() {
                         <Link
                             key={item.name}
                             href={item.href}
+                            onClick={() => setIsOpen(false)}
                             className={cn(
                                 "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group",
                                 isActive
@@ -99,7 +128,9 @@ export function DashboardSidebar() {
                         return (
                             <button
                                 key={item.name}
-                                onClick={() => setShowLogoutModal(true)}
+                                onClick={() => {
+                                    setShowLogoutModal(true)
+                                }}
                                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900 transition-all group"
                             >
                                 <item.icon className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
@@ -112,6 +143,7 @@ export function DashboardSidebar() {
                         <Link
                             key={item.name}
                             href={item.href}
+                            onClick={() => setIsOpen(false)}
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900 transition-all group"
                         >
                             <item.icon className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
@@ -178,5 +210,6 @@ export function DashboardSidebar() {
                 )}
             </AnimatePresence>
         </aside>
+        </>
     )
 }

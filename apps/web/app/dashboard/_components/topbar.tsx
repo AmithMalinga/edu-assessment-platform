@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Bell, Mail, ChevronDown } from "lucide-react"
+import { Search, Bell, Mail, ChevronDown, Menu } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import type { StudentProfile } from "@/lib/services/student.service"
@@ -8,22 +8,31 @@ import type { StudentProfile } from "@/lib/services/student.service"
 interface TopBarProps {
     profile: StudentProfile | null;
     loading?: boolean;
+    onMenuClick?: () => void;
 }
 
-export function DashboardTopBar({ profile, loading }: TopBarProps) {
+export function DashboardTopBar({ profile, loading, onMenuClick }: TopBarProps) {
     const displayName = profile?.name || "Loading..."
     const displayRole = profile?.role ? `${profile.role} Student` : "Student"
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`
 
     return (
-        <header className="h-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-40">
-            {/* Search */}
-            <div className="relative w-full max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input 
-                    placeholder="Search courses, assignments..." 
-                    className="pl-10 h-10 bg-slate-100/50 dark:bg-slate-900/50 border-none focus-visible:ring-indigo-500 rounded-xl"
-                />
+        <header className="h-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40 gap-4">
+            {/* Mobile Menu & Search */}
+            <div className="flex items-center w-full max-w-md gap-2">
+                <button 
+                    onClick={onMenuClick}
+                    className="md:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl shrink-0"
+                >
+                    <Menu className="h-6 w-6" />
+                </button>
+                <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input 
+                        placeholder="Search courses..." 
+                        className="pl-10 h-10 bg-slate-100/50 dark:bg-slate-900/50 border-none focus-visible:ring-indigo-500 rounded-xl text-sm"
+                    />
+                </div>
             </div>
 
             {/* Actions */}

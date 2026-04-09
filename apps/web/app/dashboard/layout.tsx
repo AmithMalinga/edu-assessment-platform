@@ -14,6 +14,7 @@ export default function DashboardLayout({
     const pathname = usePathname()
     const [profile, setProfile] = useState<StudentProfile | null>(null)
     const [loading, setLoading] = useState(true)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
@@ -49,10 +50,10 @@ export default function DashboardLayout({
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-            <DashboardSidebar />
+            <DashboardSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-            <div className="pl-64 flex flex-col min-h-screen">
-                <DashboardTopBar profile={profile} loading={loading} />
+            <div className="md:pl-64 flex flex-col min-h-screen">
+                <DashboardTopBar profile={profile} loading={loading} onMenuClick={() => setIsSidebarOpen(true)} />
                 <main className="flex-1">
                     {children}
                 </main>
