@@ -1,137 +1,230 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { 
+    Search, 
+    Calendar, 
+    Clock, 
+    Trophy, 
+    ChevronRight, 
+    ArrowUpRight,
+    Filter,
+    CheckCircle2,
+    XCircle
+} from "lucide-react"
+import { cn } from "@/lib/utils"
 import { resultService, type AttemptListItem } from "@/lib/services/result.service"
 
-const formatDateTime = (value: string) => {
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return "-"
-    return date.toLocaleString()
-}
-
-const parseSubjectFromDescription = (description: string | null) => {
-    if (!description) return "General"
-    const marker = "Exam Config: "
-    const idx = description.indexOf(marker)
-    if (idx === -1) return "General"
-
+function getExamTypeLabel(description: string | null) {
+    if (!description) return 'General';
+    const prefix = 'Exam Config: ';
+    const idx = description.indexOf(prefix);
+    if (idx === -1) return 'General';
     try {
-        const parsed = JSON.parse(description.slice(idx + marker.length).trim()) as { subjectName?: string }
-        return parsed.subjectName || "General"
+        const meta = JSON.parse(description.slice(idx + prefix.length).trim());
+        const cat = meta.examTypeCategory;
+        if (cat === 'LESSON_WISE') return 'Lesson Wise';
+        if (cat === 'PAST_PAPERS') return 'Past Papers';
+        if (cat === 'LIVE') return 'Live';
+        if (cat === 'RANDOM_NEW') return 'Random New';
+        return 'General';
     } catch {
-        return "General"
+        return 'General';
     }
 }
 
 export default function ResultsPage() {
-    const router = useRouter()
     const [attempts, setAttempts] = useState<AttemptListItem[]>([])
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState("")
+    const [searchQuery, setSearchQuery] = useState("")
+    const [filterType, setFilterType] = useState("ALL")
+    const router = useRouter()
+
+    const examTypes = useMemo(() => {
+        const types = new Set<string>()
+        attempts.forEach(a => types.add(getExamTypeLabel(a.exam.description)))
+        return Array.from(types).sort()
+    }, [attempts])
+
+    const filteredAttempts = useMemo(() => {
+        return attempts.filter(attempt => {
+            const matchesSearch = attempt.exam.title.toLowerCase().includes(searchQuery.toLowerCase())
+            const attemptType = getExamTypeLabel(attempt.exam.description)
+            const matchesType = filterType === "ALL" || attemptType === filterType
+            return matchesSearch && matchesType
+        })
+    }, [attempts, searchQuery, filterType])
 
     useEffect(() => {
-        const loadAttempts = async () => {
-            setLoading(true)
-            setError("")
-
+        const fetchResults = async () => {
             try {
                 const token = localStorage.getItem("token")
                 if (!token) {
                     router.push("/login")
                     return
                 }
-
                 const data = await resultService.getMyAttempts(token)
                 setAttempts(data)
-            } catch (err: any) {
-                setError(err?.message || "Failed to load results.")
+            } catch (error) {
+                console.error("Failed to load results:", error)
             } finally {
                 setLoading(false)
             }
         }
 
-        loadAttempts()
+        fetchResults()
     }, [router])
 
-    const sortedAttempts = useMemo(
-        () => [...attempts].sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()),
-        [attempts],
-    )
-
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-semibold text-slate-900">My Results</h1>
-                <p className="text-sm text-slate-600 mt-1">Review your exam attempts and open detailed answer reviews.</p>
+        <div className="p-8 lg:p-10 space-y-10 min-h-screen bg-slate-50 dark:bg-slate-950">
+            {/* Header */}
+            <div className="space-y-2">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white">Exam Results</h1>
+                <p className="text-slate-500 font-medium">Track your performance and review past attempts.</p>
             </div>
 
-            {loading ? <p>Loading results...</p> : null}
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-            {!loading && !error && sortedAttempts.length === 0 ? (
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-6">
-                    <h2 className="text-lg font-semibold text-slate-900">No results yet</h2>
-                    <p className="text-sm text-slate-600 mt-2">Once you complete an exam, your results and answer review will appear here.</p>
-                    <button
-                        onClick={() => router.push("/dashboard/subjects")}
-                        className="mt-4 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            {/* Filters Bar */}
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div className="relative w-full max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input 
+                        type="text" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search by exam name..." 
+                        className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    />
+                </div>
+                <div className="relative shrink-0">
+                    <select
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                        className="appearance-none flex items-center gap-2 pl-4 pr-10 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-indigo-500 outline-none"
                     >
-                        Start an Exam
+                        <option value="ALL">All Types</option>
+                        {examTypes.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                        ))}
+                    </select>
+                    <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
+            </div>
+
+            {/* Results Grid/List */}
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                        <div key={i} className="h-48 bg-slate-200 dark:bg-slate-900 animate-pulse rounded-[32px]" />
+                    ))}
+                </div>
+            ) : filteredAttempts.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredAttempts.map((attempt, index) => (
+                        <ResultCard key={attempt.id} attempt={attempt} index={index} router={router} />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center py-20 px-8 text-center bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-100 dark:border-slate-800">
+                    <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
+                        <Calendar className="h-10 w-10 text-slate-300 dark:text-slate-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No exam results yet</h3>
+                    <p className="text-slate-500 max-w-sm mb-8">You haven&apos;t completed any exams. Take your first exam to see your results and analytics here!</p>
+                    <button 
+                        onClick={() => router.push('/dashboard/subjects')}
+                        className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
+                    >
+                        Go to Subjects
                     </button>
                 </div>
-            ) : null}
+            )}
+        </div>
+    )
+}
 
-            {sortedAttempts.length > 0 ? (
-                <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-200 text-sm">
-                            <thead className="bg-slate-50 text-left text-slate-600">
-                                <tr>
-                                    <th className="px-4 py-3 font-medium">Exam</th>
-                                    <th className="px-4 py-3 font-medium">Subject</th>
-                                    <th className="px-4 py-3 font-medium">Score</th>
-                                    <th className="px-4 py-3 font-medium">Status</th>
-                                    <th className="px-4 py-3 font-medium">Completed</th>
-                                    <th className="px-4 py-3 font-medium">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {sortedAttempts.map((attempt) => {
-                                    const passed = attempt.score >= attempt.exam.passingScore
-                                    const subject = parseSubjectFromDescription(attempt.exam.description)
+function ResultCard({ attempt, index, router }: { attempt: AttemptListItem; index: number; router: ReturnType<typeof useRouter> }) {
+    const isPassed = attempt.score >= (attempt.exam.passingScore || 50)
+    const dateStr = new Date(attempt.completedAt).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    })
+    const timeTakenMin = Math.floor(attempt.timeTaken / 60)
 
-                                    return (
-                                        <tr key={attempt.id}>
-                                            <td className="px-4 py-3 font-medium text-slate-900">{attempt.exam.title}</td>
-                                            <td className="px-4 py-3 text-slate-700">{subject}</td>
-                                            <td className="px-4 py-3 text-slate-700">{attempt.score}%</td>
-                                            <td className="px-4 py-3">
-                                                <span
-                                                    className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                                        passed ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-                                                    }`}
-                                                >
-                                                    {passed ? "Passed" : "Failed"}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3 text-slate-700">{formatDateTime(attempt.completedAt)}</td>
-                                            <td className="px-4 py-3">
-                                                <button
-                                                    onClick={() => router.push(`/dashboard/results/${attempt.id}`)}
-                                                    className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-900 hover:bg-slate-50"
-                                                >
-                                                    View Result
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            className="group relative bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 mt-2"
+        >
+            {/* Status Icon placed absolutely on the top right corner */}
+            <div className={cn(
+                "absolute -top-3 -right-2 h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 duration-300 shadow-sm border-[3px] border-white dark:border-slate-900 z-10",
+                isPassed ? "bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20" : "bg-pink-50 text-pink-500 dark:bg-pink-900/20"
+            )}>
+                {isPassed ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            </div>
+
+            <div className="space-y-4">
+                {/* Result Type/Date */}
+                <div className="flex items-center justify-between pr-4">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                        <Calendar className="h-3 w-3" />
+                        {dateStr}
+                    </div>
+                    {attempt.exam.description && (
+                        <div className="px-2 py-0.5 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black rounded-md uppercase tracking-widest text-center whitespace-nowrap">
+                            {getExamTypeLabel(attempt.exam.description)}
+                        </div>
+                    )}
+                </div>
+
+                {/* Exam Title */}
+                <div className="space-y-1">
+                    <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {attempt.exam.title}
+                    </h3>
+                    <p className="text-xs font-semibold text-slate-500">
+                        Exam Attempt #{attempt.id.slice(-4).toUpperCase()}
+                    </p>
+                </div>
+
+                {/* Score Summary */}
+                <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-50 dark:border-slate-800/50">
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Your Score</p>
+                        <div className="flex items-baseline gap-1">
+                            <span className={cn(
+                                "text-2xl font-black",
+                                isPassed ? "text-emerald-500" : "text-pink-500"
+                            )}>
+                                {attempt.score}%
+                            </span>
+                        </div>
+                    </div>
+                    <div className="space-y-1 pl-4 border-l border-slate-50 dark:border-slate-800/50">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Time Taken</p>
+                        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                            <Clock className="h-4 w-4 text-slate-400" />
+                            <span className="text-lg font-bold">{timeTakenMin}m</span>
+                        </div>
                     </div>
                 </div>
-            ) : null}
-        </div>
+
+                {/* Action */}
+                <button 
+                    onClick={() => router.push(`/dashboard/subjects/all/exam-result?attemptId=${attempt.id}&examId=${attempt.examId}`)}
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group/btn"
+                >
+                    <span className="text-sm">View Details</span>
+                    <div className="h-7 w-7 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover/btn:translate-x-1 transition-transform">
+                        <ChevronRight className="h-4 w-4 text-indigo-500" />
+                    </div>
+                </button>
+            </div>
+        </motion.div>
     )
 }
