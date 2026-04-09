@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { studentService, type StudentProfile, type StudentSubject } from "@/lib/services/student.service"
 import { motion } from "framer-motion"
-import { BookOpen, Sparkles, ChevronRight, Library } from "lucide-react"
+import { BookOpen, Sparkles, ChevronRight, Library, Search } from "lucide-react"
 import { CourseCard } from "../_components/course-card"
 
 const SUBJECT_COLORS = [
@@ -19,7 +19,14 @@ export default function StudentSubjectsPage() {
     const [profile, setProfile] = useState<StudentProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const [searchQuery, setSearchQuery] = useState("")
     const router = useRouter()
+
+    const filteredSubjects = useMemo(() => {
+        return subjects.filter(subject => 
+            subject.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    }, [subjects, searchQuery])
 
     useEffect(() => {
         const loadSubjects = async () => {
@@ -46,28 +53,23 @@ export default function StudentSubjectsPage() {
 
     return (
         <div className="p-8 lg:p-10 space-y-10 min-h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
-            {/* Header Banner */}
-            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 shadow-sm">
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-32 h-32 bg-indigo-300/20 rounded-full blur-2xl pointer-events-none" />
+            {/* Header */}
+            <div className="space-y-2">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white">My Enrolled Subjects</h1>
+                <p className="text-slate-500 font-medium">Access your interactive learning modules and course materials.</p>
+            </div>
 
-                <div className="relative z-10 flex flex-col gap-1.5 hover:scale-[1.01] transition-transform origin-left">
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-indigo-100 font-bold text-xs tracking-wider"
-                    >
-                        <Library className="h-3.5 w-3.5" />
-                        ACADEMIC WORKSPACE
-                    </motion.div>
-                    <motion.h1 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-2xl lg:text-3xl font-black text-white leading-tight"
-                    >
-                        My Enrolled Subjects
-                    </motion.h1>
+            {/* Search Bar */}
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div className="relative w-full max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input 
+                        type="text" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search by subject name..." 
+                        className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    />
                 </div>
             </div>
 
@@ -89,8 +91,8 @@ export default function StudentSubjectsPage() {
                                 <div className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-xl" />
                             </div>
                         ))
-                    ) : subjects.length > 0 ? (
-                        subjects.map((subject, index) => (
+                    ) : filteredSubjects.length > 0 ? (
+                        filteredSubjects.map((subject, index) => (
                             <motion.div
                                 key={subject.id}
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
