@@ -19,6 +19,16 @@ export interface AuthResponse {
     user: AuthUser;
 }
 
+export interface RegisterOtpResponse {
+    message: string;
+    expiresInSeconds: number;
+}
+
+export interface VerifyOtpResponse {
+    message: string;
+    emailVerificationToken: string;
+}
+
 export interface StudentProfile extends AuthUser {
     createdAt: string;
     updatedAt: string;
@@ -61,7 +71,7 @@ export const studentService = {
         }
     },
 
-    register: async (data: { name: string; email: string; phone: string; age: number; educationalLevel: string; password: string }): Promise<AuthResponse> => {
+    register: async (data: { name: string; email: string; phone: string; age: number; educationalLevel: string; password: string; emailVerificationToken: string }): Promise<AuthResponse> => {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: {
@@ -73,6 +83,40 @@ export const studentService = {
         const result = await response.json();
         if (!response.ok) {
             throw new Error(getErrorMessage(result, 'Registration failed.'));
+        }
+
+        return result;
+    },
+
+    requestRegisterOtp: async (data: { email: string }): Promise<RegisterOtpResponse> => {
+        const response = await fetch(`${API_URL}/auth/register/request-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(getErrorMessage(result, 'Failed to send OTP.'));
+        }
+
+        return result;
+    },
+
+    verifyRegisterOtp: async (data: { email: string; otp: string }): Promise<VerifyOtpResponse> => {
+        const response = await fetch(`${API_URL}/auth/register/verify-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(getErrorMessage(result, 'Invalid OTP.'));
         }
 
         return result;

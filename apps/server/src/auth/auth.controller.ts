@@ -1,7 +1,10 @@
 import { Controller, Request, Post, UseGuards, Body, Get, Req, Res, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { CompleteRegistrationDto } from './dto/complete-registration.dto';
 import { LoginDto } from './dto/login.dto';
+import { RequestRegisterOtpDto } from './dto/request-register-otp.dto';
+import { VerifyRegisterOtpDto } from './dto/verify-register-otp.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
@@ -16,8 +19,18 @@ export class AuthController {
     }
 
     @Post('register')
-    async register(@Body() registerDto: RegisterDto) {
+    async register(@Body() registerDto: CompleteRegistrationDto) {
         return this.authService.register(registerDto);
+    }
+
+    @Post('register/request-otp')
+    async requestRegisterOtp(@Body() requestOtpDto: RequestRegisterOtpDto) {
+        return this.authService.requestRegisterOtp(requestOtpDto);
+    }
+
+    @Post('register/verify-otp')
+    async verifyRegisterOtp(@Body() verifyOtpDto: VerifyRegisterOtpDto) {
+        return this.authService.verifyRegisterOtp(verifyOtpDto);
     }
 
     @Post('register-admin')
