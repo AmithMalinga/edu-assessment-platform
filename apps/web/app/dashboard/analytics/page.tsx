@@ -57,23 +57,23 @@ export default function AnalyticsPage() {
     )
 
     if (!analytics || analytics.overview.totalAttempts === 0) return (
-         <div className="p-6 lg:p-8 min-h-[80vh] flex items-center justify-center">
-            <div className="text-center space-y-6 max-w-md">
-                <div className="h-24 w-24 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 rounded-full flex items-center justify-center mx-auto">
-                    <BarChart3 className="h-12 w-12" />
+        <div className="p-8 lg:p-10 space-y-10 min-h-[80vh] bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center py-20 px-8 text-center bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-100 dark:border-slate-800 w-full max-w-2xl">
+                <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
+                    <BarChart3 className="h-10 w-10 text-indigo-300 dark:text-indigo-600" />
                 </div>
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white">No Analytics Yet</h2>
-                <p className="text-slate-500 font-medium leading-relaxed">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Analytics Yet</h3>
+                <p className="text-slate-500 max-w-sm mb-8">
                     Once you complete your first exam, we&apos;ll start generating detailed insights into your academic performance and progress.
                 </p>
                 <button 
                     onClick={() => router.push('/dashboard/subjects')}
-                    className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-2xl shadow-indigo-600/20 transition-all active:scale-95"
+                    className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
                 >
                     Start Your First Exam
                 </button>
             </div>
-         </div>
+        </div>
     )
 
     return (
