@@ -1,5 +1,7 @@
 "use client"
 
+import { ChangeEvent } from "react"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Search, Bell, Mail, ChevronDown, Menu } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
@@ -12,6 +14,20 @@ interface TopBarProps {
 }
 
 export function DashboardTopBar({ profile, loading, onMenuClick }: TopBarProps) {
+    const searchParams = useSearchParams()
+    const pathname = usePathname()
+    const { replace } = useRouter()
+
+    const handleSearch = (term: string) => {
+        const params = new URLSearchParams(searchParams)
+        if (term) {
+            params.set("search", term)
+        } else {
+            params.delete("search")
+        }
+        replace(`${pathname}?${params.toString()}`)
+    }
+
     const displayName = profile?.name || "Loading..."
     const displayRole = profile?.role ? `${profile.role} Student` : "Student"
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`
@@ -31,6 +47,8 @@ export function DashboardTopBar({ profile, loading, onMenuClick }: TopBarProps) 
                     <Input 
                         placeholder="Search courses..." 
                         className="pl-10 h-10 bg-slate-100/50 dark:bg-slate-900/50 border-none focus-visible:ring-indigo-500 rounded-xl text-sm"
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => handleSearch(e.target.value)}
+                        defaultValue={searchParams.get('search')?.toString()}
                     />
                 </div>
             </div>

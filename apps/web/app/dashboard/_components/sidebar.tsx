@@ -79,7 +79,7 @@ export function DashboardSidebar({ isOpen, setIsOpen }: SidebarProps) {
             )}>
             {/* Logo */}
             <div className="p-6 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
+                <Link href="/dashboard" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
                     <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-2 rounded-xl shadow-lg shadow-indigo-500/25 transition-transform group-hover:scale-110 group-hover:rotate-6">
                         <Zap className="text-white h-5 w-5 fill-current" />
                     </div>

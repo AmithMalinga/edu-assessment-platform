@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { WelcomeBanner } from "./_components/welcome-banner"
 import { CourseCard } from "./_components/course-card"
@@ -26,6 +26,19 @@ export default function DashboardPage() {
     const [showAllSubjects, setShowAllSubjects] = useState(false)
     const [showAllExams, setShowAllExams] = useState(false)
     const router = useRouter()
+    const searchParams = useSearchParams()
+    
+    const searchQuery = searchParams.get("search")?.toLowerCase() || ""
+
+    const filteredSubjects = subjects.filter(subject => 
+        subject.name.toLowerCase().includes(searchQuery) || 
+        subject.grade?.name?.toLowerCase().includes(searchQuery)
+    )
+
+    const filteredExams = allExams.filter(exam => 
+        exam.title.toLowerCase().includes(searchQuery) || 
+        exam.metadata?.subjectName?.toLowerCase().includes(searchQuery)
+    )
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -83,7 +96,7 @@ export default function DashboardPage() {
                 <section className="space-y-6">
                     <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-black text-slate-900 dark:text-white">My Subjects</h2>
-                        {subjects.length > 3 && (
+                        {filteredSubjects.length > 3 && (
                             <button 
                                 onClick={() => setShowAllSubjects(!showAllSubjects)}
                                 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -99,9 +112,9 @@ export default function DashboardPage() {
                                 <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-[28px]" />
                             ))}
                         </div>
-                    ) : subjects.length > 0 ? (
+                    ) : filteredSubjects.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {(showAllSubjects ? subjects : subjects.slice(0, 3)).map((subject, index) => (
+                            {(showAllSubjects ? filteredSubjects : filteredSubjects.slice(0, 3)).map((subject, index) => (
                                 <motion.div
                                     key={subject.id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -119,7 +132,9 @@ export default function DashboardPage() {
                         </div>
                     ) : (
                         <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-[32px] border border-dashed border-slate-200 dark:border-slate-800">
-                             <p className="text-slate-500 font-medium">No subjects found. Start by enrolling in a course!</p>
+                             <p className="text-slate-500 font-medium">
+                                 {searchQuery ? `No subjects found matching "${searchQuery}"` : "No subjects found. Start by enrolling in a course!"}
+                             </p>
                         </div>
                     )}
                 </section>
@@ -131,7 +146,7 @@ export default function DashboardPage() {
                             <h2 className="text-2xl font-black text-slate-900 dark:text-white">New Arrivals</h2>
                             <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Recently added assessments</p>
                         </div>
-                        {allExams.length > 3 && (
+                        {filteredExams.length > 3 && (
                             <button 
                                 onClick={() => setShowAllExams(!showAllExams)}
                                 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -146,8 +161,8 @@ export default function DashboardPage() {
                             [1, 2, 3].map((i) => (
                                 <div key={i} className="h-64 bg-slate-100 dark:bg-slate-900/50 animate-pulse rounded-[28px]" />
                             ))
-                        ) : allExams.length > 0 ? (
-                            (showAllExams ? allExams : allExams.slice(0, 3)).map((exam, index) => {
+                        ) : filteredExams.length > 0 ? (
+                            (showAllExams ? filteredExams : filteredExams.slice(0, 3)).map((exam, index) => {
                                 const category = exam.metadata?.examTypeCategory || "RANDOM_NEW"
                                 const typeSlug = category.toLowerCase().replace('_', '-')
 
@@ -175,7 +190,9 @@ export default function DashboardPage() {
                             })
                         ) : (
                             <div className="w-full p-10 text-center bg-white dark:bg-slate-900 rounded-[32px] border border-dashed border-slate-200 dark:border-slate-800">
-                                <p className="text-slate-500 font-medium">No new exams available right now.</p>
+                                <p className="text-slate-500 font-medium">
+                                    {searchQuery ? `No exams found matching "${searchQuery}"` : "No new exams available right now."}
+                                </p>
                             </div>
                         )}
                     </div>
