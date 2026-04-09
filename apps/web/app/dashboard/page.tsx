@@ -44,10 +44,8 @@ export default function DashboardPage() {
         const fetchAllData = async () => {
             try {
                 const token = localStorage.getItem("token")
-                if (!token) {
-                    router.push("/login")
-                    return
-                }
+                // Still need token for service calls, but redirect is handled by layout
+                if (!token) return
 
                 // Start profile and exams fetch in parallel
                 const [profileData, examsData] = await Promise.all([
