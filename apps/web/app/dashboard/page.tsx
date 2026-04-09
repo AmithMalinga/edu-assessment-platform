@@ -41,7 +41,7 @@ export default function DashboardPage() {
     )
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
+        const fetchAllData = async () => {
             try {
                 const token = localStorage.getItem("token")
                 if (!token) {
@@ -49,57 +49,56 @@ export default function DashboardPage() {
                     return
                 }
 
-                const profileData = await studentService.getProfile(token)
+                // Start profile and exams fetch in parallel
+                const [profileData, examsData] = await Promise.all([
+                    studentService.getProfile(token),
+                    assessmentService.getAllExams()
+                ])
+
                 setProfile(profileData)
 
+                // Fetch subjects after profile is known
                 const subjectsData = await studentService.getSubjectsForStudent(profileData.id, token)
                 setSubjects(subjectsData)
-            } catch (error) {
-                console.error("Dashboard Fetch Error:", error)
-            } finally {
-                setLoading(false)
-            }
-        }
-        
-        const fetchExams = async () => {
-             try {
-                const examsData = await assessmentService.getAllExams()
+
                 // Sort by newest first
                 const sortedExams = examsData.sort((a, b) => 
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 )
                 setAllExams(sortedExams)
             } catch (error) {
-                console.error("Dashboard Exams Fetch Error:", error)
+                console.error("Dashboard Fetch Error:", error)
             } finally {
+                setLoading(false)
                 setExamsLoading(false)
             }
         }
 
-        fetchDashboardData()
-        fetchExams()
+        fetchAllData()
     }, [router])
 
     return (
         <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen">
             {/* Main Content Area */}
-            <div className="flex-1 p-8 lg:p-10 space-y-10 overflow-hidden">
+            <div className="flex-1 p-4 sm:p-6 lg:p-10 space-y-8 lg:space-y-10 overflow-hidden">
                 
                 {/* Welcome Section */}
                 {loading ? (
-                    <div className="h-48 w-full bg-slate-200 animate-pulse rounded-[32px]" />
+                    <div className="h-32 sm:h-48 w-full bg-white dark:bg-slate-900 animate-pulse rounded-[28px] sm:rounded-[32px]" />
                 ) : (
                     <WelcomeBanner name={profile?.name} />
                 )}
 
                 {/* Courses Section */}
                 <section className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white">My Subjects</h2>
-                        {filteredSubjects.length > 3 && (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        {!loading && (
+                            <h2 className="text-2xl font-black text-slate-900 dark:text-white">My Subjects</h2>
+                        )}
+                        {filteredSubjects.length > 3 && !loading && (
                             <button 
                                 onClick={() => setShowAllSubjects(!showAllSubjects)}
-                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline text-left sm:text-right"
                             >
                                 {showAllSubjects ? "Show Less" : "View All"}
                             </button>
@@ -141,17 +140,18 @@ export default function DashboardPage() {
 
                 {/* New Arrivals / Recent Exams Feed */}
                 <section className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <h2 className="text-2xl font-black text-slate-900 dark:text-white">New Arrivals</h2>
-                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Recently added assessments</p>
-                        </div>
-                        {filteredExams.length > 3 && (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        {!loading && (
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-black text-slate-900 dark:text-white">New Exams</h2>
+                            </div>
+                        )}
+                        {filteredExams.length > 3 && !loading && (
                             <button 
                                 onClick={() => setShowAllExams(!showAllExams)}
-                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline text-left sm:text-right"
                             >
-                                {showAllExams ? "Show Less" : "View All Exams"}
+                                {showAllExams ? "Show Less" : "View All"}
                             </button>
                         )}
                     </div>

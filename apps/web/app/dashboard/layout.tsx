@@ -18,6 +18,10 @@ export default function DashboardLayout({
     const router = useRouter()
 
     useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [pathname])
+
+    useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const token = localStorage.getItem("token")

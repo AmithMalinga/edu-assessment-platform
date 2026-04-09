@@ -27,7 +27,7 @@ export function ExamFeedCard({ id, title, subject, subjectId, typeSlug, question
         <motion.div 
             whileHover={{ y: -4, scale: 1.02 }}
             onClick={() => router.push(`/dashboard/subjects/${subjectId}/exam-overview?examId=${id}&type=${typeSlug}`)}
-            className="flex-shrink-0 w-[280px] bg-white dark:bg-slate-900 rounded-[28px] p-4 shadow-sm border border-slate-100 dark:border-slate-800 group cursor-pointer active:scale-[0.98] transition-all"
+            className="w-full bg-white dark:bg-slate-900 rounded-[28px] p-4 shadow-sm border border-slate-100 dark:border-slate-800 group cursor-pointer active:scale-[0.98] transition-all"
         >
             <div className={cn(
                 "h-32 rounded-[20px] mb-4 relative overflow-hidden flex flex-col justify-end p-4 bg-gradient-to-br",
