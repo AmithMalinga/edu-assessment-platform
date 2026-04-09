@@ -42,11 +42,9 @@ export default function StudentProfilePage() {
     return (
         <div className="p-8 lg:p-10 space-y-10 min-h-screen bg-slate-50 dark:bg-slate-950">
             {/* Header */}
-            <div className="flex items-center gap-3">
-                <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2.5 rounded-xl">
-                    <User className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Student Profile</h1>
+            <div className="space-y-2">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white">Student Profile</h1>
+                <p className="text-slate-500 font-medium">Manage your personal information and academic details.</p>
             </div>
 
             {error ? (

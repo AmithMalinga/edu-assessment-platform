@@ -114,13 +114,13 @@ export default function ResultsPage() {
 
             {/* Results Grid/List */}
             {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {[1, 2, 3, 4, 5, 6].map(i => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                         <div key={i} className="h-48 bg-slate-200 dark:bg-slate-900 animate-pulse rounded-[32px]" />
                     ))}
                 </div>
             ) : filteredAttempts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredAttempts.map((attempt, index) => (
                         <ResultCard key={attempt.id} attempt={attempt} index={index} router={router} />
                     ))}
@@ -158,25 +158,25 @@ function ResultCard({ attempt, index, router }: { attempt: AttemptListItem; inde
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="group relative bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300"
+            className="group relative bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 mt-2"
         >
-            {/* Status Icon */}
+            {/* Status Icon placed absolutely on the top right corner */}
             <div className={cn(
-                "absolute top-6 right-6 h-10 w-10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 duration-300",
+                "absolute -top-3 -right-2 h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 duration-300 shadow-sm border-[3px] border-white dark:border-slate-900 z-10",
                 isPassed ? "bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20" : "bg-pink-50 text-pink-500 dark:bg-pink-900/20"
             )}>
-                {isPassed ? <CheckCircle2 className="h-6 w-6" /> : <XCircle className="h-6 w-6" />}
+                {isPassed ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
             </div>
 
             <div className="space-y-4">
                 {/* Result Type/Date */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <div className="flex items-center justify-between pr-4">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                         <Calendar className="h-3 w-3" />
                         {dateStr}
                     </div>
                     {attempt.exam.description && (
-                        <div className="px-2 py-0.5 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black rounded-md uppercase tracking-wider">
+                        <div className="px-2 py-0.5 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black rounded-md uppercase tracking-widest text-center whitespace-nowrap">
                             {getExamTypeLabel(attempt.exam.description)}
                         </div>
                     )}
@@ -217,11 +217,11 @@ function ResultCard({ attempt, index, router }: { attempt: AttemptListItem; inde
                 {/* Action */}
                 <button 
                     onClick={() => router.push(`/dashboard/subjects/all/exam-result?attemptId=${attempt.id}&examId=${attempt.examId}`)}
-                    className="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group/btn"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group/btn"
                 >
-                    Review Detailed Result
-                    <div className="h-8 w-8 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover/btn:translate-x-1 transition-transform">
-                        <ChevronRight className="h-5 w-5 text-indigo-500" />
+                    <span className="text-sm">View Details</span>
+                    <div className="h-7 w-7 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover/btn:translate-x-1 transition-transform">
+                        <ChevronRight className="h-4 w-4 text-indigo-500" />
                     </div>
                 </button>
             </div>
