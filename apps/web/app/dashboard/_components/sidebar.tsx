@@ -1,7 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
     LayoutDashboard,
     Calendar,
@@ -15,7 +17,10 @@ import {
     User,
     Library,
     Activity,
-    LineChart
+    LineChart,
+    AlertTriangle,
+    X,
+    CheckCircle2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +44,14 @@ const footerNav = [
 
 export function DashboardSidebar() {
     const pathname = usePathname()
+    const router = useRouter()
+    const [showLogoutModal, setShowLogoutModal] = useState(false)
+
+    const handleConfirmLogout = () => {
+        localStorage.removeItem("token")
+        setShowLogoutModal(false)
+        router.replace("/login")
+    }
 
     return (
         <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col z-50">
@@ -81,17 +94,89 @@ export function DashboardSidebar() {
 
             {/* Footer Nav */}
             <div className="p-4 space-y-1.5 border-t border-slate-100 dark:border-slate-900">
-                {footerNav.map((item) => (
-                    <Link
-                        key={item.name}
-                        href={item.href}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900 transition-all group"
-                    >
-                        <item.icon className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
-                        {item.name}
-                    </Link>
-                ))}
+                {footerNav.map((item) => {
+                    if (item.name === "Log out") {
+                        return (
+                            <button
+                                key={item.name}
+                                onClick={() => setShowLogoutModal(true)}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900 transition-all group"
+                            >
+                                <item.icon className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
+                                {item.name}
+                            </button>
+                        )
+                    }
+
+                    return (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900 transition-all group"
+                        >
+                            <item.icon className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
+                            {item.name}
+                        </Link>
+                    )
+                })}
             </div>
+
+            {/* Logout Modal */}
+            <AnimatePresence>
+                {showLogoutModal && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                            className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800"
+                        >
+                            <div className="relative p-6 text-center space-y-6">
+                                <button 
+                                    onClick={() => setShowLogoutModal(false)}
+                                    className="absolute top-4 right-4 h-8 w-8 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 rounded-full flex items-center justify-center transition-colors"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+
+                                <div className="mx-auto h-16 w-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mt-2 shadow-inner border border-red-100 dark:border-red-800/50">
+                                    <LogOut className="h-7 w-7" />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                                        Confirm Logout
+                                    </h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium px-2 leading-relaxed">
+                                        Are you sure you want to log out of your account? You will need to sign in again to access your dashboard.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 pt-2">
+                                    <button
+                                        onClick={() => setShowLogoutModal(false)}
+                                        className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all active:scale-95 text-sm"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleConfirmLogout}
+                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-black rounded-xl shadow-lg shadow-red-500/20 transition-all active:scale-95 text-sm"
+                                    >
+                                        <LogOut className="h-4 w-4 shrink-0" />
+                                        Log Out
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </aside>
     )
 }

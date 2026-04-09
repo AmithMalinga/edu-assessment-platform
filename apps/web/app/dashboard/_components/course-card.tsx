@@ -53,9 +53,11 @@ export function CourseCard({ id, title, category, color, showExploreButton }: Co
             </div>
 
             {showExploreButton && (
-                <div className="mt-2 flex items-center justify-between w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                    <span>Explore Subject</span>
-                    <ChevronRight className="h-5 w-5" />
+                <div className="mt-2 w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white font-bold group-hover:bg-slate-100 dark:group-hover:bg-slate-800/80 transition-all">
+                    <span className="text-sm">Explore Subject</span>
+                    <div className="h-7 w-7 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover:translate-x-1 transition-transform">
+                        <ChevronRight className="h-4 w-4 text-indigo-500" />
+                    </div>
                 </div>
             )}
         </motion.div>
