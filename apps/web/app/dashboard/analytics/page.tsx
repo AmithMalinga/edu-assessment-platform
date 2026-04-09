@@ -57,7 +57,7 @@ export default function AnalyticsPage() {
     )
 
     if (!analytics || analytics.overview.totalAttempts === 0) return (
-         <div className="p-8 lg:p-10 min-h-screen flex items-center justify-center">
+         <div className="p-6 lg:p-8 min-h-[80vh] flex items-center justify-center">
             <div className="text-center space-y-6 max-w-md">
                 <div className="h-24 w-24 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 rounded-full flex items-center justify-center mx-auto">
                     <BarChart3 className="h-12 w-12" />
@@ -77,17 +77,17 @@ export default function AnalyticsPage() {
     )
 
     return (
-        <div className="p-8 lg:p-10 space-y-10 min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="p-6 lg:p-8 space-y-8 min-h-screen bg-slate-50 dark:bg-slate-950">
             {/* Header */}
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-1">
-                    <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Performance Analytics</h1>
-                    <p className="text-slate-500 font-medium">Deep dive into your exam statistics and progress trends.</p>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Performance Analytics</h1>
+                    <p className="text-sm text-slate-500 font-medium">Deep dive into your exam statistics and progress trends.</p>
                 </div>
-                <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                    <button className="px-5 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl text-sm">Overall</button>
-                    <button className="px-5 py-2 text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-xl text-sm">Monthly</button>
-                    <button className="px-5 py-2 text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-xl text-sm">Weekly</button>
+                <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-[14px] shadow-sm border border-slate-100 dark:border-slate-800">
+                    <button className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl text-xs">Overall</button>
+                    <button className="px-4 py-1.5 text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-xl text-xs">Monthly</button>
+                    <button className="px-4 py-1.5 text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-xl text-xs">Weekly</button>
                 </div>
             </header>
 
@@ -124,20 +124,20 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Score Trend */}
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-8">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-[24px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Score Performance Trend</h3>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Progress over last few attempts</p>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-white">Score Performance Trend</h3>
+                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Progress over last few attempts</p>
                         </div>
                         <div className="flex flex-col items-end">
-                            <div className="flex items-center gap-1.5 text-emerald-500 font-black">
-                                <ArrowUpRight className="h-4 w-4" />
+                            <div className="flex items-center gap-1.5 text-emerald-500 font-black text-sm">
+                                <ArrowUpRight className="h-3.5 w-3.5" />
                                 <span>+12%</span>
                             </div>
-                            <span className="text-[10px] font-bold text-slate-400">Since last month</span>
+                            <span className="text-[9px] font-bold text-slate-400">Since last month</span>
                         </div>
                     </div>
                     
@@ -159,55 +159,55 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* Best Performing Subject Card */}
-                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-8 rounded-[40px] shadow-2xl shadow-indigo-500/30 text-white flex flex-col justify-between relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                        <Star className="h-32 w-32 fill-current" />
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-6 rounded-[24px] shadow-2xl shadow-indigo-500/30 text-white flex flex-col justify-between relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                        <Star className="h-28 w-28 fill-current" />
                     </div>
-                    <div className="space-y-6 relative z-10">
-                        <div className="h-14 w-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
-                            <Star className="h-7 w-7 text-white fill-current" />
+                    <div className="space-y-5 relative z-10">
+                        <div className="h-12 w-12 bg-white/20 rounded-[14px] flex items-center justify-center backdrop-blur-md">
+                            <Star className="h-6 w-6 text-white fill-current" />
                         </div>
-                        <div className="space-y-1">
-                            <h3 className="text-sm font-bold text-indigo-100 uppercase tracking-widest">Top Performance</h3>
-                            <p className="text-3xl font-black leading-tight">
+                        <div className="space-y-0.5">
+                            <h3 className="text-[11px] font-bold text-indigo-100 uppercase tracking-widest">Top Performance</h3>
+                            <p className="text-2xl font-black leading-tight">
                                 {analytics.bySubject[0]?.subject || "N/A"}
                             </p>
                         </div>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between text-xs font-bold border-b border-white/10 pb-4">
+                        <div className="space-y-3 pb-2">
+                            <div className="flex items-center justify-between text-[11px] font-bold border-b border-white/10 pb-3">
                                 <span className="text-indigo-100">Average Score</span>
                                 <span>{Math.round(analytics.bySubject[0]?.averageScore || 0)}%</span>
                             </div>
-                            <div className="flex items-center justify-between text-xs font-bold border-b border-white/10 pb-4">
+                            <div className="flex items-center justify-between text-[11px] font-bold border-b border-white/10 pb-3">
                                 <span className="text-indigo-100">Attempts Made</span>
                                 <span>{analytics.bySubject[0]?.attempts || 0} Attempts</span>
                             </div>
                         </div>
                     </div>
-                    <button className="relative z-10 w-full py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl font-black text-sm transition-all group/btn flex items-center justify-center gap-2">
+                    <button className="relative z-10 w-full py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl font-black text-xs transition-all group/btn flex items-center justify-center gap-2">
                         View Detailed Insights
-                        <ArrowUpRight className="h-4 w-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                        <ArrowUpRight className="h-3.5 w-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                     </button>
                 </div>
             </div>
 
             {/* Lower Row - Subject Breakdown & Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Subject Performance Breakdown */}
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-8">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-[24px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
                     <div className="space-y-1">
-                        <h3 className="text-xl font-black text-slate-900 dark:text-white">Subject Breakdown</h3>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Your performance across different disciplines</p>
+                        <h3 className="text-lg font-black text-slate-900 dark:text-white">Subject Breakdown</h3>
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Your performance across different disciplines</p>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-5">
                         {analytics.bySubject.map((item, i) => (
-                            <div key={i} className="space-y-3">
+                            <div key={i} className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-slate-700 dark:text-slate-200">{item.subject}</span>
-                                    <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">{Math.round(item.averageScore)}%</span>
+                                    <span className="font-bold text-sm text-slate-700 dark:text-slate-200">{item.subject}</span>
+                                    <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">{Math.round(item.averageScore)}%</span>
                                 </div>
-                                <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+                                <div className="h-2.5 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden p-[1px]">
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${item.averageScore}%` }}
@@ -224,38 +224,38 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* Recent Activity Mini List */}
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col">
-                    <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-black text-slate-900 dark:text-white">Recent Performance</h3>
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-[24px] border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-black text-slate-900 dark:text-white">Recent Performance</h3>
                         <button 
                             onClick={() => router.push('/dashboard/results')}
-                            className="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase hover:underline"
+                            className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase hover:underline"
                         >
                             View Results Log
                         </button>
                     </div>
 
-                    <div className="space-y-5 flex-1">
+                    <div className="space-y-3 flex-1">
                         {analytics.recentAttempts.slice(0, 4).map((attempt, i) => (
-                            <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/30 group hover:scale-[1.02] transition-transform cursor-pointer">
-                                <div className="flex items-center gap-4">
+                            <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/30 group hover:scale-[1.01] transition-transform cursor-pointer border border-transparent dark:hover:border-slate-700 hover:border-slate-200">
+                                <div className="flex items-center gap-3">
                                     <div className={cn(
-                                        "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
-                                        attempt.passed ? "bg-emerald-50 text-emerald-500" : "bg-pink-50 text-pink-500"
+                                        "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
+                                        attempt.passed ? "bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-pink-50 text-pink-500 dark:bg-pink-900/20 dark:text-pink-400"
                                     )}>
-                                        {attempt.passed ? <Zap className="h-5 w-5 fill-current" /> : <Activity className="h-5 w-5" />}
+                                        {attempt.passed ? <Zap className="h-4 w-4 fill-current" /> : <Activity className="h-4 w-4" />}
                                     </div>
                                     <div className="space-y-0.5">
-                                        <h4 className="text-sm font-black text-slate-900 dark:text-white truncate max-w-[200px]">{attempt.examTitle}</h4>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase">{attempt.subjectName} • {new Date(attempt.completedAt).toLocaleDateString()}</p>
+                                        <h4 className="text-xs font-black text-slate-900 dark:text-white truncate max-w-[160px]">{attempt.examTitle}</h4>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase">{attempt.subjectName} • {new Date(attempt.completedAt).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
                                     <p className={cn(
-                                        "text-base font-black",
-                                        attempt.passed ? "text-emerald-500" : "text-pink-500"
+                                        "text-sm font-black",
+                                        attempt.passed ? "text-emerald-500 dark:text-emerald-400" : "text-pink-500 dark:text-pink-400"
                                     )}>{attempt.score}%</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Final Score</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Final Score</p>
                                 </div>
                             </div>
                         ))}
@@ -268,16 +268,16 @@ export default function AnalyticsPage() {
 
 function StatCard({ title, value, icon: Icon, color, sub }: { title: string; value: string; icon: any; color: string; sub: string }) {
     return (
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-4 hover:shadow-xl hover:shadow-indigo-500/5 transition-all group">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-[24px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-3 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-900/50 transition-all group">
             <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{title}</span>
-                <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110", color)}>
-                    <Icon className="h-5 w-5" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</span>
+                <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110", color)}>
+                    <Icon className="h-4 w-4" />
                 </div>
             </div>
-            <div className="space-y-1">
-                <p className="text-3xl font-black text-slate-900 dark:text-white leading-none">{value}</p>
-                <p className="text-[11px] font-bold text-slate-400 tracking-tight">{sub}</p>
+            <div className="space-y-0.5">
+                <p className="text-2xl font-black text-slate-900 dark:text-white leading-none">{value}</p>
+                <p className="text-[10px] font-bold text-slate-400 tracking-tight">{sub}</p>
             </div>
         </div>
     )
