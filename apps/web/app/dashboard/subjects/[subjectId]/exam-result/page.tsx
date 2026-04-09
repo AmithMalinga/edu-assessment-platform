@@ -139,13 +139,13 @@ export default function ExamResultPage() {
                 {/* Header / Back Button */}
                 <motion.button
                     variants={itemVariants}
-                    onClick={() => router.push(`/dashboard/subjects/${subjectId}`)}
+                    onClick={() => subjectId === 'all' ? router.push('/dashboard/results') : router.push(`/dashboard/subjects/${subjectId}`)}
                     className="group flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold transition-colors w-fit"
                 >
                     <div className="h-6 w-6 rounded-lg bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center transition-transform group-hover:-translate-x-1">
                         <ChevronLeft className="h-3.5 w-3.5" />
                     </div>
-                    <span className="text-[11px] tracking-wide">Back to Subject</span>
+                    <span className="text-[11px] tracking-wide">{subjectId === 'all' ? 'Back' : 'Back to Subject'}</span>
                 </motion.button>
 
                 {/* Hero Banner */}

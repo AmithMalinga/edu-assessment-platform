@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { 
@@ -17,10 +17,45 @@ import {
 import { cn } from "@/lib/utils"
 import { resultService, type AttemptListItem } from "@/lib/services/result.service"
 
+function getExamTypeLabel(description: string | null) {
+    if (!description) return 'General';
+    const prefix = 'Exam Config: ';
+    const idx = description.indexOf(prefix);
+    if (idx === -1) return 'General';
+    try {
+        const meta = JSON.parse(description.slice(idx + prefix.length).trim());
+        const cat = meta.examTypeCategory;
+        if (cat === 'LESSON_WISE') return 'Lesson Wise';
+        if (cat === 'PAST_PAPERS') return 'Past Papers';
+        if (cat === 'LIVE') return 'Live';
+        if (cat === 'RANDOM_NEW') return 'Random New';
+        return 'General';
+    } catch {
+        return 'General';
+    }
+}
+
 export default function ResultsPage() {
     const [attempts, setAttempts] = useState<AttemptListItem[]>([])
     const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [filterType, setFilterType] = useState("ALL")
     const router = useRouter()
+
+    const examTypes = useMemo(() => {
+        const types = new Set<string>()
+        attempts.forEach(a => types.add(getExamTypeLabel(a.exam.description)))
+        return Array.from(types).sort()
+    }, [attempts])
+
+    const filteredAttempts = useMemo(() => {
+        return attempts.filter(attempt => {
+            const matchesSearch = attempt.exam.title.toLowerCase().includes(searchQuery.toLowerCase())
+            const attemptType = getExamTypeLabel(attempt.exam.description)
+            const matchesType = filterType === "ALL" || attemptType === filterType
+            return matchesSearch && matchesType
+        })
+    }, [attempts, searchQuery, filterType])
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -56,14 +91,25 @@ export default function ResultsPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <input 
                         type="text" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search by exam name..." 
                         className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                     />
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <Filter className="h-4 w-4" />
-                    Filters
-                </button>
+                <div className="relative shrink-0">
+                    <select
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                        className="appearance-none flex items-center gap-2 pl-4 pr-10 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-indigo-500 outline-none"
+                    >
+                        <option value="ALL">All Types</option>
+                        {examTypes.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                        ))}
+                    </select>
+                    <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
             </div>
 
             {/* Results Grid/List */}
@@ -73,10 +119,10 @@ export default function ResultsPage() {
                         <div key={i} className="h-48 bg-slate-200 dark:bg-slate-900 animate-pulse rounded-[32px]" />
                     ))}
                 </div>
-            ) : attempts.length > 0 ? (
+            ) : filteredAttempts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {attempts.map((attempt, index) => (
-                        <ResultCard key={attempt.id} attempt={attempt} index={index} />
+                    {filteredAttempts.map((attempt, index) => (
+                        <ResultCard key={attempt.id} attempt={attempt} index={index} router={router} />
                     ))}
                 </div>
             ) : (
@@ -98,7 +144,7 @@ export default function ResultsPage() {
     )
 }
 
-function ResultCard({ attempt, index }: { attempt: AttemptListItem; index: number }) {
+function ResultCard({ attempt, index, router }: { attempt: AttemptListItem; index: number; router: ReturnType<typeof useRouter> }) {
     const isPassed = attempt.score >= (attempt.exam.passingScore || 50)
     const dateStr = new Date(attempt.completedAt).toLocaleDateString('en-US', { 
         month: 'short', 
@@ -124,9 +170,16 @@ function ResultCard({ attempt, index }: { attempt: AttemptListItem; index: numbe
 
             <div className="space-y-4">
                 {/* Result Type/Date */}
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    <Calendar className="h-3 w-3" />
-                    {dateStr}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        <Calendar className="h-3 w-3" />
+                        {dateStr}
+                    </div>
+                    {attempt.exam.description && (
+                        <div className="px-2 py-0.5 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black rounded-md uppercase tracking-wider">
+                            {getExamTypeLabel(attempt.exam.description)}
+                        </div>
+                    )}
                 </div>
 
                 {/* Exam Title */}
@@ -163,7 +216,7 @@ function ResultCard({ attempt, index }: { attempt: AttemptListItem; index: numbe
 
                 {/* Action */}
                 <button 
-                    onClick={() => {}} // TODO: Navigate to review
+                    onClick={() => router.push(`/dashboard/subjects/all/exam-result?attemptId=${attempt.id}&examId=${attempt.examId}`)}
                     className="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group/btn"
                 >
                     Review Detailed Result
