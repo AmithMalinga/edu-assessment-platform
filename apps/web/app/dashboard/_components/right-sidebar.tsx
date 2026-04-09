@@ -1,80 +1,134 @@
-import { ChevronLeft, ChevronRight, Mic, FileText, Clock, ChevronRight as ChevronRightIcon } from "lucide-react"
+"use client"
+
+import { useEffect, useState } from "react"
+import { ChevronLeft, ChevronRight, FileText, ChevronRight as ChevronRightIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { resultService, type AttemptListItem } from "@/lib/services/result.service"
 
 export function RightSidebar() {
+    const [attempts, setAttempts] = useState<AttemptListItem[]>([])
+    const [loading, setLoading] = useState(true)
+    const [currentDate, setCurrentDate] = useState(new Date())
+
+    useEffect(() => {
+        const fetchAttempts = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                if (!token) return
+                const data = await resultService.getMyAttempts(token)
+                setAttempts(data)
+            } catch (error) {
+                console.error("Failed to load attempts in sidebar:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchAttempts()
+    }, [])
+
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    
+    const year = currentDate.getFullYear()
+    const month = currentDate.getMonth()
+    
+    // Calendar math
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const firstDayIndex = new Date(year, month, 1).getDay()
+    const startingDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1 // Shift so Monday is 0
+
+    const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1, 1))
+    const handleNextMonth = () => setCurrentDate(new Date(year, month + 1, 1))
+
+    const todayDate = new Date()
+    const isCurrentMonth = todayDate.getFullYear() === year && todayDate.getMonth() === month
+
+    // Gather dates user took an exam in rendering month
+    const attemptDays = new Set(attempts
+        .filter(a => {
+            const d = new Date(a.completedAt)
+            return d.getFullYear() === year && d.getMonth() === month
+        })
+        .map(a => new Date(a.completedAt).getDate())
+    )
+
     return (
         <aside className="w-80 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 flex flex-col gap-8 sticky top-20 h-[calc(100vh-80px)] overflow-y-auto">
-            {/* Schedule / Calendar Placeholder */}
+            {/* Calendar */}
             <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="font-black text-lg text-slate-900 dark:text-white">My Schedule</h3>
+                    <h3 className="font-black text-lg text-slate-900 dark:text-white">Activity Calendar</h3>
                     <div className="flex gap-1">
-                        <button className="p-1 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-md transition-colors"><ChevronLeft className="h-4 w-4" /></button>
-                        <button className="p-1 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-md transition-colors"><ChevronRight className="h-4 w-4" /></button>
+                        <button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-md transition-colors">
+                            <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-md transition-colors">
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
                     </div>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 pb-2">
-                     <p className="text-center text-xs font-bold text-slate-400 mb-4 tracking-widest uppercase">December 2024</p>
+                     <p className="text-center text-xs font-bold text-slate-400 mb-4 tracking-widest uppercase">{monthNames[month]} {year}</p>
                      <div className="grid grid-cols-7 gap-y-3 gap-x-1 text-center">
-                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(day => (
-                            <span key={day} className="text-[10px] font-black text-slate-400">{day}</span>
+                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
+                            <span key={`header-${i}`} className="text-[10px] font-black text-slate-400">{day}</span>
                         ))}
-                        {[...Array(31)].map((_, i) => (
-                            <span key={i} className={cn(
-                                "text-xs font-bold py-1.5 rounded-lg cursor-pointer transition-colors",
-                                i === 10 ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30" : 
-                                i === 15 || i === 18 ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40" : 
-                                "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
-                            )}>
-                                {i + 1}
-                            </span>
+                        
+                        {[...Array(startingDay)].map((_, i) => (
+                            <span key={`empty-${i}`} className="py-1.5" />
                         ))}
+                        
+                        {[...Array(daysInMonth)].map((_, i) => {
+                            const dayNum = i + 1
+                            const isToday = isCurrentMonth && dayNum === todayDate.getDate()
+                            const hasAttempt = attemptDays.has(dayNum)
+
+                            return (
+                                <span key={dayNum} className={cn(
+                                    "text-xs font-bold py-1.5 rounded-lg cursor-default transition-colors relative",
+                                    isToday ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30" : 
+                                    hasAttempt ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40" : 
+                                    "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+                                )}>
+                                    {dayNum}
+                                    {hasAttempt && !isToday && (
+                                        <div className="absolute top-1.5 right-1.5 w-1 h-1 bg-indigo-500 rounded-full" />
+                                    )}
+                                </span>
+                            )
+                        })}
                      </div>
                 </div>
             </section>
 
-            {/* Upcoming Tasks */}
+            {/* Recent Exams */}
             <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="font-black text-lg text-slate-900 dark:text-white">Upcoming Tasks</h3>
-                    <button className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest hover:underline">See All</button>
+                    <h3 className="font-black text-lg text-slate-900 dark:text-white">Recent Exams</h3>
                 </div>
                 
                 <div className="space-y-6">
-                    {/* Today */}
-                    <div className="space-y-3">
-                        <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">Today</p>
-                        <TaskItem 
-                            icon={Mic} 
-                            iconColor="bg-pink-100 text-pink-500" 
-                            title="Demo Speech" 
-                            subject="Mass Communication" 
-                        />
-                        <TaskItem 
-                            icon={FileText} 
-                            iconColor="bg-orange-100 text-orange-500" 
-                            title="Globalization Essay" 
-                            subject="Advanced Geography" 
-                        />
-                    </div>
-
-                    {/* This Week */}
-                    <div className="space-y-3">
-                        <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">This Week</p>
-                        <TaskItem 
-                            icon={Clock} 
-                            iconColor="bg-purple-100 text-purple-600" 
-                            title="Management Quiz" 
-                            subject="Product Management" 
-                            active
-                        />
-                        <TaskItem 
-                            icon={FileText} 
-                            iconColor="bg-yellow-100 text-yellow-600" 
-                            title="Docu Reaction Paper" 
-                            subject="Advance Geography" 
-                        />
-                    </div>
+                    {loading ? (
+                        <div className="space-y-3">
+                            <div className="h-16 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl" />
+                            <div className="h-16 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl" />
+                        </div>
+                    ) : attempts.length === 0 ? (
+                         <div className="text-center py-6 px-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                             <p className="text-xs font-semibold text-slate-500">No exams taken yet.</p>
+                         </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {attempts.slice(0, 5).map(attempt => (
+                                <TaskItem 
+                                    key={attempt.id}
+                                    icon={FileText} 
+                                    iconColor={attempt.score >= attempt.exam.passingScore ? "bg-emerald-100 text-emerald-500" : "bg-red-100 text-red-500"} 
+                                    title={attempt.exam.title} 
+                                    subject={`Score: ${attempt.score}%`} 
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
         </aside>

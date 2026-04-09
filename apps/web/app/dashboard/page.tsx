@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { WelcomeBanner } from "./_components/welcome-banner"
 import { CourseCard } from "./_components/course-card"
-import { AchievementCard } from "./_components/achievement-card"
+import { ExamFeedCard } from "./_components/exam-feed-card"
 import { RightSidebar } from "./_components/right-sidebar"
 import { studentService, type StudentProfile, type StudentSubject } from "@/lib/services/student.service"
+import { assessmentService, type AssessmentExamSummary } from "@/lib/services/assessment.service"
 
 const SUBJECT_COLORS = [
     "from-teal-500 to-emerald-600",
@@ -19,8 +20,11 @@ const SUBJECT_COLORS = [
 export default function DashboardPage() {
     const [profile, setProfile] = useState<StudentProfile | null>(null)
     const [subjects, setSubjects] = useState<StudentSubject[]>([])
+    const [allExams, setAllExams] = useState<AssessmentExamSummary[]>([])
     const [loading, setLoading] = useState(true)
+    const [examsLoading, setExamsLoading] = useState(true)
     const [showAllSubjects, setShowAllSubjects] = useState(false)
+    const [showAllExams, setShowAllExams] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
@@ -43,8 +47,24 @@ export default function DashboardPage() {
                 setLoading(false)
             }
         }
+        
+        const fetchExams = async () => {
+             try {
+                const examsData = await assessmentService.getAllExams()
+                // Sort by newest first
+                const sortedExams = examsData.sort((a, b) => 
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                )
+                setAllExams(sortedExams)
+            } catch (error) {
+                console.error("Dashboard Exams Fetch Error:", error)
+            } finally {
+                setExamsLoading(false)
+            }
+        }
 
         fetchDashboardData()
+        fetchExams()
     }, [router])
 
     return (
@@ -104,38 +124,60 @@ export default function DashboardPage() {
                     )}
                 </section>
 
-                {/* Achievements Section - Keeping as hardcoded placeholders for now as no API exists */}
+                {/* New Arrivals / Recent Exams Feed */}
                 <section className="space-y-6">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white">Achievements</h2>
-                        <button className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">View All</button>
+                        <div className="space-y-1">
+                            <h2 className="text-2xl font-black text-slate-900 dark:text-white">New Arrivals</h2>
+                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Recently added assessments</p>
+                        </div>
+                        {allExams.length > 3 && (
+                            <button 
+                                onClick={() => setShowAllExams(!showAllExams)}
+                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                            >
+                                {showAllExams ? "Show Less" : "View All Exams"}
+                            </button>
+                        )}
                     </div>
 
-                    <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.5 }}
-                        >
-                            <AchievementCard 
-                                title="Exam Pioneer"
-                                type="Achievement"
-                                color="bg-yellow-50 dark:bg-yellow-900/20"
-                                iconColor="bg-yellow-400"
-                            />
-                        </motion.div>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.6 }}
-                        >
-                            <AchievementCard 
-                                title="Fast Learner"
-                                type="Badge"
-                                color="bg-emerald-50 dark:bg-emerald-900/20"
-                                iconColor="bg-emerald-400"
-                            />
-                        </motion.div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {examsLoading ? (
+                            [1, 2, 3].map((i) => (
+                                <div key={i} className="h-64 bg-slate-100 dark:bg-slate-900/50 animate-pulse rounded-[28px]" />
+                            ))
+                        ) : allExams.length > 0 ? (
+                            (showAllExams ? allExams : allExams.slice(0, 3)).map((exam, index) => {
+                                const category = exam.metadata?.examTypeCategory || "RANDOM_NEW"
+                                const typeSlug = category.toLowerCase().replace('_', '-')
+
+                                return (
+                                    <motion.div
+                                        key={exam.id}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        whileInView={{ opacity: 1, scale: 1 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: index * 0.05 }}
+                                    >
+                                        <ExamFeedCard 
+                                            id={exam.id}
+                                            title={exam.title}
+                                            subject={exam.metadata?.subjectName || "General"}
+                                            subjectId={exam.metadata?.subjectId || ""}
+                                            typeSlug={typeSlug}
+                                            questions={exam.questionCount}
+                                            duration={exam.duration}
+                                            createdAt={exam.createdAt}
+                                            color={SUBJECT_COLORS[index % SUBJECT_COLORS.length]}
+                                        />
+                                    </motion.div>
+                                )
+                            })
+                        ) : (
+                            <div className="w-full p-10 text-center bg-white dark:bg-slate-900 rounded-[32px] border border-dashed border-slate-200 dark:border-slate-800">
+                                <p className="text-slate-500 font-medium">No new exams available right now.</p>
+                            </div>
+                        )}
                     </div>
                 </section>
             </div>
