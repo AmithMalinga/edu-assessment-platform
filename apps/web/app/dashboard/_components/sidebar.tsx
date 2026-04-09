@@ -152,6 +152,7 @@ export function DashboardSidebar({ isOpen, setIsOpen }: SidebarProps) {
                     )
                 })}
             </div>
+        </aside>
 
             {/* Logout Modal */}
             <AnimatePresence>
@@ -209,7 +210,6 @@ export function DashboardSidebar({ isOpen, setIsOpen }: SidebarProps) {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </aside>
         </>
     )
 }
