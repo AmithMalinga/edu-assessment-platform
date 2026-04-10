@@ -37,8 +37,30 @@ const ExamDetails: React.FC = () => {
     if (loading) {
         return (
             <Layout title="Exam Details">
-                <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                <div className="max-w-6xl mx-auto space-y-6">
+                    {/* Skeleton Header */}
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="h-6 w-32 bg-white/5 rounded-lg animate-pulse" />
+                        <div className="flex gap-3">
+                            <div className="h-8 w-24 bg-white/5 rounded-xl animate-pulse" />
+                            <div className="h-8 w-24 bg-white/5 rounded-xl animate-pulse" />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Skeleton Left Column */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="h-64 glass-card animate-pulse" />
+                            <div className="h-48 glass-card animate-pulse" />
+                            <div className="h-96 glass-card animate-pulse" />
+                        </div>
+                        {/* Skeleton Right Column */}
+                        <div className="space-y-6">
+                            <div className="h-72 glass-card animate-pulse" />
+                            <div className="h-32 glass-card animate-pulse" />
+                            <div className="h-16 glass-card animate-pulse" />
+                        </div>
+                    </div>
                 </div>
             </Layout>
         );

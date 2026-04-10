@@ -159,7 +159,7 @@ export const adminService = {
   getExams: async (): Promise<ExamSummary[]> => {
     const response = await api.get('/assessments');
     return response.data;
-  },
+   },
   findOne: async (id: string): Promise<any> => {
     const response = await api.get(`/assessments/${id}`);
     return response.data;
