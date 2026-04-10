@@ -112,7 +112,7 @@ const ExamList: React.FC = () => {
             >
               <div className="glass-card grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Question Type</label>
+                  <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Question Type</span>
                   <div className="flex flex-wrap gap-2">
                     {questionTypes.map((type) => (
                       <button
@@ -130,7 +130,7 @@ const ExamList: React.FC = () => {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Category</label>
+                  <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Category</span>
                   <div className="flex flex-wrap gap-2">
                     {categories.map((cat) => (
                       <button
@@ -157,7 +157,7 @@ const ExamList: React.FC = () => {
           <AnimatePresence mode="popLayout">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-64 glass-card animate-pulse" />
+                <div key={`skeleton-${i}`} className="h-64 glass-card animate-pulse" />
               ))
             ) : filteredExams.length > 0 ? (
               filteredExams.map((exam: ExamSummary) => (
@@ -222,7 +222,10 @@ const ExamList: React.FC = () => {
                     <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
                       Created {new Date(exam.createdAt).toLocaleDateString()}
                     </div>
-                    <button className="flex items-center gap-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+                    <button 
+                      onClick={() => navigate(`/exams/${exam.id}`)}
+                      className="flex items-center gap-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                    >
                       View Details
                       <ChevronRight size={14} />
                     </button>
@@ -236,7 +239,9 @@ const ExamList: React.FC = () => {
                 </div>
                 <h3 className="text-white font-bold text-lg mb-2">No exams found</h3>
                 <p className="text-slate-500 text-sm max-w-xs mx-auto">
-                  {searchQuery ? `We couldn't find any exams matching "${searchQuery}"` : "You haven't created any exams yet. Get started by building your first one!"}
+                  {searchQuery 
+                    ? `We couldn't find any exams matching "${searchQuery}"` 
+                    : "You haven't created any exams yet. Get started by building your first one!"}
                 </p>
                 {searchQuery && (
                   <button 
