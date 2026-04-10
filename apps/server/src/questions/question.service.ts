@@ -34,11 +34,28 @@ export class QuestionService {
   }
 
   async findAll() {
-    return this.prisma.question.findMany();
+    return this.prisma.question.findMany({
+      include: {
+        subject: {
+          include: {
+            grade: true,
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {
-    return this.prisma.question.findUnique({ where: { id } });
+    return this.prisma.question.findUnique({
+      where: { id },
+      include: {
+        subject: {
+          include: {
+            grade: true,
+          },
+        },
+      },
+    });
   }
 
   async create(dto: CreateQuestionDto) {
@@ -114,7 +131,17 @@ export class QuestionService {
   }
 
   async update(id: string, dto: UpdateQuestionDto) {
-    return this.prisma.question.update({ where: { id }, data: dto });
+    return this.prisma.question.update({
+      where: { id },
+      data: dto,
+      include: {
+        subject: {
+          include: {
+            grade: true,
+          },
+        },
+      },
+    });
   }
 
   async remove(id: string) {
