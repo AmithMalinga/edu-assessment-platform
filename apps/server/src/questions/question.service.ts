@@ -118,6 +118,21 @@ export class QuestionService {
   }
 
   async remove(id: string) {
-    return this.prisma.question.delete({ where: { id } });
+    const linkedExams = await this.prisma.examQuestion.count({
+      where: { questionId: id }
+    });
+
+    if (linkedExams > 0) {
+      throw new BadRequestException('Cannot delete question because it is used in one or more exams. Remove it from the exams first.');
+    }
+
+    try {
+      return await this.prisma.question.delete({ where: { id } });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`Question with ID ${id} not found`);
+      }
+      throw error;
+    }
   }
 }
