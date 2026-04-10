@@ -184,6 +184,16 @@ const Questions: React.FC = () => {
                    <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[9px] font-bold uppercase">
                      {q.lesson}
                    </span>
+                   {q.subject?.grade?.name && (
+                     <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase border border-emerald-500/10">
+                      {q.subject.grade.name}
+                     </span>
+                   )}
+                   {q.subject?.name && (
+                     <span className="px-2 py-0.5 rounded bg-white/5 text-slate-500 text-[9px] font-bold uppercase border border-white/5">
+                       {q.subject.name}
+                     </span>
+                   )}
                  </div>
                )}
                
@@ -212,12 +222,6 @@ const Questions: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-               {!isCompactView && (
-                 <div className="text-right hidden sm:block mr-2 border-r border-white/5 pr-4">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase">{q.subject?.grade?.name}</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase truncate max-w-[80px]">{q.subject?.name}</p>
-                 </div>
-               )}
                <button 
                  onClick={() => navigate(`/questions/edit/${q.id}`)}
                  className="p-2.5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg transition-all active:scale-95"
