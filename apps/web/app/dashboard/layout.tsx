@@ -14,6 +14,7 @@ export default function DashboardLayout({
     const pathname = usePathname()
     const [profile, setProfile] = useState<StudentProfile | null>(null)
     const [loading, setLoading] = useState(true)
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const router = useRouter()
 
@@ -26,13 +27,17 @@ export default function DashboardLayout({
             try {
                 const token = localStorage.getItem("token")
                 if (!token) {
+                    setIsAuthorized(false)
                     router.push("/login")
                     return
                 }
                 const data = await studentService.getProfile(token)
                 setProfile(data)
+                setIsAuthorized(true)
             } catch (error) {
                 console.error("Layout Profile Fetch Error:", error)
+                setIsAuthorized(false)
+                router.push("/login")
             } finally {
                 setLoading(false)
             }
@@ -40,6 +45,16 @@ export default function DashboardLayout({
 
         fetchProfile()
     }, [router])
+
+    if (isAuthorized === null) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+            </div>
+        )
+    }
+
+    if (isAuthorized === false) return null
 
     // Full-screen mode for exam — hide sidebar & topbar completely
     const isExamPage = pathname?.endsWith("/exam")

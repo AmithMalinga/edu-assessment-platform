@@ -28,10 +28,15 @@ export const useQuestions = () => {
         await fetchQuestions();
     };
 
+    const updateQuestion = async (id: string, data: any) => {
+        await adminService.updateQuestion(id, data);
+        await fetchQuestions();
+    };
+
     const deleteQuestion = async (id: string) => {
         await adminService.deleteQuestion(id);
         await fetchQuestions();
     };
 
-    return { questions, loading, error, refresh: fetchQuestions, createQuestion, deleteQuestion };
+    return { questions, loading, error, refresh: fetchQuestions, createQuestion, updateQuestion, deleteQuestion };
 };

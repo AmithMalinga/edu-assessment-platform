@@ -179,4 +179,8 @@ export class UpdateQuestionDto {
   @IsString()
   @IsOptional()
   lesson?: string;
+
+  @IsString()
+  @IsOptional()
+  subjectId?: string;
 }

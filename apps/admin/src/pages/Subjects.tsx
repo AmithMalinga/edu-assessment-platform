@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Layout from '../components/layout/Layout';
 import { useSubjects } from '../hooks/useSubjects';
 import { useGrades } from '../hooks/useGrades';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit2, AlertCircle, Book, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, AlertCircle, Book, X, Layers, Search, GraduationCap } from 'lucide-react';
 import ConfirmModal from '../components/common/ConfirmModal';
+import CustomSelect from '../components/common/CustomSelect';
 
 const Subjects: React.FC = () => {
   const { subjects, loading: subjectsLoading, error: subjectsError, createSubject, updateSubject, deleteSubject } = useSubjects();
@@ -17,6 +18,8 @@ const Subjects: React.FC = () => {
 
   // New Confirm Modal State
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [selectedGradeFilter, setSelectedGradeFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleOpenModal = (subject: any = null) => {
     if (subject) {
@@ -69,7 +72,13 @@ const Subjects: React.FC = () => {
   const loading = subjectsLoading || gradesLoading;
   const error = subjectsError;
 
-  // Fix for lint nested ternary
+  const filteredSubjects = useMemo(() => {
+    return subjects.filter(subject => {
+      const matchesGrade = !selectedGradeFilter || subject.gradeId === Number.parseInt(selectedGradeFilter, 10);
+      const matchesSearch = !searchQuery || subject.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesGrade && matchesSearch;
+    });
+  }, [subjects, selectedGradeFilter, searchQuery]);
   const renderTableBody = () => {
     if (loading) {
       return Array.from({ length: 5 }).map((_, i) => (
@@ -81,17 +90,17 @@ const Subjects: React.FC = () => {
       ));
     }
 
-    if (subjects.length === 0) {
+    if (filteredSubjects.length === 0) {
       return (
         <tr>
           <td colSpan={3} className="px-8 py-10 text-center text-slate-500 italic">
-            No subjects found. Add your first subject to get started.
+            {selectedGradeFilter || searchQuery ? 'No subjects match your filters.' : 'No subjects found. Add your first subject to get started.'}
           </td>
         </tr>
       );
     }
 
-    return subjects.map((subject) => (
+    return filteredSubjects.map((subject) => (
       <motion.tr 
         key={subject.id}
         initial={{ opacity: 0 }}
@@ -144,6 +153,34 @@ const Subjects: React.FC = () => {
           <Plus size={20} />
           <span>Add Subject</span>
         </button>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="glass-card mb-6 !p-4 border border-white/5 relative z-50 overflow-visible">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
+            <input 
+              type="text"
+              placeholder="Filter by subject name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            />
+          </div>
+          <div className="w-full lg:w-64">
+            <CustomSelect
+              value={selectedGradeFilter}
+              onChange={setSelectedGradeFilter}
+              options={[
+                { value: '', label: 'All Grades' },
+                ...grades.map(g => ({ value: g.id, label: g.name }))
+              ]}
+              icon={<GraduationCap size={18} />}
+              placeholder="All Grades"
+            />
+          </div>
+        </div>
       </div>
 
       {error ? (
@@ -224,18 +261,16 @@ const Subjects: React.FC = () => {
 
                 <div className="space-y-2">
                   <label htmlFor="subject-grade" className="text-sm font-medium text-slate-400">Grade Level</label>
-                  <select 
-                    id="subject-grade"
-                    value={subjectForm.gradeId} 
-                    onChange={(e) => setSubjectForm({...subjectForm, gradeId: e.target.value})}
-                    className="w-full px-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all appearance-none"
-                    required
-                  >
-                    <option value="">Select Grade</option>
-                    {grades.map(g => (
-                      <option key={g.id} value={g.id}>{g.name}</option>
-                    ))}
-                  </select>
+                  <CustomSelect
+                    value={subjectForm.gradeId}
+                    onChange={(val) => setSubjectForm({...subjectForm, gradeId: val})}
+                    options={[
+                      { value: '', label: 'Select Grade' },
+                      ...grades.map(g => ({ value: g.id, label: g.name }))
+                    ]}
+                    icon={<Layers size={18} />}
+                    placeholder="Select Grade"
+                  />
                 </div>
 
                 {formError && (

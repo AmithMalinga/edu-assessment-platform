@@ -34,11 +34,28 @@ export class QuestionService {
   }
 
   async findAll() {
-    return this.prisma.question.findMany();
+    return this.prisma.question.findMany({
+      include: {
+        subject: {
+          include: {
+            grade: true,
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {
-    return this.prisma.question.findUnique({ where: { id } });
+    return this.prisma.question.findUnique({
+      where: { id },
+      include: {
+        subject: {
+          include: {
+            grade: true,
+          },
+        },
+      },
+    });
   }
 
   async create(dto: CreateQuestionDto) {
@@ -114,10 +131,35 @@ export class QuestionService {
   }
 
   async update(id: string, dto: UpdateQuestionDto) {
-    return this.prisma.question.update({ where: { id }, data: dto });
+    return this.prisma.question.update({
+      where: { id },
+      data: dto,
+      include: {
+        subject: {
+          include: {
+            grade: true,
+          },
+        },
+      },
+    });
   }
 
   async remove(id: string) {
-    return this.prisma.question.delete({ where: { id } });
+    const linkedExams = await this.prisma.examQuestion.count({
+      where: { questionId: id }
+    });
+
+    if (linkedExams > 0) {
+      throw new BadRequestException('Cannot delete question because it is used in one or more exams. Remove it from the exams first.');
+    }
+
+    try {
+      return await this.prisma.question.delete({ where: { id } });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`Question with ID ${id} not found`);
+      }
+      throw error;
+    }
   }
 }

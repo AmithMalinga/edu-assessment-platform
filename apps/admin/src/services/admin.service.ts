@@ -138,8 +138,16 @@ export const adminService = {
     const response = await api.get('/questions');
     return response.data;
   },
+  getQuestion: async (id: string) => {
+    const response = await api.get(`/questions/${id}`);
+    return response.data;
+  },
   createQuestion: async (data: any) => {
     const response = await api.post('/questions/admin', data);
+    return response.data;
+  },
+  updateQuestion: async (id: string, data: any) => {
+    const response = await api.put(`/questions/${id}`, data);
     return response.data;
   },
   deleteQuestion: async (id: string) => {
@@ -158,6 +166,10 @@ export const adminService = {
   },
   getExams: async (): Promise<ExamSummary[]> => {
     const response = await api.get('/assessments');
+    return response.data;
+   },
+  findOne: async (id: string): Promise<any> => {
+    const response = await api.get(`/assessments/${id}`);
     return response.data;
   }
 };
