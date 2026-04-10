@@ -4,7 +4,7 @@ import {
   AlertCircle, CheckCircle2, ClipboardList, Loader2, 
   Search, Sparkles, ChevronRight, ChevronLeft,
   Settings, BookOpen, ListChecks, Info, Clock, 
-  AlertTriangle, Save, GraduationCap, Layers
+  AlertTriangle, Save, GraduationCap, Layers, Calendar
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -16,6 +16,8 @@ import type {
   ExamTypeCategory,
   RelevantQuestion,
 } from '../services/admin.service';
+import CustomSelect from '../components/common/CustomSelect';
+import CustomDateTimePicker from '../components/common/CustomDateTimePicker';
 
 const Exams: React.FC = () => {
   const navigate = useNavigate();
@@ -111,6 +113,20 @@ const Exams: React.FC = () => {
 
     try {
       setSubmittingExam(true);
+
+      // Date Validation
+      const now = new Date();
+      if (startsAt && new Date(startsAt) < now) {
+        setFormError('Exam start date cannot be in the past.');
+        setSubmittingExam(false);
+        return;
+      }
+      if (startsAt && endsAt && new Date(endsAt) <= new Date(startsAt)) {
+        setFormError('Exam end date must be after the start date.');
+        setSubmittingExam(false);
+        return;
+      }
+
       const parsedRules = rulesText.split('\n').map(r => r.trim()).filter(Boolean);
 
       await createExam({
@@ -242,7 +258,7 @@ const Exams: React.FC = () => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="glass-card"
+                  className="glass-card relative z-10 overflow-visible"
                 >
                   <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                     <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-400"><Settings size={24} /></div>
@@ -253,44 +269,56 @@ const Exams: React.FC = () => {
                     <div className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-400 ml-1 flex items-center gap-2"><GraduationCap size={16} /> Grade Level</label>
-                            <select
+                            <CustomSelect
                                 value={gradeId}
-                                onChange={(e) => { setGradeId(e.target.value); setSubjectId(''); }}
-                                className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-indigo-500/50"
-                            >
-                                <option value="" className="bg-slate-900">Select Grade</option>
-                                {grades.map(g => <option key={g.id} value={g.id} className="bg-slate-900">{g.name}</option>)}
-                            </select>
+                                onChange={(val) => { setGradeId(val); setSubjectId(''); }}
+                                options={[
+                                    { value: '', label: 'Select Grade' },
+                                    ...grades.map(g => ({ value: g.id, label: g.name }))
+                                ]}
+                                icon={<GraduationCap size={18} />}
+                                placeholder="Select Grade"
+                            />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-400 ml-1 flex items-center gap-2"><BookOpen size={16} /> Subject</label>
-                            <select
+                            <CustomSelect
                                 value={subjectId}
-                                onChange={(e) => setSubjectId(e.target.value)}
+                                onChange={setSubjectId}
+                                options={[
+                                    { value: '', label: 'Select Subject' },
+                                    ...filteredSubjects.map(s => ({ value: s.id, label: s.name }))
+                                ]}
+                                icon={<BookOpen size={18} />}
                                 disabled={!gradeId}
-                                className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <option value="" className="bg-slate-900">Select Subject</option>
-                                {filteredSubjects.map(s => <option key={s.id} value={s.id} className="bg-slate-900">{s.name}</option>)}
-                            </select>
+                                placeholder="Select Subject"
+                            />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-400 ml-1">Question Type</label>
-                                <select value={examQuestionType} onChange={e => setExamQuestionType(e.target.value as any)} className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold bg-slate-900">
-                                    <option value="MCQ" className="bg-slate-900">MCQ</option>
-                                    <option value="STRUCTURED" className="bg-slate-900">Structured</option>
-                                    <option value="ESSAY" className="bg-slate-900">Essay</option>
-                                </select>
+                                <CustomSelect
+                                    value={examQuestionType}
+                                    onChange={(val) => setExamQuestionType(val as any)}
+                                    options={[
+                                        { value: 'MCQ', label: 'MCQ' },
+                                        { value: 'STRUCTURED', label: 'Structured' },
+                                        { value: 'ESSAY', label: 'Essay' }
+                                    ]}
+                                />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-400 ml-1">Category</label>
-                                <select value={examTypeCategory} onChange={e => setExamTypeCategory(e.target.value as any)} className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold bg-slate-900">
-                                    <option value="RANDOM_NEW" className="bg-slate-900">Random</option>
-                                    <option value="LESSON_WISE" className="bg-slate-900">Lesson Wise</option>
-                                    <option value="PAST_PAPERS" className="bg-slate-900">Past Papers</option>
-                                    <option value="LIVE" className="bg-slate-900">Live</option>
-                                </select>
+                                <CustomSelect
+                                    value={examTypeCategory}
+                                    onChange={(val) => setExamTypeCategory(val as any)}
+                                    options={[
+                                        { value: 'RANDOM_NEW', label: 'Random' },
+                                        { value: 'LESSON_WISE', label: 'Lesson Wise' },
+                                        { value: 'PAST_PAPERS', label: 'Past Papers' },
+                                        { value: 'LIVE', label: 'Live' }
+                                    ]}
+                                />
                             </div>
                         </div>
                     </div>
@@ -301,34 +329,95 @@ const Exams: React.FC = () => {
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-400 ml-1 flex items-center gap-2"><Clock size={16} /> Duration</label>
                                 <div className="relative">
-                                    <input type="number" value={timeAllocationMinutes} onChange={e => setTimeAllocationMinutes(Number(e.target.value))} className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:ring-2 focus:ring-indigo-500/50" />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 text-xs font-bold uppercase">Mins</span>
+                                    <input 
+                                        type="number" 
+                                        value={timeAllocationMinutes} 
+                                        onChange={e => setTimeAllocationMinutes(Number(e.target.value))} 
+                                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" 
+                                    />
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 text-[10px] font-black uppercase tracking-widest">Mins</span>
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-400 ml-1">Passing %</label>
                                 <div className="relative">
-                                    <input type="number" value={passingScorePercent} onChange={e => setPassingScorePercent(Number(e.target.value))} className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold focus:ring-2 focus:ring-indigo-500/50" />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 text-xs font-bold uppercase">%</span>
+                                    <input 
+                                        type="number" 
+                                        value={passingScorePercent} 
+                                        onChange={e => setPassingScorePercent(Number(e.target.value))} 
+                                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" 
+                                    />
+                                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-600 text-xs font-bold uppercase">%</span>
                                 </div>
                             </div>
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-400 ml-1 flex items-center gap-2"><AlertTriangle size={16} /> Exam Dates</label>
                             <div className="grid grid-cols-2 gap-4">
-                                <input type="datetime-local" value={startsAt} onChange={e => setStartsAt(e.target.value)} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-mono" />
-                                <input type="datetime-local" value={endsAt} onChange={e => setEndsAt(e.target.value)} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-mono" />
+                                <CustomDateTimePicker 
+                                    value={startsAt} 
+                                    onChange={setStartsAt} 
+                                    min={new Date().toISOString().slice(0, 16)}
+                                    icon={<Calendar size={18} className="text-emerald-400" />}
+                                />
+                                <CustomDateTimePicker 
+                                    value={endsAt} 
+                                    onChange={setEndsAt} 
+                                    min={startsAt || new Date().toISOString().slice(0, 16)}
+                                    icon={<Calendar size={18} className="text-red-400" />}
+                                />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 items-end h-full">
-                            <label className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl cursor-pointer group hover:bg-white/10 transition-all">
-                                <input type="checkbox" checked={shuffleQuestions} onChange={e => setShuffleQuestions(e.target.checked)} className="w-5 h-5 rounded-lg border-2 border-indigo-500 text-indigo-600 focus:ring-indigo-500 bg-transparent" />
-                                <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">Shuffle</span>
-                            </label>
-                            <label className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl cursor-pointer group hover:bg-white/10 transition-all">
-                                <input type="checkbox" checked={allowReviewBeforeSubmit} onChange={e => setAllowReviewBeforeSubmit(e.target.checked)} className="w-5 h-5 rounded-lg border-2 border-indigo-500 text-indigo-600 focus:ring-indigo-500 bg-transparent" />
-                                <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">Review</span>
-                            </label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setShuffleQuestions(!shuffleQuestions)}
+                                className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all group ${
+                                    shuffleQuestions 
+                                        ? 'bg-indigo-500/10 border-indigo-500/50 shadow-lg shadow-indigo-500/10' 
+                                        : 'bg-white/5 border-white/5 hover:border-white/10'
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                                        shuffleQuestions ? 'bg-indigo-500 border-indigo-500 text-white' : 'border-slate-700 text-transparent'
+                                    }`}>
+                                        <CheckCircle2 size={14} />
+                                    </div>
+                                    <span className={`text-sm font-bold transition-colors ${shuffleQuestions ? 'text-white' : 'text-slate-400'}`}>Shuffle</span>
+                                </div>
+                                <div className={`w-8 h-4 rounded-full relative transition-colors ${shuffleQuestions ? 'bg-indigo-500' : 'bg-slate-800'}`}>
+                                    <motion.div 
+                                        animate={{ x: shuffleQuestions ? 18 : 2 }}
+                                        className="absolute top-1 w-2 h-2 rounded-full bg-white shadow-sm"
+                                    />
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setAllowReviewBeforeSubmit(!allowReviewBeforeSubmit)}
+                                className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all group ${
+                                    allowReviewBeforeSubmit 
+                                        ? 'green-glow bg-emerald-500/10 border-emerald-500/50 shadow-lg shadow-emerald-500/10' 
+                                        : 'bg-white/5 border-white/5 hover:border-white/10'
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                                        allowReviewBeforeSubmit ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-700 text-transparent'
+                                    }`}>
+                                        <CheckCircle2 size={14} />
+                                    </div>
+                                    <span className={`text-sm font-bold transition-colors ${allowReviewBeforeSubmit ? 'text-white' : 'text-slate-400'}`}>Review</span>
+                                </div>
+                                <div className={`w-8 h-4 rounded-full relative transition-colors ${allowReviewBeforeSubmit ? 'bg-emerald-500' : 'bg-slate-800'}`}>
+                                    <motion.div 
+                                        animate={{ x: allowReviewBeforeSubmit ? 18 : 2 }}
+                                        className="absolute top-1 w-2 h-2 rounded-full bg-white shadow-sm"
+                                    />
+                                </div>
+                            </button>
                         </div>
                     </div>
                   </div>

@@ -6,6 +6,7 @@ import Grades from './pages/Grades';
 import Subjects from './pages/Subjects';
 import Questions from './pages/Questions';
 import AddQuestion from './pages/AddQuestion';
+import EditQuestion from './pages/EditQuestion';
 import Exams from './pages/Exams';
 import ExamList from './pages/ExamList';
 import ExamDetails from './pages/ExamDetails';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/subjects" element={<Subjects />} />
           <Route path="/questions" element={<Questions />} />
           <Route path="/questions/add" element={<AddQuestion />} />
+          <Route path="/questions/edit/:id" element={<EditQuestion />} />
           <Route path="/exams" element={<Exams />} />
           <Route path="/exams/list" element={<ExamList />} />
           <Route path="/exams/:id" element={<ExamDetails />} />
