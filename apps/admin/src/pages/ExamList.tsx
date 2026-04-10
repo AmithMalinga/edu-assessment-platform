@@ -8,16 +8,30 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { useExams } from '../hooks/useExams';
-import { ExamSummary } from '../services/admin.service';
+import { ExamSummary, ExamQuestionType, ExamTypeCategory } from '../services/admin.service';
+import { parseExamConfig } from '../utils/exam';
 
 const ExamList: React.FC = () => {
   const { exams, loading } = useExams();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState<ExamQuestionType | 'ALL'>('ALL');
+  const [selectedCategory, setSelectedCategory] = useState<ExamTypeCategory | 'ALL'>('ALL');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const navigate = useNavigate();
 
-  const filteredExams = exams.filter((exam: ExamSummary) => 
-    exam.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredExams = exams.filter((exam: ExamSummary) => {
+    const matchesSearch = exam.title.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Extract config for filtering
+    const config = parseExamConfig(exam.description);
+    const matchesType = selectedType === 'ALL' || config?.examQuestionType === selectedType;
+    const matchesCategory = selectedCategory === 'ALL' || config?.examTypeCategory === selectedCategory;
+
+    return matchesSearch && matchesType && matchesCategory;
+  });
+
+  const questionTypes: (ExamQuestionType | 'ALL')[] = ['ALL', 'MCQ', 'STRUCTURED', 'ESSAY'];
+  const categories: (ExamTypeCategory | 'ALL')[] = ['ALL', 'RANDOM_NEW', 'LESSON_WISE', 'PAST_PAPERS', 'LIVE'];
 
   const stats = [
     { label: 'Total Exams', value: exams.length, icon: ClipboardList, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
@@ -61,9 +75,21 @@ const ExamList: React.FC = () => {
             />
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white/5 border border-white/10 text-slate-300 rounded-2xl hover:bg-white/10 transition-all font-semibold">
+            <button 
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 border rounded-2xl transition-all font-semibold ${
+                isFilterOpen || selectedType !== 'ALL' || selectedCategory !== 'ALL'
+                  ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-400' 
+                  : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+              }`}
+            >
               <Filter size={18} />
-              Filter
+              {isFilterOpen ? 'Hide Filters' : 'Filters'}
+              {(selectedType !== 'ALL' || selectedCategory !== 'ALL') && (
+                <span className="w-5 h-5 bg-indigo-500 text-white text-[10px] rounded-full flex items-center justify-center">
+                  {[selectedType, selectedCategory].filter(f => f !== 'ALL').length}
+                </span>
+              )}
             </button>
             <button 
               onClick={() => navigate('/exams')}
@@ -74,6 +100,57 @@ const ExamList: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Filter Dropdown Area */}
+        <AnimatePresence>
+          {isFilterOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="glass-card grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Question Type</label>
+                  <div className="flex flex-wrap gap-2">
+                    {questionTypes.map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setSelectedType(type)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                          selectedType === type
+                            ? 'bg-indigo-500 border-indigo-400 text-white'
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                        }`}
+                      >
+                        {type.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Category</label>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                          selectedCategory === cat
+                            ? 'bg-emerald-500 border-emerald-400 text-white'
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                        }`}
+                      >
+                        {cat.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Exam Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -93,8 +170,24 @@ const ExamList: React.FC = () => {
                   className="glass-card group hover:border-indigo-500/50 transition-all duration-300 cursor-default"
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
-                      <ClipboardList size={20} />
+                    <div className="flex flex-col gap-1">
+                      <div className="p-2 w-fit rounded-lg bg-indigo-500/10 text-indigo-400">
+                        <ClipboardList size={20} />
+                      </div>
+                      {(() => {
+                        const config = parseExamConfig(exam.description);
+                        if (!config) return null;
+                        return (
+                          <div className="flex gap-1.5 mt-2">
+                            <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 text-[9px] font-bold text-indigo-400 uppercase tracking-wider border border-indigo-500/20">
+                              {config.examQuestionType}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-[9px] font-bold text-emerald-400 uppercase tracking-wider border border-emerald-500/20">
+                              {config.examTypeCategory?.replace('_', ' ')}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-white transition-colors">
