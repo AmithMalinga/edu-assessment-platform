@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertCircle, CheckCircle2, ClipboardList, Loader2, 
@@ -59,6 +59,17 @@ const Exams: React.FC = () => {
     () => subjects.filter((subject) => subject.gradeId === Number.parseInt(gradeId, 10)),
     [subjects, gradeId],
   );
+
+  // Auto-hide messages after 5 seconds
+  useEffect(() => {
+    if (formError || successMessage) {
+      const timer = setTimeout(() => {
+        setFormError('');
+        setSuccessMessage('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [formError, successMessage]);
 
   const selectedCount = Object.keys(selectedMarks).length;
   const totalMarks = Object.values(selectedMarks).reduce((sum, marks) => sum + marks, 0);
@@ -204,6 +215,19 @@ const Exams: React.FC = () => {
           
           {/* Main Content Area */}
           <div className="lg:col-span-3">
+            {(formError || successMessage) && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`mb-6 p-4 rounded-2xl border flex items-center gap-3 font-bold ${
+                    formError ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                }`}
+              >
+                {formError ? <AlertTriangle size={20} /> : <CheckCircle2 size={20} />}
+                {formError || successMessage}
+              </motion.div>
+            )}
+
             <AnimatePresence mode="wait">
               {activeStep === 0 && (
                 <motion.div
@@ -549,19 +573,6 @@ const Exams: React.FC = () => {
                     </button>
                 )}
             </div>
-            
-            {(formError || successMessage) && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`mt-4 p-4 rounded-2xl border flex items-center gap-3 font-bold ${
-                    formError ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                }`}
-              >
-                {formError ? <AlertTriangle size={20} /> : <CheckCircle2 size={20} />}
-                {formError || successMessage}
-              </motion.div>
-            )}
           </div>
 
           {/* Right Summary Sidebar (Sticky) */}
