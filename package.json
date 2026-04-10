@@ -6,6 +6,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:full": "turbo run dev --filter=server --filter=web --filter=admin",
+    "db:generate": "npm run db:generate --workspace=@repo/database",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
