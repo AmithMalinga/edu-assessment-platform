@@ -1,12 +1,19 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class TestimonialsService implements OnModuleInit {
+    private readonly logger = new Logger(TestimonialsService.name);
+
     constructor(private prisma: PrismaService) { }
 
     async onModuleInit() {
-        await this.seedTestimonials();
+        try {
+            await this.seedTestimonials();
+        } catch (error) {
+            this.logger.warn('Skipping testimonial seed during startup due to database readiness issue.');
+            this.logger.debug((error as Error).message);
+        }
     }
 
     async seedTestimonials() {
