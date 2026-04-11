@@ -15,7 +15,11 @@ import { AuthSplitLayout } from "@/components/auth/auth-split-layout"
 
 export default function LoginPage() {
     const router = useRouter()
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL
+
+    if (!apiUrl) {
+        throw new Error("NEXT_PUBLIC_API_URL is not configured")
+    }
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)

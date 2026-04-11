@@ -51,7 +51,11 @@ const STRENGTH_COLORS = ["", "#ef4444", "#f97316", "#eab308", "#22c55e", "#6366f
 /* ── Page ─────────────────────────────────────────────────────── */
 export default function RegisterPage() {
     const router  = useRouter()
-    const apiUrl  = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+    const apiUrl  = process.env.NEXT_PUBLIC_API_URL
+
+    if (!apiUrl) {
+        throw new Error("NEXT_PUBLIC_API_URL is not configured")
+    }
 
     /* form */
     const [name,             setName]             = useState("")
