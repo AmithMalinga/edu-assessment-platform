@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 export const metadata: Metadata = {
     title: 'ExamMaster',
     description: 'Advanced Examination Platform',
+    verification: {
+        google: 'JACmNDgXZawPVd-NwgbJJgT712JADxUjU-zIStSblJs',
+    },
 }
 
 export default function RootLayout({
