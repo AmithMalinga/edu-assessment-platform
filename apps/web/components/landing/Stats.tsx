@@ -1,13 +1,26 @@
 "use client"
 import { motion, useInView } from "framer-motion"
 import { useRef, useEffect, useState } from "react"
-import { Users, BookOpen, Trophy, Languages } from "lucide-react"
+import { Users, BookOpen, Trophy, FileText } from "lucide-react"
+import { landingService } from "@/lib/services/landing.service"
 
-const stats = [
-    { icon: Users, value: 10000, suffix: "+", label: "Active Students" },
-    { icon: BookOpen, value: 5000, suffix: "+", label: "Questions" },
-    { icon: Trophy, value: 98, suffix: "%", label: "Pass Rate" },
-    { icon: Languages, value: 3, suffix: "", label: "Languages" },
+type StatItem = {
+    icon: typeof Users
+    value: number
+    suffix: string
+    label: string
+}
+
+const buildStats = (data: {
+    activeStudents: number
+    totalQuestions: number
+    totalExams: number
+    passRate: number
+}): StatItem[] => [
+    { icon: Users, value: data.activeStudents, suffix: "+", label: "Active Students" },
+    { icon: BookOpen, value: data.totalQuestions, suffix: "+", label: "Questions" },
+    { icon: Trophy, value: data.passRate, suffix: "%", label: "Pass Rate" },
+    { icon: FileText, value: data.totalExams, suffix: "+", label: "Exams" },
 ]
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
@@ -44,6 +57,22 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
 }
 
 export function Stats() {
+    const [stats, setStats] = useState<StatItem[]>(buildStats({
+        activeStudents: 0,
+        totalQuestions: 0,
+        totalExams: 0,
+        passRate: 0,
+    }))
+
+    useEffect(() => {
+        const loadStats = async () => {
+            const data = await landingService.getStats()
+            setStats(buildStats(data))
+        }
+
+        loadStats()
+    }, [])
+
     return (
         <section className="py-20 relative overflow-hidden">
             {/* Gradient Background */}
