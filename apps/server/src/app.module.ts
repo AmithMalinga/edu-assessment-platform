@@ -13,6 +13,7 @@ import { AssessmentModule } from './assessments/assessment.module';
 import { SubmissionModule } from './submissions/submission.module';
 import { ResultModule } from './results/result.module';
 import { SubjectModule } from './subjects/subject.module';
+import { LandingModule } from './landing/landing.module';
 
 @Module({
     imports: [
@@ -25,7 +26,8 @@ import { SubjectModule } from './subjects/subject.module';
         AssessmentModule,
         SubmissionModule,
         ResultModule,
-        SubjectModule
+        SubjectModule,
+        LandingModule
     ],
     controllers: [AppController],
     providers: [AppService],
