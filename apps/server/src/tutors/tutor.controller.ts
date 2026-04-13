@@ -83,7 +83,7 @@ export class TutorController {
       throw new ForbiddenException('Only admins can approve tutor registrations');
     }
 
-    return this.tutorService.approveTutorRegistration(id, req.user.id);
+    return this.tutorService.approveTutorRegistration(id, req.user.userId);
   }
 
   /**
@@ -102,7 +102,7 @@ export class TutorController {
 
     return this.tutorService.rejectTutorRegistration(
       id,
-      req.user.id,
+      req.user.userId,
       body.rejectionReason,
     );
   }

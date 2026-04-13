@@ -4,13 +4,15 @@ import {
   NotFoundException,
   BadRequestException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { TutorRegisterDto } from './dto/tutor-register.dto';
-import { createHash, randomBytes } from 'crypto';
+import { randomBytes } from 'crypto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TutorService {
@@ -181,42 +183,108 @@ export class TutorService {
       );
     }
 
+    // Pre-check duplicate fields to return a clear, field-level error to admin UI.
+    const [existingByEmail, existingByPhone, existingByUsername] = await Promise.all([
+      this.prisma.user.findUnique({ where: { email: registration.email }, select: { id: true } }),
+      this.prisma.user.findUnique({ where: { phone: registration.phone }, select: { id: true } }),
+      this.prisma.user.findUnique({ where: { username: registration.username }, select: { id: true } }),
+    ]);
+
+    const conflicts: string[] = [];
+    if (existingByEmail) conflicts.push('email');
+    if (existingByPhone) conflicts.push('phone');
+    if (existingByUsername) conflicts.push('username');
+
+    if (conflicts.length > 0) {
+      throw new ConflictException({
+        message: 'Cannot approve tutor registration because some fields are already used.',
+        conflicts,
+        details: conflicts.map((field) => `Duplicate ${field} found in existing users.`),
+      });
+    }
+
     // Generate temporary password
     const temporaryPassword = this.generateTemporaryPassword();
     const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
-    // Create tutor user
-    const tutor = await this.prisma.user.create({
-      data: {
-        name: registration.name,
-        email: registration.email,
-        phone: registration.phone,
-        username: registration.username,
-        password: hashedPassword,
-        role: 'TUTOR',
-        subject: registration.subject,
-        studentCount: registration.studentCount,
-        requiresPasswordChange: true,
-        age: 0, // Required field, but not applicable for tutors
-        educationalLevel: 'N/A', // Required field
-      },
-    });
+    let tutor: {
+      id: string;
+      email: string;
+      username: string | null;
+      name: string;
+    };
 
-    // Update tutor registration
-    await this.prisma.tutorRegistration.update({
-      where: { id: registrationId },
-      data: {
-        status: 'APPROVED',
-        reviewedBy: adminId,
-        reviewedAt: new Date(),
-        userId: tutor.id,
-      },
-    });
+    try {
+      // Create tutor user
+      tutor = await this.prisma.user.create({
+        data: {
+          name: registration.name,
+          email: registration.email,
+          phone: registration.phone,
+          username: registration.username,
+          password: hashedPassword,
+          role: 'TUTOR',
+          subject: registration.subject,
+          studentCount: registration.studentCount,
+          requiresPasswordChange: true,
+          age: 0, // Required field, but not applicable for tutors
+          educationalLevel: 'N/A', // Required field
+        },
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          name: true,
+        },
+      });
+
+      // Update tutor registration
+      await this.prisma.tutorRegistration.update({
+        where: { id: registrationId },
+        data: {
+          status: 'APPROVED',
+          reviewedBy: adminId,
+          reviewedAt: new Date(),
+          userId: tutor.id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          const target = Array.isArray(error.meta?.target)
+            ? (error.meta?.target as string[])
+            : [];
+          const mapped = target
+            .map((item) => item.toString().replace(/.*\./, '').toLowerCase())
+            .filter((item) => ['email', 'phone', 'username'].includes(item));
+
+          throw new ConflictException(
+            mapped.length
+              ? {
+                  message: 'Cannot approve tutor registration because some fields are already used.',
+                  conflicts: mapped,
+                  details: mapped.map((field) => `Duplicate ${field} found in existing users.`),
+                }
+              : 'Cannot approve tutor because email, phone, or username is already used by another account.',
+          );
+        }
+
+        if (error.code === 'P2003') {
+          throw new BadRequestException('Invalid relationship data while approving tutor.');
+        }
+
+        if (error.code === 'P2025') {
+          throw new NotFoundException('Tutor registration record was not found during approval.');
+        }
+      }
+
+      throw new InternalServerErrorException('Failed to approve tutor registration.');
+    }
 
     // Send approval email
     await this.sendApprovalEmail(
       tutor.email,
-      tutor.username,
+      tutor.username ?? registration.username,
       temporaryPassword,
     );
 
@@ -290,7 +358,7 @@ export class TutorService {
         <li><strong>Email:</strong> ${email}</li>
         <li><strong>Temporary Password:</strong> ${temporaryPassword}</li>
       </ul>
-      <p><a href="${appUrl}/auth/login">Click here to login</a></p>
+      <p><a href="${appUrl}/auth/tutor-login">Click here to login</a></p>
       <p><strong>Important:</strong> You must change your password on your first login.</p>
       <p>Best regards,<br/>The Admin Team</p>
     `;
