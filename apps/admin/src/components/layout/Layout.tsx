@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import { 
   LayoutDashboard, 
   Users, 
@@ -8,9 +9,9 @@ import {
   HelpCircle, 
   ClipboardList,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Award
 } from 'lucide-react';
-
 interface LayoutProps {
   children: React.ReactNode;
   title: string;
@@ -33,6 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
     { to: '/subjects', label: 'Subjects', icon: BookOpen },
     { to: '/questions', label: 'Questions', icon: HelpCircle },
     { to: '/exams', label: 'Exams', icon: ClipboardList },
+    { to: '/tutors', label: 'Tutor Requests', icon: Award },
   ];
 
   return (
