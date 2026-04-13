@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 import { ConfigModule } from '@nestjs/config';
 
+
 import { StudentsModule } from './students/students.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -14,7 +15,7 @@ import { SubmissionModule } from './submissions/submission.module';
 import { ResultModule } from './results/result.module';
 import { SubjectModule } from './subjects/subject.module';
 import { LandingModule } from './landing/landing.module';
-
+import { TutorModule } from './tutors/tutor.module';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -27,7 +28,8 @@ import { LandingModule } from './landing/landing.module';
         SubmissionModule,
         ResultModule,
         SubjectModule,
-        LandingModule
+        LandingModule,
+        TutorModule
     ],
     controllers: [AppController],
     providers: [AppService],
