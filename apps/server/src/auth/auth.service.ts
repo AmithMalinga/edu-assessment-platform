@@ -19,6 +19,8 @@ type SanitizedUser = {
     age: number;
     educationalLevel: string;
     role: string;
+    username?: string;
+    requiresPasswordChange?: boolean;
 };
 
 type GoogleAuthUser = {
@@ -109,6 +111,8 @@ export class AuthService {
         age: number;
         educationalLevel: string;
         role: string;
+        username?: string;
+        requiresPasswordChange?: boolean;
     }): SanitizedUser {
         return {
             id: user.id,
@@ -118,6 +122,8 @@ export class AuthService {
             age: user.age,
             educationalLevel: user.educationalLevel,
             role: user.role,
+            ...(user.username && { username: user.username }),
+            ...(user.requiresPasswordChange !== undefined && { requiresPasswordChange: user.requiresPasswordChange }),
         };
     }
 
@@ -340,5 +346,40 @@ export class AuthService {
         });
         if (!user) throw new NotFoundException('User not found');
         return user;
+    }
+
+    async changePassword(userId: string, currentPassword: string, newPassword: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Verify current password
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Current password is incorrect');
+        }
+
+        // Validate new password (at least 8 characters)
+        if (!newPassword || newPassword.length < 8) {
+            throw new BadRequestException('New password must be at least 8 characters');
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update user
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                password: hashedPassword,
+                requiresPasswordChange: false,
+            },
+        });
+
+        return { message: 'Password changed successfully' };
     }
 }
