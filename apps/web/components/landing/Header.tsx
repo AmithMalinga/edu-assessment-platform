@@ -8,6 +8,7 @@ const navItems = [
     { label: "Features", href: "#features" },
     { label: "Solutions", href: "#solutions" },
     { label: "Testimonials", href: "#testimonials" },
+    { label: "Contact", href: "/contact" },
     { label: "Dashboard", href: "/dashboard" }
 ]
 
@@ -30,7 +31,7 @@ export function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="ml-auto hidden md:flex gap-8 items-center">
+            <nav className="ml-auto hidden lg:flex gap-8 items-center">
                 {navItems.map((item) => (
                     <Link
                         key={item.label}
@@ -43,30 +44,44 @@ export function Header() {
                 ))}
             </nav>
 
-            {/* CTA Button */}
-            <div className="ml-8 hidden md:block">
-                <Link
-                    href="/login"
-                    className="relative group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-[position:100%_0] transition-all duration-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5"
-                >
-                    <span>Get Started</span>
-                    <motion.span
-                        animate={{ x: [0, 4, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.5 }}
-                    >
-                        →
-                    </motion.span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 opacity-0 group-hover:opacity-100 group-hover:animate-shine overflow-hidden" />
-                </Link>
-            </div>
+            <div className="ml-auto flex items-center gap-4">
+                {/* Language Switcher */}
+                <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700">
+                    {["EN", "සිං", "Tag"].map((lang) => (
+                        <button
+                            key={lang}
+                            className={`px-3 py-1 text-[10px] font-bold rounded-full transition-all ${lang === "EN" ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm" : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"}`}
+                        >
+                            {lang}
+                        </button>
+                    ))}
+                </div>
 
-            {/* Mobile Menu Button */}
-            <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="ml-auto md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+                {/* CTA Button */}
+                <div className="hidden md:block">
+                    <Link
+                        href="/login"
+                        className="relative group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-[position:100%_0] transition-all duration-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5"
+                    >
+                        <span>Get Started</span>
+                        <motion.span
+                            animate={{ x: [0, 4, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                        >
+                            →
+                        </motion.span>
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 opacity-0 group-hover:opacity-100 group-hover:animate-shine overflow-hidden" />
+                    </Link>
+                </div>
+
+                {/* Mobile Menu Button */}
+                <button
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                    {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+            </div>
 
             {/* Mobile Menu */}
             <AnimatePresence>
