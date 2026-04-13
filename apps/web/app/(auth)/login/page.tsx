@@ -46,6 +46,17 @@ export default function LoginPage() {
         setIsLoading(true)
         try {
             const res = await studentService.login({ email, password })
+
+            if (res.user.role === "TUTOR") {
+                setError("Tutor account detected. Please use Tutor Login.")
+                return
+            }
+
+            if (res.user.role !== "STUDENT") {
+                setError("Only student accounts can sign in here.")
+                return
+            }
+
             localStorage.setItem("token", res.access_token)
             localStorage.setItem("currentUser", JSON.stringify(res.user))
 
@@ -176,6 +187,13 @@ export default function LoginPage() {
                     Don&apos;t have an account?{" "}
                     <Link href="/register" className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline hover:underline-offset-4 transition-all tracking-wide">
                         Sign up
+                    </Link>
+                </div>
+
+                <div className="text-center text-[11px] text-slate-500 dark:text-slate-400 -mt-2 pb-1">
+                    Are you a tutor?{" "}
+                    <Link href="/auth/tutor-login" className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline hover:underline-offset-4 transition-all tracking-wide">
+                        Tutor Login
                     </Link>
                 </div>
             </div>

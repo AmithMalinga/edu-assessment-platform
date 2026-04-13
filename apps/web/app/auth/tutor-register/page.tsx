@@ -361,7 +361,7 @@ export default function TutorRegisterPage() {
           {/* Login Link */}
           <p className="text-center text-xs text-muted-foreground">
             Already a tutor?{" "}
-            <Link href="/auth/login" className="text-primary hover:underline font-medium">
+            <Link href="/auth/tutor-login" className="text-primary hover:underline font-medium">
               Login here
             </Link>
           </p>
