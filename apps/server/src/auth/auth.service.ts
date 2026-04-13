@@ -8,7 +8,7 @@ import { VerifyRegisterOtpDto } from './dto/verify-register-otp.dto';
 import { PrismaService } from '../prisma.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { EmailService } from '../email/email.service';
 import { createHash, randomInt, randomUUID } from 'crypto';
 
 type SanitizedUser = {
@@ -53,12 +53,12 @@ export class AuthService {
     private readonly OTP_MAX_ATTEMPTS = 5;
     private readonly VERIFICATION_TOKEN_EXPIRY_MS = 20 * 60 * 1000;
     private readonly emailVerificationStore = new Map<string, PendingEmailVerification>();
-    private mailTransporter: nodemailer.Transporter | null = null;
 
     constructor(
         private jwtService: JwtService,
         private prisma: PrismaService,
         private configService: ConfigService,
+        private emailService: EmailService,
     ) { }
 
     private normalizeEmail(email: string) {
@@ -73,48 +73,8 @@ export class AuthService {
         return randomInt(100000, 1000000).toString();
     }
 
-    private getTransporter() {
-        if (this.mailTransporter) return this.mailTransporter;
-
-        const host = this.configService.get<string>('SMTP_HOST');
-        const portValue = this.configService.get<string>('SMTP_PORT');
-        const user = this.configService.get<string>('SMTP_USER');
-        const pass = this.configService.get<string>('SMTP_PASS');
-        const secure = this.configService.get<string>('SMTP_SECURE') === 'true';
-
-        if (!host || !portValue || !user || !pass) {
-            return null;
-        }
-
-        this.mailTransporter = nodemailer.createTransport({
-            host,
-            port: Number(portValue),
-            secure,
-            auth: {
-                user,
-                pass,
-            },
-        });
-
-        return this.mailTransporter;
-    }
-
     private async sendRegistrationOtpEmail(email: string, otp: string) {
-        const transporter = this.getTransporter();
-        const from = this.configService.get<string>('SMTP_FROM') || 'ExamMaster <no-reply@exammaster.local>';
-
-        if (!transporter) {
-            console.log(`Email OTP for ${email}: ${otp}`);
-            return;
-        }
-
-        await transporter.sendMail({
-            from,
-            to: email,
-            subject: 'Your ExamMaster verification code',
-            text: `Your verification code is ${otp}. It expires in 10 minutes.`,
-            html: `<p>Your verification code is <strong>${otp}</strong>.</p><p>This code expires in 10 minutes.</p>`,
-        });
+        await this.emailService.sendRegistrationOtpEmail(email, otp);
     }
 
     private getVerificationRecord(email: string) {

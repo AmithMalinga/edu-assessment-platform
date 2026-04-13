@@ -14,6 +14,7 @@ import { SubmissionModule } from './submissions/submission.module';
 import { ResultModule } from './results/result.module';
 import { SubjectModule } from './subjects/subject.module';
 import { LandingModule } from './landing/landing.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
     imports: [
@@ -27,7 +28,8 @@ import { LandingModule } from './landing/landing.module';
         SubmissionModule,
         ResultModule,
         SubjectModule,
-        LandingModule
+        LandingModule,
+        EmailModule
     ],
     controllers: [AppController],
     providers: [AppService],
