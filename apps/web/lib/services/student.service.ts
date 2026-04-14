@@ -12,6 +12,7 @@ export interface AuthUser {
     age: number;
     educationalLevel: string;
     role: string;
+    requiresPasswordChange?: boolean;
 }
 
 export interface AuthResponse {
