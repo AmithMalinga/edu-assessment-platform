@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { EmailService, ContactEmailDto } from '../email/email.service';
 
 export interface LandingStatsResponse {
     activeStudents: number;
@@ -10,7 +11,10 @@ export interface LandingStatsResponse {
 
 @Injectable()
 export class LandingService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly emailService: EmailService
+    ) {}
 
     async getStats(): Promise<LandingStatsResponse> {
         const [activeStudents, totalQuestions, totalExams, attempts] = await Promise.all([
@@ -42,5 +46,9 @@ export class LandingService {
             totalExams,
             passRate,
         };
+    }
+
+    async sendContactEmail(dto: ContactEmailDto) {
+        return this.emailService.sendContactEmail(dto);
     }
 }
