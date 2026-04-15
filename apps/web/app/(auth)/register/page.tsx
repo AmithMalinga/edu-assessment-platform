@@ -236,8 +236,8 @@ export default function RegisterPage() {
     /* ─────────────────────────────────── RENDER ── */
     return (
         <AuthSplitLayout
-            imageSrc="/auth_hero_register.png"
-            imageAlt="Student inspired"
+            imageSrc="/student_register_hero.png"
+            imageAlt="Inspiring student learning"
             headline={<>Start <span className="italic text-indigo-300 font-light">thriving</span> with ExamMaster</>}
             description="Build your knowledge, challenge yourself, and reach new heights."
         >
