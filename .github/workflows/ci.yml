@@ -38,8 +38,14 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Lint All Projects
-        run: npm run lint
+      - name: Lint Admin Project
+        run: npm run lint --workspace=admin
+
+      - name: Lint Server Project
+        run: npm run lint --workspace=server
+
+      - name: Lint Database Package
+        run: npm run lint --workspace=@repo/database
 
   build:
     runs-on: ubuntu-latest
@@ -60,8 +66,14 @@ jobs:
       - name: Generate Prisma Client
         run: npm run db:generate
 
-      - name: Build All Projects
-        run: npm run build
+      - name: Build Admin Project
+        run: npm run build --workspace=admin
+
+      - name: Build Server Project
+        run: npm run build --workspace=server
+
+      - name: Build Web Project
+        run: npm run build --workspace=web
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
