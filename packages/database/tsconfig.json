@@ -5,10 +5,11 @@
         "skipLibCheck": true,
         "target": "es6",
         "sourceMap": true,
-        "outDir": "dist"
+        "rootDir": "./src",
+        "outDir": "./dist"
     },
     "include": [
-        "src/**/*"
+        "src"
     ],
     "exclude": [
         "node_modules"
