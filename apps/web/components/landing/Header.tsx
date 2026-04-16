@@ -14,9 +14,16 @@ const DEFAULT_NAV_ITEMS = [
 export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [dashboardHref, setDashboardHref] = useState("/dashboard")
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     useEffect(() => {
+        const token = localStorage.getItem("token")
         const userRaw = localStorage.getItem("currentUser")
+        
+        if (token) {
+            setIsLoggedIn(true)
+        }
+
         if (userRaw) {
             try {
                 const user = JSON.parse(userRaw)
@@ -78,10 +85,10 @@ export function Header() {
                 {/* CTA Button */}
                 <div className="hidden md:block">
                     <Link
-                        href={localStorage.getItem("token") ? dashboardHref : "/login"}
+                        href={isLoggedIn ? dashboardHref : "/login"}
                         className="relative group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-[position:100%_0] transition-all duration-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5"
                     >
-                        <span>{localStorage.getItem("token") ? "Dashboard" : "Get Started"}</span>
+                        <span>{isLoggedIn ? "Dashboard" : "Get Started"}</span>
                         <motion.span
                             animate={{ x: [0, 4, 0] }}
                             transition={{ repeat: Infinity, duration: 1.5 }}
@@ -122,10 +129,10 @@ export function Header() {
                                 </Link>
                             ))}
                             <Link
-                                href={localStorage.getItem("token") ? dashboardHref : "/login"}
+                                href={isLoggedIn ? dashboardHref : "/login"}
                                 className="mt-4 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold"
                             >
-                                {localStorage.getItem("token") ? "Dashboard" : "Get Started"}
+                                {isLoggedIn ? "Dashboard" : "Get Started"}
                             </Link>
                         </nav>
                     </motion.div>

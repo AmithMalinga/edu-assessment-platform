@@ -41,6 +41,20 @@ const extractErrorMessage = (error: unknown, fallback: string) => {
 
 export const adminTutorService = {
   /**
+   * Admin: Get tutor registration statistics
+   */
+  async getTutorStats(token?: string) {
+    try {
+      const response = await api.get('/tutors/stats', {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      })
+      return response.data
+    } catch (error) {
+      throw new Error(extractErrorMessage(error, 'Failed to fetch tutor statistics.'))
+    }
+  },
+
+  /**
    * Get all tutor registrations with optional status filter
    */
   async getTutorRegistrations(status?: string, token?: string) {

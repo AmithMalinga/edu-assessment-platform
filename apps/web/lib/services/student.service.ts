@@ -12,6 +12,11 @@ export interface AuthUser {
     age: number;
     educationalLevel: string;
     role: string;
+    avatar?: string;
+    requiresPasswordChange?: boolean;
+    subject?: string;
+    studentCount?: string;
+    bio?: string;
 }
 
 export interface AuthResponse {
