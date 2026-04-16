@@ -7,8 +7,9 @@ enum RegistrationStatus {
 }
 
 export class ApproveRejectTutorDto {
+  @IsOptional()
   @IsEnum(RegistrationStatus)
-  status: RegistrationStatus;
+  status?: RegistrationStatus;
 
   @IsOptional()
   @IsString()

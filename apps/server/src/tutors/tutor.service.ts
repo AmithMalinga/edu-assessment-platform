@@ -150,6 +150,40 @@ export class TutorService {
   }
 
   /**
+   * Admin: Get tutor registration statistics
+   */
+  async getTutorStats() {
+    const [pendingCount, approvedTodayCount, recentRejectionsCount] =
+      await Promise.all([
+        this.prisma.tutorRegistration.count({
+          where: { status: 'PENDING' },
+        }),
+        this.prisma.tutorRegistration.count({
+          where: {
+            status: 'APPROVED',
+            reviewedAt: {
+              gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            },
+          },
+        }),
+        this.prisma.tutorRegistration.count({
+          where: {
+            status: 'REJECTED',
+            reviewedAt: {
+              gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+            },
+          },
+        }),
+      ]);
+
+    return {
+      pendingCount,
+      approvedTodayCount,
+      recentRejectionsCount,
+    };
+  }
+
+  /**
    * Get single tutor registration (admin only)
    */
   async getRegistrationById(id: string) {

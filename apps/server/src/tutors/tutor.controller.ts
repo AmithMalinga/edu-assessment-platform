@@ -38,6 +38,19 @@ export class TutorController {
   }
 
   /**
+   * Admin: Get tutor registration statistics
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('stats')
+  async getStats(@Request() req) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admins can view tutor stats');
+    }
+
+    return this.tutorService.getTutorStats();
+  }
+
+  /**
    * Admin: Get all tutor registrations (with optional status filter)
    */
   @UseGuards(JwtAuthGuard)

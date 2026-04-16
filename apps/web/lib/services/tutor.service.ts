@@ -1,4 +1,11 @@
-import { studentService } from './student.service';
+import { StudentProfile } from './student.service';
+
+export interface TutorProfile extends StudentProfile {
+  subject: string;
+  studentCount: string;
+  bio?: string;
+  username: string;
+}
 
 export const tutorService = {
   /**
@@ -53,6 +60,27 @@ export const tutorService = {
     } catch {
       return { available: false };
     }
+  },
+
+  /**
+   * Get tutor profile
+   */
+  async getProfile(token: string): Promise<TutorProfile> {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to fetch profile.');
+    }
+
+    return result;
   },
 
   /**
