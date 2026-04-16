@@ -26,10 +26,10 @@ export default function ForgotPasswordPage() {
 
     return (
         <AuthSplitLayout
-            imageSrc="/auth_hero.png"
-            imageAlt="Student smiling"
-            headline={<>Accelerate <span className="italic text-indigo-300 font-light">your potential</span> with ExamMaster</>}
-            description="Join thousands of ambitious students testing their knowledge daily."
+            imageSrc="/forgot_password_hero.png"
+            imageAlt="Security recovery illustration"
+            headline={<>Recover <span className="italic text-indigo-300 font-light">your access</span> to ExamMaster</>}
+            description="We'll help you get back into your account securely and quickly."
         >
             <div className="w-full max-w-[360px] mx-auto space-y-5">
                 {isSubmitted ? (

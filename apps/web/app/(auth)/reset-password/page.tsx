@@ -28,10 +28,10 @@ export default function ResetPasswordPage() {
 
     return (
         <AuthSplitLayout
-            imageSrc="/auth_hero.png"
-            imageAlt="Student smiling"
-            headline={<>Accelerate <span className="italic text-indigo-300 font-light">your potential</span> with ExamMaster</>}
-            description="Join thousands of ambitious students testing their knowledge daily."
+            imageSrc="/set_new_password_hero.png"
+            imageAlt="Secure key illustration"
+            headline={<>Update <span className="italic text-indigo-300 font-light">your keys</span> to your workspace</>}
+            description="Establish a new, iron-clad password to keep your dashboard and data protected."
         >
             <div className="w-full max-w-[360px] mx-auto space-y-5">
                 {isSubmitted ? (
