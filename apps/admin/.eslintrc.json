@@ -6,12 +6,16 @@
   "extends": [
     "eslint:recommended"
   ],
-  "ignorePatterns": ["dist"],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react-hooks", "react-refresh"],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "react-hooks", "react-refresh"],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react-refresh/only-export-components": "warn"
-  }
+  },
+  "ignorePatterns": ["dist", "node_modules"]
 }
