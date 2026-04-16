@@ -12,7 +12,7 @@ export class RegisterDto {
 
     @IsString()
     @IsNotEmpty({ message: 'Phone number is required' })
-    @Matches(/^[\d\s\+\-\(\)]+$/, { message: 'Invalid phone number format' })
+    @Matches(/^[\d\s+() -]+$/, { message: 'Invalid phone number format' })
     @MinLength(10, { message: 'Phone number must be at least 10 digits' })
     phone: string;
 
