@@ -4,9 +4,27 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowLeft, Home, Zap } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export default function NotFound() {
     const router = useRouter()
+    const [dashboardHref, setDashboardHref] = useState("/dashboard")
+
+    useEffect(() => {
+        const userRaw = localStorage.getItem("currentUser")
+        if (userRaw) {
+            try {
+                const user = JSON.parse(userRaw)
+                if (user?.role === "TUTOR") {
+                    setDashboardHref("/tutor-dashboard")
+                } else {
+                    setDashboardHref("/dashboard")
+                }
+            } catch (e) {
+                console.error("Error parsing user for 404:", e)
+            }
+        }
+    }, [])
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center overflow-hidden">
@@ -104,7 +122,7 @@ export default function NotFound() {
                         Go Back
                     </button>
                     <Link 
-                        href="/dashboard"
+                        href={dashboardHref}
                         className="inline-flex items-center justify-center gap-2 h-14 px-8 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 active:scale-95"
                     >
                         <Home className="h-5 w-5" />

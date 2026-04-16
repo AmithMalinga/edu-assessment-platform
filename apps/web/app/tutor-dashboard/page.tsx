@@ -2,254 +2,125 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, Mail, Phone, BookOpen, Users } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion } from "framer-motion"
+import { WelcomeBanner } from "./_components/welcome-banner"
+import { StatsGrid } from "./_components/stats-grid"
+import { RecentAssessments } from "./_components/recent-assessments"
+import { tutorService, type TutorProfile } from "@/lib/services/tutor.service"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-
-interface TutorProfile {
-  id: string
-  name: string
-  email: string
-  phone: string
-  username: string
-  subject: string
-  studentCount: string
-  bio?: string
-  role: string
-  createdAt: string
-}
+import { Rocket, GraduationCap, MessageSquare, BookOpen, Trophy } from "lucide-react"
 
 export default function TutorDashboardPage() {
-  const router = useRouter()
-  const [profile, setProfile] = useState<TutorProfile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
+    const [profile, setProfile] = useState<TutorProfile | null>(null)
+    const [loading, setLoading] = useState(true)
+    const router = useRouter()
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        const currentUser = localStorage.getItem("currentUser")
-
-        if (!token || !currentUser) {
-          router.push("/auth/tutor-login")
-          return
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                if (!token) return
+                
+                const data = await tutorService.getProfile(token)
+                setProfile(data)
+            } catch (error) {
+                console.error("Dashboard Page Fetch Error:", error)
+            } finally {
+                setLoading(false)
+            }
         }
 
-        const user = JSON.parse(currentUser)
+        fetchProfile()
+    }, [])
 
-        if (user.role !== "TUTOR") {
-          router.push("/login")
-          return
-        }
-
-        // Fetch full profile from API
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch profile")
-        }
-
-        const data = await response.json()
-        setProfile({
-          ...data,
-          username: data.username || user.email,
-        })
-      } catch (err) {
-        setError((err as Error).message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchProfile()
-  }, [router])
-
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("currentUser")
-    router.push("/")
-  }
-
-  const getStudentCountLabel = (count: string) => {
-    const mapping: { [key: string]: string } = {
-      ZERO_FIFTY: "0-50 students",
-      FIFTY_FIVE_HUNDRED: "50-500 students",
-      FIVE_HUNDRED_PLUS: "500+ students",
-    }
-    return mapping[count] || count
-  }
-
-  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    )
-  }
+        <div className="space-y-10 pb-12">
+            {/* Welcome Banner */}
+            <WelcomeBanner name={profile?.name} />
 
-  if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <CardTitle>Error</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">{error || "Failed to load profile"}</p>
-            <Button className="w-full" onClick={() => router.push("/auth/tutor-login")}>
-              Return to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+            {/* Stats Overview */}
+            <section className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">System Overview</h2>
+                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Your key performance metrics at a glance</p>
+                    </div>
+                </div>
+                <StatsGrid />
+            </section>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
-      <div className="container max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Tutor Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Welcome back, {profile.name}!</p>
-          </div>
-          <Button variant="outline" onClick={handleLogout}>
-            Logout
-          </Button>
-        </div>
+            <div className="grid lg:grid-cols-3 gap-10">
+                {/* Main Content: Recent Assessments */}
+                <div className="lg:col-span-2 space-y-10">
+                    <RecentAssessments />
+                </div>
 
-        {/* Profile Cards Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Profile Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-lg font-semibold text-primary">
-                    {profile.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                Profile Information
-              </CardTitle>
-              <CardDescription>Your account details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Name</p>
-                <p className="font-medium">{profile.name}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Username</p>
-                <p className="font-medium">{profile.username}</p>
-              </div>
-              <div className="flex gap-2 items-center pt-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="text-sm">{profile.email}</p>
-                </div>
-              </div>
-              <div className="flex gap-2 items-center">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="text-sm">{profile.phone}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                {/* Sidebar Content: Quick Actions & Performance */}
+                <div className="space-y-10">
+                    {/* Quick Actions */}
+                    <section className="space-y-6">
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Quick Actions</h2>
+                        <div className="grid grid-cols-1 gap-4">
+                            {[
+                                { title: "Create Assessment", desc: "Build a new exam with MCQ or Structured questions", icon: Rocket, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" },
+                                { title: "Enrolled Students", desc: "Manage your student groups and enrollments", icon: GraduationCap, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" },
+                                { title: "Message Center", desc: "Broadcast announcements to your student base", icon: MessageSquare, color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20" },
+                                { title: "Resource Library", desc: "Upload and manage course materials/pdfs", icon: BookOpen, color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20" },
+                            ].map((action, i) => (
+                                <motion.button
+                                    key={action.title}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 + (i * 0.1) }}
+                                    className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all text-left group shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1"
+                                >
+                                    <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${action.color} group-hover:scale-110 transition-transform`}>
+                                        <action.icon className="h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-black text-slate-900 dark:text-white underline-offset-4 group-hover:underline">{action.title}</h4>
+                                        <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                                            {action.desc}
+                                        </p>
+                                    </div>
+                                </motion.button>
+                            ))}
+                        </div>
+                    </section>
 
-          {/* Tutoring Info Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                Tutoring Information
-              </CardTitle>
-              <CardDescription>Your teaching details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Subject</p>
-                <p className="font-medium text-lg text-primary">{profile.subject}</p>
-              </div>
-              <div className="flex gap-2 items-center pt-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Student Count</p>
-                  <p className="text-sm font-medium">
-                    {getStudentCountLabel(profile.studentCount)}
-                  </p>
+                    {/* Top Students / Leaderboard Peek */}
+                    <Card className="rounded-[32px] border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none bg-white dark:bg-slate-900 overflow-hidden">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-lg font-black flex items-center gap-2">
+                                <Trophy className="h-5 w-5 text-amber-500" />
+                                Top Students
+                            </CardTitle>
+                            <CardDescription className="text-xs font-bold uppercase tracking-widest text-slate-400">Month of April</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4 pt-4">
+                            {[
+                                { name: "Nuwan Perera", score: "98.5%", rank: 1 },
+                                { name: "Amali Silva", score: "97.2%", rank: 2 },
+                                { name: "Dasun Shanaka", score: "96.8%", rank: 3 },
+                            ].map((student, i) => (
+                                <div key={student.name} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center text-xs font-black shadow-sm">
+                                            #{student.rank}
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{student.name}</p>
+                                    </div>
+                                    <p className="text-sm font-black text-indigo-600 dark:text-indigo-400">{student.score}</p>
+                                </div>
+                            ))}
+                            <Button variant="ghost" className="w-full text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors">
+                                View Full Leaderboard
+                            </Button>
+                        </CardContent>
+                    </Card>
                 </div>
-              </div>
-              {profile.bio && (
-                <div className="pt-2">
-                  <p className="text-sm text-muted-foreground">Bio</p>
-                  <p className="text-sm">{profile.bio}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Account Stats */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Account Status</CardTitle>
-            <CardDescription>Your account information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Account Type</p>
-                <p className="text-lg font-semibold capitalize">{profile.role}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Member Since</p>
-                <p className="text-lg font-semibold">
-                  {new Date(profile.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Status</p>
-                <p className="text-lg font-semibold text-green-600">Active</p>
-              </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push("/auth/change-password")}
-          >
-            Change Password
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>
         </div>
-      </div>
-    </div>
-  )
+    )
 }

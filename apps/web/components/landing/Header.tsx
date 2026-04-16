@@ -1,19 +1,37 @@
 "use client"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Zap, Menu, X } from "lucide-react"
 
-const navItems = [
+const DEFAULT_NAV_ITEMS = [
     { label: "Features", href: "#features" },
     { label: "Solutions", href: "#solutions" },
     { label: "Testimonials", href: "#testimonials" },
     { label: "Contact", href: "/contact" },
-    { label: "Dashboard", href: "/dashboard" }
 ]
 
 export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [dashboardHref, setDashboardHref] = useState("/dashboard")
+
+    useEffect(() => {
+        const userRaw = localStorage.getItem("currentUser")
+        if (userRaw) {
+            try {
+                const user = JSON.parse(userRaw)
+                if (user?.role === "TUTOR") {
+                    setDashboardHref("/tutor-dashboard")
+                } else {
+                    setDashboardHref("/dashboard")
+                }
+            } catch (e) {
+                console.error("Error parsing user for header:", e)
+            }
+        }
+    }, [])
+
+    const navItems = [...DEFAULT_NAV_ITEMS, { label: "Dashboard", href: dashboardHref }]
 
     return (
         <header className="px-6 lg:px-20 h-20 flex items-center border-b border-white/10 sticky top-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl z-50">
@@ -60,10 +78,10 @@ export function Header() {
                 {/* CTA Button */}
                 <div className="hidden md:block">
                     <Link
-                        href="/login"
+                        href={localStorage.getItem("token") ? dashboardHref : "/login"}
                         className="relative group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-[position:100%_0] transition-all duration-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5"
                     >
-                        <span>Get Started</span>
+                        <span>{localStorage.getItem("token") ? "Dashboard" : "Get Started"}</span>
                         <motion.span
                             animate={{ x: [0, 4, 0] }}
                             transition={{ repeat: Infinity, duration: 1.5 }}
@@ -104,10 +122,10 @@ export function Header() {
                                 </Link>
                             ))}
                             <Link
-                                href="/login"
+                                href={localStorage.getItem("token") ? dashboardHref : "/login"}
                                 className="mt-4 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold"
                             >
-                                Get Started
+                                {localStorage.getItem("token") ? "Dashboard" : "Get Started"}
                             </Link>
                         </nav>
                     </motion.div>
