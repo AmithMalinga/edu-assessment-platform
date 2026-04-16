@@ -212,7 +212,7 @@ function LoginContent() {
                             <Label htmlFor="password" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                 Password<span className="text-indigo-500">*</span>
                             </Label>
-                            <Link href="/forgot-password" size="sm" className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors">
+                            <Link href="/forgot-password" className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors">
                                 Forgot password?
                             </Link>
                         </div>
