@@ -6,6 +6,7 @@ import { Zap, Menu, X } from "lucide-react"
 
 const DEFAULT_NAV_ITEMS = [
     { label: "Features", href: "#features" },
+    { label: "Tutors", href: "#tutor" },
     { label: "Solutions", href: "#solutions" },
     { label: "Testimonials", href: "#testimonials" },
     { label: "Contact", href: "/contact" },

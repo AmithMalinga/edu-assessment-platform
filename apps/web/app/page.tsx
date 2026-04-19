@@ -1,5 +1,5 @@
 "use client"
-import { Header, Hero, Features, Stats, Testimonials, Footer } from "@/components/landing"
+import { Header, Hero, Features, Stats, Testimonials, Footer, TutorSection } from "@/components/landing"
 import { HowItWorks } from "@/components/landing/HowItWorks"
 import { FAQ } from "@/components/landing/FAQ"
 
@@ -11,6 +11,7 @@ export default function LandingPage() {
                 <Hero />
                 <Features />
                 <HowItWorks />
+                <TutorSection />
                 <Stats />
                 <Testimonials />
                 <FAQ />
