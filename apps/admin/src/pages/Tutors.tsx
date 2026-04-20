@@ -21,8 +21,26 @@ interface TutorRegistration {
   rejectionReason?: string
 }
 
+interface StudentTutorAssociation {
+  id: string;
+  student: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  tutor: {
+    id: string;
+    name: string;
+    tutorCode: string;
+  };
+  createdAt: string;
+  consentGiven: boolean;
+}
+
 export default function Tutors() {
+  const [activeTab, setActiveTab] = useState<'registrations' | 'associations'>('registrations')
   const [registrations, setRegistrations] = useState<TutorRegistration[]>([])
+  const [associations, setAssociations] = useState<StudentTutorAssociation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -40,10 +58,28 @@ export default function Tutors() {
   })
 
   useEffect(() => {
-    loadRegistrations()
+    if (activeTab === 'registrations') {
+      loadRegistrations()
+    } else {
+      loadAssociations()
+    }
     loadStats()
     setSelectedTutor(null)
-  }, [statusFilter])
+  }, [statusFilter, activeTab])
+
+  const loadAssociations = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const token = localStorage.getItem('admin_token')
+      const data = await adminTutorService.getStudentTutorAssociations(token || undefined)
+      setAssociations(data || [])
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const loadStats = async () => {
     try {
@@ -122,6 +158,15 @@ export default function Tutors() {
     )
   }, [registrations, searchQuery])
 
+  const filteredAssociations = useMemo(() => {
+    return associations.filter(a => 
+      a.student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.tutor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.tutor.tutorCode.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [associations, searchQuery])
+
   const getStudentCountLabel = (count: string) => {
     const mapping: { [key: string]: string } = {
       ZERO_FIFTY: '0-50',
@@ -141,9 +186,34 @@ export default function Tutors() {
   }
 
   return (
-    <Layout title="Tutor Registrations">
+    <Layout title="Tutors">
       <div className="space-y-8 pb-10">
+        {/* Navigation Tabs */}
+        <div className="flex border-b border-white/10">
+          <button
+            onClick={() => setActiveTab('registrations')}
+            className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'registrations' 
+                ? 'border-indigo-500 text-indigo-400' 
+                : 'border-transparent text-slate-400 hover:text-white hover:border-white/20'
+            }`}
+          >
+            Registrations
+          </button>
+          <button
+            onClick={() => setActiveTab('associations')}
+            className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'associations' 
+                ? 'border-indigo-500 text-indigo-400' 
+                : 'border-transparent text-slate-400 hover:text-white hover:border-white/20'
+            }`}
+          >
+            Student Assignments
+          </button>
+        </div>
+
         {/* Header Section with Stats - Visual enhancement */}
+        {activeTab === 'registrations' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -189,6 +259,7 @@ export default function Tutors() {
             </div>
           </motion.div>
         </div>
+        )}
 
         {/* Action Bar: Filters & Search */}
         <motion.div 
@@ -196,6 +267,7 @@ export default function Tutors() {
           animate={{ opacity: 1 }}
           className="flex flex-col lg:flex-row gap-4 justify-between items-center"
         >
+          {activeTab === 'registrations' ? (
           <div className="flex bg-slate-900/40 p-1 rounded-xl border border-white/5 backdrop-blur-md">
             {['PENDING', 'APPROVED', 'REJECTED'].map((status) => (
               <button
@@ -211,6 +283,7 @@ export default function Tutors() {
               </button>
             ))}
           </div>
+          ) : <div />}
 
           <div className="relative w-full lg:w-96 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
@@ -254,7 +327,7 @@ export default function Tutors() {
           )}
         </AnimatePresence>
 
-        {/* Main Content Area */}
+        {activeTab === 'registrations' ? (
         <div className="grid lg:grid-cols-3 gap-8">
           {/* List Section */}
           <div className="lg:col-span-2 space-y-4">
@@ -530,6 +603,57 @@ export default function Tutors() {
             </AnimatePresence>
           </div>
         </div>
+        ) : (
+          <div className="glass-panel overflow-hidden border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-900/60 border-b border-indigo-500/20 backdrop-blur-sm">
+                    <th className="p-5 font-semibold text-slate-300 tracking-wider">Student Name</th>
+                    <th className="p-5 font-semibold text-slate-300 tracking-wider">Student Email</th>
+                    <th className="p-5 font-semibold text-slate-300 tracking-wider">Tutor Name</th>
+                    <th className="p-5 font-semibold text-slate-300 tracking-wider">Tutor Code</th>
+                    <th className="p-5 font-semibold text-slate-300 tracking-wider">Assigned At</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={5} className="p-6 text-center text-slate-400">Loading...</td>
+                    </tr>
+                  ) : filteredAssociations.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-6 text-center text-slate-400">No student-tutor assignments found.</td>
+                    </tr>
+                  ) : (
+                    filteredAssociations.map((assoc) => (
+                      <tr 
+                        key={assoc.id}
+                        className="hover:bg-white/5 transition-colors"
+                      >
+                        <td className="p-5 text-white font-medium">
+                          {assoc.student.name}
+                        </td>
+                        <td className="p-5 text-slate-400">{assoc.student.email}</td>
+                        <td className="p-5 text-amber-200">
+                          {assoc.tutor.name}
+                        </td>
+                        <td className="p-5 text-slate-400">
+                          <code className="bg-slate-800 px-2 py-1 rounded text-emerald-400 text-xs">
+                            {assoc.tutor.tutorCode}
+                          </code>
+                        </td>
+                        <td className="p-5 text-slate-400 text-sm">
+                          {new Date(assoc.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   )
