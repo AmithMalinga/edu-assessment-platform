@@ -118,4 +118,119 @@ export const tutorService = {
 
     return response.json();
   },
+
+  /**
+   * Get or generate tutor code
+   */
+  async getTutorCode(token: string): Promise<{ tutorCode: string }> {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/tutors/code`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch tutor code');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Assign a student to a tutor by code
+   */
+  async assignStudentToTutor(
+    token: string,
+    tutorCode: string,
+    consentGiven: boolean
+  ): Promise<{ message: string; tutorName: string }> {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/tutors/assign`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tutorCode, consentGiven }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to assign to tutor');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get students belonging to a tutor
+   */
+  async getTutorStudents(token: string): Promise<any[]> {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/tutors/students`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch students');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get tutors belonging to a student
+   */
+  async getStudentTutors(token: string): Promise<any[]> {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/tutors/my-tutors`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch tutors');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Remove a tutor assignment
+   */
+  async removeTutor(tutorId: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/tutors/${tutorId}/remove`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to remove tutor');
+    }
+
+    return response.json();
+  }
 };
+
