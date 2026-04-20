@@ -4,3 +4,4 @@ dist
 .turbo
 .env
 apps/server/tsconfig.tsbuildinfo
+apps/web/.env.local
