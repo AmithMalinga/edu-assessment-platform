@@ -14,11 +14,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useState, useRef, KeyboardEvent } from "react"
+import { useState, useRef, KeyboardEvent, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { studentService } from "@/lib/services/student.service"
 import { isStrongPassword, isValidEmail, isValidPhone } from "@/lib/validation"
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout"
+import { subjectService, Grade } from "@/lib/services/subject.service"
 
 /* ── Constants ────────────────────────────────────────────────── */
 const STEPS = [
@@ -27,11 +28,6 @@ const STEPS = [
     { id: 3, label: "Password",     icon: Lock    },
 ]
 
-const EDUCATION_LEVELS = [
-    "Grade 1",  "Grade 2",  "Grade 3",  "Grade 4",  "Grade 5",
-    "Grade 6",  "Grade 7",  "Grade 8",  "Grade 9",  "Grade 10",
-    "Grade 11", "Grade 12", "Grade 13",
-]
 
 type VErrors = Record<string, string>
 
@@ -89,6 +85,7 @@ export default function RegisterPage() {
     const [evToken,     setEvToken]     = useState("")
     const [otpExpiry,   setOtpExpiry]   = useState("")
     const [cooldown,    setCooldown]    = useState(0)
+    const [grades,      setGrades]      = useState<Grade[]>([])
     const otpRefs = useRef<Array<HTMLInputElement | null>>([])
 
     const otpCode = otpDigits.join("")
@@ -104,6 +101,19 @@ export default function RegisterPage() {
         setCooldown(60)
         const iv = setInterval(() => setCooldown(c => { if (c <= 1) { clearInterval(iv); return 0 } return c - 1 }), 1000)
     }
+    
+    /* ── Fetch Grades ── */
+    useEffect(() => {
+        const fetchGrades = async () => {
+            try {
+                const data = await subjectService.getGrades()
+                setGrades(data)
+            } catch (err) {
+                console.error("Failed to fetch grades:", err)
+            }
+        }
+        fetchGrades()
+    }, [])
 
     /* ── validation ── */
     const v1 = (): VErrors => {
@@ -373,7 +383,7 @@ export default function RegisterPage() {
                                                         <SelectValue placeholder="Select…" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {EDUCATION_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                                                        {grades.map(g => <SelectItem key={g.id} value={g.name}>{g.name}</SelectItem>)}
                                                     </SelectContent>
                                                 </Select>
                                             </div>
