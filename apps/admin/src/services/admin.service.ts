@@ -26,6 +26,7 @@ export interface RelevantQuestion {
   lesson: string;
   choices: string[];
   correctAnswer: string;
+  images?: string[];
   createdAt: string;
 }
 
@@ -144,6 +145,16 @@ export const adminService = {
   },
   createQuestion: async (data: any) => {
     const response = await api.post('/questions/admin', data);
+    return response.data;
+  },
+  uploadQuestionImage: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/questions/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     return response.data;
   },
   updateQuestion: async (id: string, data: any) => {

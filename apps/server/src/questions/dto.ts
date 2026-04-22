@@ -135,8 +135,9 @@ export class CreateAdminQuestionDto {
   @IsString()
   lesson: string;
 
+  @IsOptional()
   @IsString()
-  content: string;
+  content?: string;
 
   @IsArray()
   @IsOptional()

@@ -517,8 +517,15 @@ const Exams: React.FC = () => {
                                                 </span>
                                             </div>
                                             <p className="text-white font-medium leading-relaxed group-hover:text-indigo-200 transition-colors">
-                                                {question.content}
+                                                {question.content || (question.images?.length ? <span className="text-slate-500 italic">[Image-Based Question]</span> : "")}
                                             </p>
+                                            {question.images && question.images.length > 0 && (
+                                                <div className="flex gap-2 mt-3 overflow-x-auto pb-1 no-scrollbar max-w-[300px]">
+                                                    {question.images.map((img: string, i: number) => (
+                                                        <img key={i} src={img} alt="Question ref" className="h-16 w-auto rounded-lg object-cover border border-white/10 shrink-0" />
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         {selected && (
                                             <div className="flex flex-col items-center gap-2" onClick={e => e.stopPropagation()}>

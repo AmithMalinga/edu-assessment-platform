@@ -206,9 +206,17 @@ const Questions: React.FC = () => {
                     }`} />
                  )}
                  <h4 className={`text-white font-medium truncate group-hover:text-indigo-200 transition-all ${isCompactView ? "text-sm" : "text-lg leading-relaxed"}`}>
-                   {q.content}
+                   {q.content || (q.images?.length > 0 ? <span className="text-slate-500 italic">[Image-Based Question]</span> : "")}
                  </h4>
                </div>
+
+               {!isCompactView && q.images && q.images.length > 0 && (
+                 <div className="flex gap-4 mt-3 overflow-x-auto pb-2 no-scrollbar">
+                   {q.images.map((img: string, i: number) => (
+                     <img key={i} src={img} alt="Question ref" className="h-20 w-auto rounded-lg object-cover border border-white/10 shrink-0" />
+                   ))}
+                 </div>
+               )}
 
                {!isCompactView && q.type === 'MCQ' && (
                   <div className="flex gap-4 mt-3 overflow-x-auto pb-1 no-scrollbar">
