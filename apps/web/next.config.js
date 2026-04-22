@@ -2,7 +2,7 @@
 const backendUrl = process.env.NEXT_PUBLIC_API_URL
 
 if (!backendUrl) {
-    throw new Error('NEXT_PUBLIC_API_URL is not configured')
+    console.warn('\x1b[33m%s\x1b[0m', '⚠️  WARNING: NEXT_PUBLIC_API_URL is not configured. API requests will fail at runtime.')
 }
 
 const nextConfig = {

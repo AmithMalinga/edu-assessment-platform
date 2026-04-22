@@ -4,3 +4,4 @@ export * from './assessment.service';
 export * from './result.service';
 export * from './tutor.service';
 export * from './submission.service';
+export * from './subject.service';

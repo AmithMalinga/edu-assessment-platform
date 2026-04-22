@@ -38,7 +38,6 @@ export default function ResultDetailPage() {
 
                 const data = await resultService.getAttemptReview(token, attemptId)
                 setReview(data)
-                console.log(data.questions)
             } catch (err: any) {
                 setError(err?.message || "Failed to load result review.")
             } finally {
