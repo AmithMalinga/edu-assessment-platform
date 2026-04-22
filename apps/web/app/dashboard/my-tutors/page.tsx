@@ -204,7 +204,7 @@ export default function MyTutorsPage() {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.05 }}
                         >
-                            <Card className="group border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 rounded-[28px] overflow-hidden flex flex-col h-full border-b-4 border-b-transparent hover:border-b-indigo-500">
+                            <Card className="group border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 rounded-[28px] overflow-hidden flex flex-col h-full border-b-4 border-b-transparent">
                                 <CardHeader className="p-6 pb-0">
                                     <div className="flex items-center gap-4">
                                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-black text-xl border border-white dark:border-slate-800 shadow-sm">
