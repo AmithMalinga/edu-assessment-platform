@@ -25,7 +25,6 @@ export default function ResultDetailPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [showAnswers, setShowAnswers] = useState(true)
-
     useEffect(() => {
         const load = async () => {
             setLoading(true)
@@ -39,6 +38,7 @@ export default function ResultDetailPage() {
 
                 const data = await resultService.getAttemptReview(token, attemptId)
                 setReview(data)
+                console.log(data.questions)
             } catch (err: any) {
                 setError(err?.message || "Failed to load result review.")
             } finally {
@@ -102,7 +102,16 @@ export default function ResultDetailPage() {
                     <div className="mt-4 space-y-3">
                         {review.questions.map((question) => (
                             <article key={question.questionId} className="rounded-lg border border-slate-200 p-4">
-                                <h3 className="font-medium text-slate-900">Q{question.order}. {question.content}</h3>
+                                <h3 className="font-medium text-slate-900">
+                                    Q{question.order}. {question.content || (question.images?.length ? <span className="italic text-slate-400 font-normal">Please refer to the reference image below.</span> : "Question content missing.")}
+                                </h3>
+                                {question.images && question.images.length > 0 && (
+                                    <div className="flex flex-col gap-2 mt-3 mb-3">
+                                        {question.images.map((img, i) => (
+                                            <img key={i} src={img} alt="Question reference" className="w-full max-w-[300px] h-auto object-cover rounded-lg border border-slate-200" />
+                                        ))}
+                                    </div>
+                                )}
                                 <p className="mt-2 text-sm text-slate-600">Your answer: {question.selectedAnswer || "Not answered"}</p>
                                 <p className="text-sm text-slate-600">Correct answer: {question.correctAnswer || "Manual grading required"}</p>
                             </article>

@@ -1,11 +1,16 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { QuestionService } from './question.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateQuestionDto, UpdateQuestionDto, GetRandomQuestionsDto, CreateAdminQuestionDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('questions')
 export class QuestionController {
-  constructor(private readonly questionService: QuestionService) {}
+  constructor(
+    private readonly questionService: QuestionService,
+    private readonly cloudinaryService: CloudinaryService
+  ) {}
 
   @Get('random-set')
   getRandomSet(@Query() query: GetRandomQuestionsDto) {
@@ -38,6 +43,14 @@ export class QuestionController {
   @Post('admin')
   createForAdmin(@Req() req: any, @Body() dto: CreateAdminQuestionDto) {
     return this.questionService.createForAdmin(req.user.userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    const result = await this.cloudinaryService.uploadImage(file);
+    return { url: result.secure_url };
   }
 
   @UseGuards(JwtAuthGuard)

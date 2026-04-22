@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { useQuestions } from '../hooks/useQuestions';
@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   HelpCircle, Layers, BookOpen, CheckCircle2, AlertCircle, 
   ArrowLeft, Save, Eye, Layout as LayoutIcon, Type,
-  Sparkles, CheckCircle, Info, Clock, FileText
+  Sparkles, CheckCircle, Info, Clock, FileText, ImageIcon, X, Loader2
 } from 'lucide-react';
 import CustomSelect from '../components/common/CustomSelect';
 
@@ -30,8 +30,13 @@ const EditQuestion: React.FC = () => {
     choices: ['', '', '', ''],
     correctAnswer: '',
     subjectId: '',
-    gradeId: ''
+    gradeId: '',
+    images: [] as string[]
   });
+  
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -46,7 +51,8 @@ const EditQuestion: React.FC = () => {
           choices: data.choices?.length > 0 ? [...data.choices] : ['', '', '', ''],
           correctAnswer: data.correctAnswer || '',
           subjectId: data.subjectId,
-          gradeId: data.subject?.gradeId?.toString() || ''
+          gradeId: data.subject?.gradeId?.toString() || '',
+          images: data.images || []
         });
       } catch (err: any) {
         setError('Failed to load question data');
@@ -67,6 +73,33 @@ const EditQuestion: React.FC = () => {
     return sList.find(s => s.id === questionData.subjectId)?.name || '...';
   }, [subjects, questionData.subjectId]);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageUploading(true);
+    setImageError('');
+    try {
+      const { url } = await adminService.uploadQuestionImage(file);
+      setQuestionData(prev => ({
+        ...prev,
+        images: [...(prev.images || []), url]
+      }));
+    } catch (err: any) {
+      setImageError(err.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setImageUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setQuestionData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleUpdateQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
@@ -74,6 +107,10 @@ const EditQuestion: React.FC = () => {
     setIsSubmitting(true);
     
     try {
+      if (!questionData.content.trim() && questionData.images.length === 0) {
+        throw new Error('Please provide either a question prompt or an image.');
+      }
+
       if (questionData.type === 'MCQ') {
         const validChoices = questionData.choices.filter(c => c.trim() !== '');
         if (validChoices.length < 2) throw new Error('At least 2 choices required');
@@ -153,7 +190,7 @@ const EditQuestion: React.FC = () => {
                   value={questionData.content} 
                   onChange={(e) => setQuestionData({...questionData, content: e.target.value})}
                   placeholder="What would you like to ask?" 
-                  required
+                  required={questionData.images.length === 0}
                   rows={4}
                   className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-lg leading-relaxed resize-none"
                 />
@@ -268,6 +305,60 @@ const EditQuestion: React.FC = () => {
                 )}
               </AnimatePresence>
 
+              {/* Image Upload Section */}
+              <div className="space-y-4 pt-6 border-t border-white/5">
+                <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                        <ImageIcon size={14} className="text-indigo-400" /> Reference Images
+                    </label>
+                    <span className="text-[10px] text-slate-600 italic">Optional</span>
+                </div>
+                
+                <div className="flex flex-wrap gap-4">
+                  {questionData.images.map((img, idx) => (
+                    <div key={idx} className="relative group w-24 h-24 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                      <img src={img} alt={`Reference ${idx + 1}`} className="w-full h-full object-cover" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(idx)}
+                        className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={20} className="text-red-400 hover:scale-110 transition-transform" />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <button 
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={imageUploading}
+                    className="w-24 h-24 rounded-xl border border-dashed border-white/20 bg-white/5 flex flex-col items-center justify-center hover:bg-white/10 transition-all hover:border-indigo-500/50 group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {imageUploading ? (
+                      <Loader2 size={24} className="text-indigo-400 animate-spin" />
+                    ) : (
+                      <>
+                        <ImageIcon size={24} className="text-slate-500 mb-2 group-hover:text-indigo-400 transition-colors" />
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-indigo-400 transition-colors">Add</span>
+                      </>
+                    )}
+                  </button>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleImageUpload} 
+                    accept="image/*" 
+                    className="hidden" 
+                  />
+                </div>
+                
+                {imageError && (
+                  <p className="text-red-400 text-xs font-medium flex items-center gap-1 mt-2">
+                    <AlertCircle size={14} /> {imageError}
+                  </p>
+                )}
+              </div>
+
               {error && (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -333,9 +424,25 @@ const EditQuestion: React.FC = () => {
                     <div className="p-8 flex-1">
                         <div className="mb-8">
                             <span className="text-indigo-400 font-bold text-sm block mb-2">Question 1</span>
-                            <div className="text-white text-lg font-medium leading-relaxed">
-                                {questionData.content || "Start typing your question prompt to see the preview..."}
-                            </div>
+                            {questionData.content ? (
+                                <div className="text-white text-lg font-medium leading-relaxed">
+                                    {questionData.content}
+                                </div>
+                            ) : questionData.images.length === 0 ? (
+                                <div className="text-slate-500 text-lg font-medium leading-relaxed italic">
+                                    Start typing your question prompt or upload an image to see the preview...
+                                </div>
+                            ) : null}
+                            
+                            {questionData.images.length > 0 && (
+                                <div className="mt-4 flex flex-col gap-4">
+                                    {questionData.images.map((img, i) => (
+                                        <div key={i} className="rounded-xl overflow-hidden border border-white/10">
+                                            <img src={img} alt="Question reference preview" className="w-full object-cover" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {questionData.type === 'MCQ' ? (

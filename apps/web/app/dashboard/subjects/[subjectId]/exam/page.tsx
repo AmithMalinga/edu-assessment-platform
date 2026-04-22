@@ -26,6 +26,7 @@ interface UiQuestion {
     content: string
     type: "MCQ" | "STRUCTURED" | "ESSAY"
     options?: string[]
+    images?: string[]
 }
 
 export default function ExamPage() {
@@ -109,6 +110,7 @@ export default function ExamPage() {
                     content: question.content,
                     type: question.type,
                     options: question.choices?.length ? question.choices : undefined,
+                    images: question.images?.length ? question.images : undefined,
                 }
             })
     }, [exam])
@@ -345,7 +347,16 @@ export default function ExamPage() {
                         {/* Question Content */}
                         <div className="p-8 flex-1 flex flex-col">
                             <div className="prose dark:prose-invert max-w-none mb-6">
-                                <p className="text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{currentQuestion.content}</p>
+                                {currentQuestion.content && (
+                                    <p className="text-slate-800 dark:text-slate-200 text-lg leading-relaxed mb-4">{currentQuestion.content}</p>
+                                )}
+                                {currentQuestion.images && currentQuestion.images.length > 0 && (
+                                    <div className="grid gap-4 mt-4">
+                                        {currentQuestion.images.map((img, i) => (
+                                            <img key={i} src={img} alt={`Reference ${i + 1}`} className="max-w-full rounded-[24px] border border-slate-200 dark:border-slate-800 shadow-sm" />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mt-auto">
