@@ -12,7 +12,7 @@ import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { TutorRegisterDto } from './dto/tutor-register.dto';
 import { randomBytes } from 'crypto';
-import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class TutorService {
@@ -450,7 +450,7 @@ export class TutorService {
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           const target = Array.isArray(error.meta?.target)
             ? (error.meta?.target as string[])
