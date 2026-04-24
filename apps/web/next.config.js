@@ -14,6 +14,12 @@ const nextConfig = {
                 port: '',
                 pathname: '/api/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'i.pravatar.cc',
+                port: '',
+                pathname: '/**',
+            },
         ],
     },
     rewrites: async () => {

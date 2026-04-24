@@ -76,16 +76,42 @@ export function Hero() {
                         <div className="flex flex-wrap items-center gap-6">
                             <div className="flex -space-x-3">
                                 {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs">
-                                        {String.fromCharCode(64 + i)}
+                                    <div key={i} className="relative w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 overflow-hidden bg-slate-200 dark:bg-slate-800">
+                                        <Image
+                                            src={`/avatars/avatar${i}.png`}
+                                            alt={`Student Avatar ${i}`}
+                                            fill
+                                            className="object-cover"
+                                        />
                                     </div>
                                 ))}
-                                <div className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-indigo-600 flex items-center justify-center text-white font-bold text-[10px]">
+                                <div className="relative w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-indigo-600 flex items-center justify-center text-white font-bold text-[10px] z-10">
                                     10k+
                                 </div>
                             </div>
-                            <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                                Joined by <span className="text-indigo-600 dark:text-indigo-400 font-bold">10,000+</span> ambitious students
+                            <div className="text-sm text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2">
+                                <motion.div
+                                    animate={{ 
+                                        scale: [1, 1.2, 1],
+                                        rotate: [0, 10, -10, 0],
+                                        opacity: [0.5, 1, 0.5]
+                                    }}
+                                    transition={{ duration: 3, repeat: Infinity }}
+                                >
+                                    <Sparkles className="h-4 w-4 text-amber-400 fill-amber-400" />
+                                </motion.div>
+                                <span>
+                                    Joined by <span className="relative inline-block text-indigo-600 dark:text-indigo-400 font-black">
+                                        10,000+
+                                        <motion.span 
+                                            animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
+                                            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                                            className="absolute -top-2 -right-3"
+                                        >
+                                            <Sparkles className="h-3 w-3 text-indigo-400 fill-indigo-400" />
+                                        </motion.span>
+                                    </span> ambitious students
+                                </span>
                             </div>
                         </div>
                     </motion.div>

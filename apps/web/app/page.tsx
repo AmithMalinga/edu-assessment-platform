@@ -1,7 +1,16 @@
-"use client"
-import { Header, Hero, Features, Stats, Testimonials, Footer, TutorSection } from "@/components/landing"
-import { HowItWorks } from "@/components/landing/HowItWorks"
-import { FAQ } from "@/components/landing/FAQ"
+import { 
+    Header, 
+    Hero, 
+    Marquee,
+    Features, 
+    HowItWorks,
+    Stats, 
+    Pricing,
+    TutorSection,
+    Testimonials, 
+    FAQ,
+    Footer, 
+} from "@/components/landing"
 
 export default function LandingPage() {
     return (
@@ -9,10 +18,12 @@ export default function LandingPage() {
             <Header />
             <main className="flex-1">
                 <Hero />
+                {/* <Marquee /> */}
                 <Features />
                 <HowItWorks />
-                <TutorSection />
                 <Stats />
+                <TutorSection />
+                {/* <Pricing /> */}
                 <Testimonials />
                 <FAQ />
             </main>
