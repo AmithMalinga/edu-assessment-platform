@@ -14,6 +14,8 @@ const DEFAULT_NAV_ITEMS = [
 
 export function Header() {
     const pathname = usePathname()
+    const lang = pathname === '/si' ? 'si' : pathname === '/ta' ? 'ta' : 'en'
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [dashboardHref, setDashboardHref] = useState("/dashboard")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -52,11 +54,26 @@ export function Header() {
         }
     }, [])
 
-    const navItems = [...DEFAULT_NAV_ITEMS, { label: "Dashboard", href: dashboardHref }]
+    const t = {
+        Features: lang === 'si' ? "විශේෂාංග" : lang === 'ta' ? "அம்சங்கள்" : "Features",
+        Tutors: lang === 'si' ? "ගුරුවරුන්" : lang === 'ta' ? "ஆசிரியர்கள்" : "Tutors",
+        Testimonials: lang === 'si' ? "සාක්ෂි" : lang === 'ta' ? "சான்றுகள்" : "Testimonials",
+        Contact: lang === 'si' ? "අමතන්න" : lang === 'ta' ? "தொடர்பு" : "Contact",
+        Dashboard: lang === 'si' ? "උපකරණ පුවරුව" : lang === 'ta' ? "கட்டுப்பாட்டு அறை" : "Dashboard",
+        GetStarted: lang === 'si' ? "ආරම්භ කරන්න" : lang === 'ta' ? "தொடங்குங்கள்" : "Get Started",
+    }
+
+    const navItems = [
+        { label: t.Features, href: "#features" },
+        { label: t.Tutors, href: "#tutor" },
+        { label: t.Testimonials, href: "#testimonials" },
+        { label: t.Contact, href: "/contact" },
+        { label: t.Dashboard, href: dashboardHref }
+    ]
 
     return (
         <header 
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''} ${
                 scrolled 
                 ? "h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border-slate-200/50 dark:border-slate-800/50 shadow-sm" 
                 : "h-24 bg-transparent border-transparent"
@@ -73,20 +90,20 @@ export function Header() {
                         </div>
                         <div className="absolute inset-0 bg-indigo-500 blur-xl opacity-40 group-hover:opacity-70 transition-opacity" />
                     </motion.div>
-                    <span className="font-black text-2xl tracking-tighter bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                    <span className="font-black text-2xl tracking-tighter bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent font-sans">
                         ExamMaster
                     </span>
                 </Link>
 
                 {/* Desktop Navigation */}
                 <nav className="hidden lg:flex items-center gap-2">
-                    {navItems.map((item) => (
+                    {navItems.filter(item => item.href !== dashboardHref).map((item) => (
                         <Link
                             key={item.label}
                             href={item.href}
                             onMouseEnter={() => setHoveredItem(item.label)}
                             onMouseLeave={() => setHoveredItem(null)}
-                            className="relative px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                            className={`relative px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors`}
                         >
                             <span className="relative z-10">{item.label}</span>
                             {hoveredItem === item.label && (
@@ -105,7 +122,7 @@ export function Header() {
 
                 <div className="flex items-center gap-6">
                     {/* Language Switcher - Premium Look */}
-                    <div className="hidden sm:flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50">
+                    <div className="hidden sm:flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 font-sans">
                         <Link 
                             href="/" 
                             className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black rounded-full shadow-sm transition-all ${
@@ -139,7 +156,7 @@ export function Header() {
                         href={isLoggedIn ? dashboardHref : "/login"}
                         className="relative group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-[position:100%_0] transition-all duration-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5"
                     >
-                        <span>{isLoggedIn ? "Dashboard" : "Get Started"}</span>
+                        <span>{isLoggedIn ? t.Dashboard : t.GetStarted}</span>
                         <motion.span
                             animate={{ x: [0, 4, 0] }}
                             transition={{ repeat: Infinity, duration: 1.5 }}
@@ -174,7 +191,7 @@ export function Header() {
                         className={`absolute ${scrolled ? "top-16" : "top-24"} left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 p-6 lg:hidden shadow-2xl z-50`}
                     >
                         <nav className="flex flex-col gap-4">
-                            {navItems.map((item) => (
+                            {navItems.filter(item => item.href !== dashboardHref).map((item) => (
                                 <Link
                                     key={item.label}
                                     href={item.href}
@@ -189,7 +206,7 @@ export function Header() {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="mt-4 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20"
                             >
-                                {isLoggedIn ? "Dashboard" : "Get Started"}
+                                {isLoggedIn ? t.Dashboard : t.GetStarted}
                             </Link>
                         </nav>
                     </motion.div>
