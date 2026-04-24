@@ -33,6 +33,7 @@ const AddQuestion: React.FC = () => {
     choices: ['', '', '', ''],
     choiceImages: ['', '', '', ''],
     correctAnswer: '',
+    correctAnswerIndex: -1,
     subjectId: '',
     gradeId: '',
     images: [] as string[]
@@ -121,21 +122,41 @@ const AddQuestion: React.FC = () => {
       }
 
       if (newQuestion.type === 'MCQ') {
-        const validChoices = newQuestion.choices.filter(c => c.trim() !== '');
-        if (validChoices.length < 2) throw new Error('At least 2 choices required');
-        if (!newQuestion.correctAnswer) throw new Error('Please select a correct answer');
-        if (!newQuestion.choices.includes(newQuestion.correctAnswer)) {
-            // If the correct answer text is not in the choices, something is wrong
-            throw new Error('Correct answer must be one of the choices');
-        }
-      }
+        const processedChoices = newQuestion.choices.map((c, i) => {
+          if (c.trim() === '' && newQuestion.choiceImages[i]) {
+            return `Option ${i + 1}`;
+          }
+          return c.trim();
+        });
 
-      await createQuestion({
-        ...newQuestion,
-        gradeId: Number.parseInt(newQuestion.gradeId, 10),
-        choices: newQuestion.type === 'MCQ' ? newQuestion.choices.filter(c => c.trim() !== '').map(c => c.trim()) : [],
-        choiceImages: newQuestion.type === 'MCQ' ? newQuestion.choiceImages.filter((_, i) => newQuestion.choices[i].trim() !== '') : [],
-      });
+        const validIndices = processedChoices.map((c, i) => i).filter(i => processedChoices[i] !== '' || newQuestion.choiceImages[i]);
+        
+        if (validIndices.length < 2) throw new Error('At least 2 choices (text or image) required');
+        if (newQuestion.correctAnswerIndex === -1) throw new Error('Please select a correct answer');
+        
+        const finalChoices = processedChoices.filter((_, i) => validIndices.includes(i));
+        const finalChoiceImages = newQuestion.choiceImages.filter((_, i) => validIndices.includes(i));
+        
+        // Map the correct answer index to the new filtered array's text
+        const correctChoiceOriginalIndex = newQuestion.correctAnswerIndex;
+        const correctChoiceText = processedChoices[correctChoiceOriginalIndex];
+
+        await createQuestion({
+          ...newQuestion,
+          gradeId: Number.parseInt(newQuestion.gradeId, 10),
+          choices: finalChoices,
+          choiceImages: finalChoiceImages,
+          correctAnswer: correctChoiceText
+        });
+      } else {
+        await createQuestion({
+          ...newQuestion,
+          gradeId: Number.parseInt(newQuestion.gradeId, 10),
+          choices: [],
+          choiceImages: [],
+          correctAnswer: newQuestion.correctAnswer
+        });
+      }
       
       navigate('/questions');
     } catch (err: any) {
@@ -331,18 +352,18 @@ const AddQuestion: React.FC = () => {
                                 newChoices[i] = e.target.value;
                                 setNewQuestion({...newQuestion, choices: newChoices});
                               }}
-                              placeholder={`Choice ${i+1} Text`}
+                              placeholder={newQuestion.choiceImages[i] ? `Label for Image (Optional)` : `Choice ${i+1} Text`}
                               className={`w-full pl-5 pr-12 py-4 bg-white/5 border rounded-2xl text-white placeholder:text-slate-600 focus:outline-none transition-all ${
-                                  newQuestion.correctAnswer === choice && choice !== '' 
+                                  newQuestion.correctAnswerIndex === i 
                                   ? 'border-emerald-500/50 ring-1 ring-emerald-500/30 bg-emerald-500/5' 
                                   : 'border-white/10 focus:border-indigo-500/50'
                               }`}
                             />
                             <button 
                               type="button"
-                              onClick={() => setNewQuestion({...newQuestion, correctAnswer: choice})}
+                              onClick={() => setNewQuestion({...newQuestion, correctAnswerIndex: i})}
                               className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all shadow-lg ${
-                                  newQuestion.correctAnswer === choice && choice !== '' 
+                                  newQuestion.correctAnswerIndex === i 
                                   ? 'bg-emerald-500 text-white scale-110' 
                                   : 'text-slate-700 hover:text-slate-500 hover:bg-white/5'
                               }`}

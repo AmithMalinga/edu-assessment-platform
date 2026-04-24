@@ -30,6 +30,7 @@ const EditQuestion: React.FC = () => {
     choices: ['', '', '', ''],
     choiceImages: ['', '', '', ''],
     correctAnswer: '',
+    correctAnswerIndex: -1,
     subjectId: '',
     gradeId: '',
     images: [] as string[]
@@ -55,6 +56,7 @@ const EditQuestion: React.FC = () => {
           choices: data.choices?.length > 0 ? [...data.choices] : ['', '', '', ''],
           choiceImages: data.choiceImages?.length > 0 ? [...data.choiceImages] : ['', '', '', ''],
           correctAnswer: data.correctAnswer || '',
+          correctAnswerIndex: data.choices?.indexOf(data.correctAnswer) ?? -1,
           subjectId: data.subjectId,
           gradeId: data.subject?.gradeId?.toString() || '',
           images: data.images || []
@@ -149,20 +151,41 @@ const EditQuestion: React.FC = () => {
       }
 
       if (questionData.type === 'MCQ') {
-        const validChoices = questionData.choices.filter(c => c.trim() !== '');
-        if (validChoices.length < 2) throw new Error('At least 2 choices required');
-        if (!questionData.correctAnswer) throw new Error('Please select a correct answer');
-        if (!questionData.choices.includes(questionData.correctAnswer)) {
-            throw new Error('Correct answer must be one of the choices');
-        }
-      }
+        const processedChoices = questionData.choices.map((c, i) => {
+          if (c.trim() === '' && questionData.choiceImages[i]) {
+            return `Option ${i + 1}`;
+          }
+          return c.trim();
+        });
 
-      await updateQuestion(id, {
-        ...questionData,
-        gradeId: Number.parseInt(questionData.gradeId, 10),
-        choices: questionData.type === 'MCQ' ? questionData.choices.filter(c => c.trim() !== '').map(c => c.trim()) : [],
-        choiceImages: questionData.type === 'MCQ' ? questionData.choiceImages.filter((_, i) => questionData.choices[i].trim() !== '') : [],
-      });
+        const validIndices = processedChoices.map((c, i) => i).filter(i => processedChoices[i] !== '' || questionData.choiceImages[i]);
+        
+        if (validIndices.length < 2) throw new Error('At least 2 choices (text or image) required');
+        if (questionData.correctAnswerIndex === -1) throw new Error('Please select a correct answer');
+        
+        const finalChoices = processedChoices.filter((_, i) => validIndices.includes(i));
+        const finalChoiceImages = questionData.choiceImages.filter((_, i) => validIndices.includes(i));
+        
+        // Map the correct answer index to the new filtered array's text
+        const correctChoiceOriginalIndex = questionData.correctAnswerIndex;
+        const correctChoiceText = processedChoices[correctChoiceOriginalIndex];
+
+        await updateQuestion(id, {
+          ...questionData,
+          gradeId: Number.parseInt(questionData.gradeId, 10),
+          choices: finalChoices,
+          choiceImages: finalChoiceImages,
+          correctAnswer: correctChoiceText
+        });
+      } else {
+        await updateQuestion(id, {
+          ...questionData,
+          gradeId: Number.parseInt(questionData.gradeId, 10),
+          choices: [],
+          choiceImages: [],
+          correctAnswer: questionData.correctAnswer
+        });
+      }
       
       navigate('/questions');
     } catch (err: any) {
@@ -319,18 +342,18 @@ const EditQuestion: React.FC = () => {
                                 newChoices[i] = e.target.value;
                                 setQuestionData({...questionData, choices: newChoices});
                               }}
-                              placeholder={`Choice ${i+1} Text`}
+                              placeholder={questionData.choiceImages[i] ? `Label for Image (Optional)` : `Choice ${i+1} Text`}
                               className={`w-full pl-5 pr-12 py-4 bg-white/5 border rounded-2xl text-white placeholder:text-slate-600 focus:outline-none transition-all ${
-                                  questionData.correctAnswer === choice && choice !== '' 
+                                  questionData.correctAnswerIndex === i 
                                   ? 'border-emerald-500/50 ring-1 ring-emerald-500/30 bg-emerald-500/5' 
                                   : 'border-white/10 focus:border-indigo-500/50'
                               }`}
                             />
                             <button 
                               type="button"
-                              onClick={() => setQuestionData({...questionData, correctAnswer: choice})}
+                              onClick={() => setQuestionData({...questionData, correctAnswerIndex: i})}
                               className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all shadow-lg ${
-                                  questionData.correctAnswer === choice && choice !== '' 
+                                  questionData.correctAnswerIndex === i 
                                   ? 'bg-emerald-500 text-white scale-110' 
                                   : 'text-slate-700 hover:text-slate-500 hover:bg-white/5'
                               }`}
