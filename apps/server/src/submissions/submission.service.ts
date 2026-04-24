@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { SubmitExamDto } from './dto';
 
@@ -90,6 +90,15 @@ export class SubmissionService {
         }, {});
     }
 
+    private toQuestionTimesRecord(value: unknown): Record<string, number> {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+        return Object.entries(value as Record<string, unknown>).reduce<Record<string, number>>((acc, [key, item]) => {
+            if (typeof item === 'number') acc[key] = item;
+            else if (typeof item === 'string' && !isNaN(Number(item))) acc[key] = Number(item);
+            return acc;
+        }, {});
+    }
+
     async submit(userId: string, dto: SubmitExamDto) {
         const exam = await this.prisma.exam.findUnique({
             where: { id: dto.examId },
@@ -102,6 +111,16 @@ export class SubmissionService {
         });
         if (!exam) throw new NotFoundException(`Exam with id ${dto.examId} not found`);
 
+        if (exam.isLive) {
+            const now = new Date();
+            if (exam.startTime && now < exam.startTime) {
+                throw new BadRequestException('This live exam has not started yet');
+            }
+            if (exam.endTime && now > exam.endTime) {
+                throw new BadRequestException('This live exam has already ended');
+            }
+        }
+
         const stats = this.computeAttemptStats(exam.examQuestions, dto.answers);
 
         const attempt = await this.prisma.attempt.create({
@@ -111,6 +130,7 @@ export class SubmissionService {
                 score: stats.score,
                 timeTaken: dto.timeTaken,
                 answers: dto.answers,
+                questionTimes: dto.questionTimes || {},
             },
             include: { exam: true },
         });
@@ -182,7 +202,40 @@ export class SubmissionService {
         }
 
         const answers = this.toAnswersRecord(attempt.answers);
+        const questionTimes = this.toQuestionTimesRecord(attempt.questionTimes);
         const stats = this.computeAttemptStats(attempt.exam.examQuestions, answers);
+
+        let liveRank = null;
+        let liveTotalParticipants = null;
+        let avgCompletionTime = null;
+        let questionAvgTimes: Record<string, number> = {};
+
+        if (attempt.exam.isLive) {
+             const allAttempts = await this.prisma.attempt.findMany({
+                 where: { examId: attempt.examId },
+                 select: { userId: true, score: true, timeTaken: true, questionTimes: true }
+             });
+             
+             liveTotalParticipants = allAttempts.length;
+             
+             const scores = allAttempts.map(a => a.score).sort((a,b) => b - a);
+             liveRank = scores.indexOf(attempt.score) + 1;
+             
+             avgCompletionTime = allAttempts.reduce((sum, a) => sum + a.timeTaken, 0) / (liveTotalParticipants || 1);
+             
+             const qTimeSums: Record<string, number> = {};
+             const qTimeCounts: Record<string, number> = {};
+             for (const a of allAttempts) {
+                 const qt = this.toQuestionTimesRecord(a.questionTimes);
+                 for (const [qId, time] of Object.entries(qt)) {
+                     qTimeSums[qId] = (qTimeSums[qId] || 0) + time;
+                     qTimeCounts[qId] = (qTimeCounts[qId] || 0) + 1;
+                 }
+             }
+             for (const qId of Object.keys(qTimeSums)) {
+                 questionAvgTimes[qId] = qTimeSums[qId] / qTimeCounts[qId];
+             }
+        }
 
         return {
             attemptId: attempt.id,
@@ -191,6 +244,12 @@ export class SubmissionService {
             completedAt: attempt.completedAt,
             timeTaken: attempt.timeTaken,
             passed: attempt.score >= attempt.exam.passingScore,
+            isLive: attempt.exam.isLive,
+            liveAnalytics: attempt.exam.isLive ? {
+                rank: liveRank,
+                totalParticipants: liveTotalParticipants,
+                avgCompletionTime,
+            } : null,
             scoreSummary: {
                 score: attempt.score,
                 passingScore: attempt.exam.passingScore,
@@ -219,6 +278,8 @@ export class SubmissionService {
                     correctAnswer,
                     isAnswered,
                     isCorrect,
+                    timeSpent: questionTimes[eq.questionId] || 0,
+                    avgTimeSpent: attempt.exam.isLive ? (questionAvgTimes[eq.questionId] || null) : null,
                 };
             }),
         };

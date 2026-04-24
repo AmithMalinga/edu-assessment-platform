@@ -162,6 +162,9 @@ export class AssessmentService {
                     description: examNotes,
                     duration: dto.timeAllocationMinutes,
                     passingScore: dto.passingScorePercent ?? 60,
+                    isLive: dto.examTypeCategory === 'LIVE',
+                    startTime: dto.startsAt ? new Date(dto.startsAt) : null,
+                    endTime: dto.endsAt ? new Date(dto.endsAt) : null,
                 },
             });
 
