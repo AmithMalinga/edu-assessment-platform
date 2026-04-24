@@ -56,7 +56,7 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
     )
 }
 
-export function Stats() {
+export function Stats({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
     const [stats, setStats] = useState<StatItem[]>(buildStats({
         activeStudents: 0,
         totalQuestions: 0,
@@ -86,24 +86,36 @@ export function Stats() {
 
             <div className="container mx-auto px-6 relative z-10">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-                    {stats.map((stat, i) => (
-                        <motion.div
-                            key={stat.label}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: i * 0.1 }}
-                            className="text-center group"
-                        >
-                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 mb-6 group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
-                                <stat.icon className="h-10 w-10 text-indigo-400 group-hover:text-white transition-colors" />
-                            </div>
-                            <div className="text-4xl md:text-6xl font-black mb-2 text-white tracking-tighter">
-                                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                            </div>
-                            <div className="text-indigo-200/60 font-bold uppercase tracking-widest text-[10px] md:text-xs">{stat.label}</div>
-                        </motion.div>
-                    ))}
+                    {stats.map((stat, i) => {
+                        const translatedLabel = lang === 'si' ? (
+                            stat.label === "Active Students" ? "ක්‍රියාකාරී සිසුන්" :
+                            stat.label === "Questions" ? "ප්‍රශ්න" :
+                            stat.label === "Pass Rate" ? "සමත් වීමේ ප්‍රතිශතය" : "විභාග"
+                        ) : lang === 'ta' ? (
+                            stat.label === "Active Students" ? "சுறுசுறுப்பான மாணவர்கள்" :
+                            stat.label === "Questions" ? "கேள்விகள்" :
+                            stat.label === "Pass Rate" ? "தேர்ச்சி விகிதம்" : "பரீட்சைகள்"
+                        ) : stat.label
+
+                        return (
+                            <motion.div
+                                key={stat.label}
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: i * 0.1 }}
+                                className="text-center group"
+                            >
+                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 mb-6 group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
+                                    <stat.icon className="h-10 w-10 text-indigo-400 group-hover:text-white transition-colors" />
+                                </div>
+                                <div className="text-4xl md:text-6xl font-black mb-2 text-white tracking-tighter">
+                                    <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                                </div>
+                                <div className={`text-indigo-200/60 font-bold uppercase tracking-widest text-[10px] md:text-xs ${lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''}`}>{translatedLabel}</div>
+                            </motion.div>
+                        )
+                    })}
                 </div>
             </div>
         </section>

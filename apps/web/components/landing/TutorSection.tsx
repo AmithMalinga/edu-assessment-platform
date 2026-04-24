@@ -35,7 +35,41 @@ const tutorBenefits = [
     }
 ]
 
-export function TutorSection() {
+export function TutorSection({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
+    const t = {
+        badge: lang === 'si' ? "ගුරුවරුන් සඳහා" : lang === 'ta' ? "ஆசிரியர்களுக்கானது" : "For Educators",
+        title1: lang === 'si' ? "ඔබේ ඉගැන්වීම් සවිබල ගන්වන්න " : lang === 'ta' ? "உங்கள் கற்பித்தலை மேம்படுத்துங்கள் " : "Empower Your Teaching with ",
+        title2: "ExamMaster",
+        desc: lang === 'si' 
+            ? "වෘත්තීය ගුරුවරුන්ගේ ප්‍රජාවකට සම්බන්ධ වී සිසුන්ගේ ප්‍රගතිය ඇගයීමේ ක්‍රමය වෙනස් කරන්න."
+            : lang === 'ta'
+            ? "தொழில்முறை ஆசிரியர்கள் சமூகத்தில் இணைந்து மாணவர் முன்னேற்றத்தை மதிப்பிடும் முறையை மாற்றுங்கள்."
+            : "Join a community of professional tutors and transform the way you assess student progress. Our platform provides the tools you need to create, manage, and analyze exams effectively.",
+        btn1: lang === 'si' ? "ගුරුවරයෙකු ලෙස එක්වන්න" : lang === 'ta' ? "ஆசிரியராக இணையுங்கள்" : "Join as a Tutor",
+        btn2: lang === 'si' ? "වැඩිදුර දැනගන්න" : lang === 'ta' ? "மேலும் அறிய" : "Learn More",
+        benefits: tutorBenefits.map(b => ({
+            ...b,
+            title: lang === 'si' ? (
+                b.title === "Create Smarter Exams" ? "විභාග සාදන්න" :
+                b.title === "Deep Analytics" ? "ගැඹුරු විශ්ලේෂණ" :
+                b.title === "Expand Your Reach" ? "ඔබේ සීමාව පුළුල් කරන්න" : "ත්‍රිභාෂා ප්‍රවේශය"
+            ) : lang === 'ta' ? (
+                b.title === "Create Smarter Exams" ? "புத்திசாலித்தனமான பரீட்சைகளை உருவாக்குங்கள்" :
+                b.title === "Deep Analytics" ? "ஆழமான பகுப்பாய்வு" :
+                b.title === "Expand Your Reach" ? "உங்கள் எல்லையை விரிவாக்குங்கள்" : "மும்மொழி அணுகல்"
+            ) : b.title,
+            description: lang === 'si' ? (
+                b.title === "Create Smarter Exams" ? "බහුවිධ ප්‍රශ්න වර්ග සඳහා සහාය ඇතිව අපගේ බුද්ධිමත් විභාග සාදන්නා භාවිතයෙන් ඇගයීම් පත්‍ර සාදන්න." :
+                b.title === "Deep Analytics" ? "සිසුන්ගේ කාර්ය සාධනය පිළිබඳ සවිස්තරාත්මක අවබෝධයක් ලබා ගන්න, දුර්වලතා හඳුනාගෙන කාලයත් සමඟ ප්‍රගතිය නිරීක්ෂණය කරන්න." :
+                b.title === "Expand Your Reach" ? "භූගෝලීය බාධක බිඳ දමමින් ශ්‍රී ලංකාව පුරා සිටින සිසුන් සමඟ සම්බන්ධ වන්න." : "ඔබේ අන්තර්ගතය සිංහල, දෙමළ හෝ ඉංග්‍රීසි භාෂාවෙන් ලබා දෙන්න."
+            ) : lang === 'ta' ? (
+                b.title === "Create Smarter Exams" ? "பலவிதமான கேள்வி வகைகளுக்கான ஆதரவுடன் எங்கள் சிறந்த பரீட்சை உருவாக்குநரைப் பயன்படுத்தி மதிப்பீட்டு ஆவணங்களை உருவாக்குங்கள்." :
+                b.title === "Deep Analytics" ? "மாணவர்களின் செயல்திறனைப் பற்றிய விரிவான நுண்ணறிவுகளைப் பெறுங்கள், பலவீனங்களை அடையாளம் கண்டு காலப்போக்கில் முன்னேற்றத்தைக் கண்காணிக்கவும்." :
+                b.title === "Expand Your Reach" ? "புவியியல் தடைகளை உடைத்து இலங்கை முழுவதிலும் உள்ள மாணவர்களுடன் இணைக்கப்படுங்கள்." : "உங்கள் உள்ளடக்கத்தை சிங்களம், தமிழ் அல்லது ஆங்கிலத்தில் வழங்குங்கள்."
+            ) : b.description
+        }))
+    }
+
     return (
         <section id="tutor" className="py-24 bg-slate-50 dark:bg-slate-900/20 overflow-hidden">
             <div className="container mx-auto px-6">
@@ -48,25 +82,25 @@ export function TutorSection() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
                         >
-                            <span className="inline-block py-1.5 px-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-bold mb-6">
-                                For Educators
+                            <span className={`inline-block py-1.5 px-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-bold mb-6 ${lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''}`}>
+                                {t.badge}
                             </span>
-                            <h2 className="text-4xl md:text-5xl font-black mb-6 dark:text-white leading-tight">
-                                Empower Your Teaching with <span className="text-indigo-600 dark:text-indigo-400 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">ExamMaster</span>
+                            <h2 className={`text-4xl md:text-5xl font-black mb-6 dark:text-white ${lang === 'si' ? 'font-sinhala leading-normal' : lang === 'ta' ? 'font-tamil leading-normal' : 'leading-tight'}`}>
+                                {t.title1} <span className="text-indigo-600 dark:text-indigo-400 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{t.title2}</span>
                             </h2>
-                            <p className="text-slate-600 dark:text-slate-400 text-lg mb-10 leading-relaxed">
-                                Join a community of professional tutors and transform the way you assess student progress. Our platform provides the tools you need to create, manage, and analyze exams effectively.
+                            <p className={`text-slate-600 dark:text-slate-400 text-lg mb-10 leading-relaxed ${lang === 'si' ? 'font-sinhala font-medium' : lang === 'ta' ? 'font-tamil font-medium' : ''}`}>
+                                {t.desc}
                             </p>
 
                             <div className="grid sm:grid-cols-2 gap-8 mb-10">
-                                {tutorBenefits.map((benefit, i) => (
+                                {t.benefits.map((benefit, i) => (
                                     <div key={benefit.title} className="flex gap-4">
                                         <div className={`flex-shrink-0 w-12 h-12 rounded-xl ${benefit.bg} flex items-center justify-center`}>
                                             <benefit.icon className={`w-6 h-6 ${benefit.color}`} />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-slate-900 dark:text-white mb-1">{benefit.title}</h3>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            <h3 className={`font-bold text-slate-900 dark:text-white mb-1 ${lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''}`}>{benefit.title}</h3>
+                                            <p className={`text-sm text-slate-600 dark:text-slate-400 leading-relaxed ${lang === 'si' ? 'font-sinhala font-medium' : lang === 'ta' ? 'font-tamil font-medium' : ''}`}>
                                                 {benefit.description}
                                             </p>
                                         </div>
@@ -79,15 +113,15 @@ export function TutorSection() {
                                     href="/auth/tutor-register"
                                     className="group relative h-14 px-8 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 dark:from-indigo-600 dark:to-purple-600 text-white font-black text-lg hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-300 hover:-translate-y-1 overflow-hidden shadow-lg shadow-indigo-600/20"
                                 >
-                                    <span>Join as a Tutor</span>
+                                    <span className={lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''}>{t.btn1}</span>
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12" />
                                 </Link>
                                 <Link 
                                     href="#features"
-                                    className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+                                    className={`px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all ${lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''}`}
                                 >
-                                    Learn More
+                                    {t.btn2}
                                 </Link>
                             </div>
                         </motion.div>

@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Noto_Sans_Sinhala, Noto_Sans_Tamil } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const notoSansSinhala = Noto_Sans_Sinhala({ subsets: ['sinhala'], variable: '--font-sinhala' })
+const notoSansTamil = Noto_Sans_Tamil({ subsets: ['tamil'], variable: '--font-tamil' })
 
 export const metadata: Metadata = {
     title: 'ExamMaster',
@@ -37,7 +39,7 @@ export default function RootLayout({
                     `}
                 </Script>
             </head>
-            <body className={cn("min-h-screen bg-background font-sans antialiased", inter.variable)}>{children}</body>
+            <body className={cn("min-h-screen bg-background font-sans antialiased", inter.variable, notoSansSinhala.variable, notoSansTamil.variable)}>{children}</body>
         </html>
     )
 }
