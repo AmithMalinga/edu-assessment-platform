@@ -221,8 +221,11 @@ const Questions: React.FC = () => {
                {!isCompactView && q.type === 'MCQ' && (
                   <div className="flex gap-4 mt-3 overflow-x-auto pb-1 no-scrollbar">
                       {q.choices.map((choice: string, i: number) => (
-                          <div key={i} className={`shrink-0 px-3 py-1 rounded-lg text-[10px] border ${choice === q.correctAnswer ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-white/5 border-white/5 text-slate-500'}`}>
-                              {choice}
+                          <div key={i} className={`shrink-0 px-3 py-1 rounded-lg text-[10px] border flex flex-col gap-2 ${choice === q.correctAnswer ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-white/5 border-white/5 text-slate-500'}`}>
+                              {choice && <span>{choice}</span>}
+                              {q.choiceImages?.[i] && (
+                                  <img src={q.choiceImages[i]} alt={`Choice ${i+1}`} className="h-10 w-auto object-contain rounded border border-white/5" />
+                              )}
                           </div>
                       ))}
                   </div>

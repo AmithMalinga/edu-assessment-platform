@@ -286,15 +286,41 @@ export default function ExamResultPage() {
                                                         <div className="grid sm:grid-cols-2 gap-3">
                                                             <div className="bg-white/60 dark:bg-slate-950/40 p-2.5 rounded-lg border border-black/5 dark:border-white/5">
                                                                 <p className="text-[9px] font-black uppercase text-slate-400 mb-0.5">Your Answer</p>
-                                                                <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
-                                                                    {question.selectedAnswer || "Not answered"}
-                                                                </p>
+                                                                <div className="space-y-2">
+                                                                    <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
+                                                                        {question.selectedAnswer || "Not answered"}
+                                                                    </p>
+                                                                    {(() => {
+                                                                        const choiceIdx = question.choices.findIndex(c => c.trim() === question.selectedAnswer?.trim());
+                                                                        const imgUrl = choiceIdx !== -1 ? question.choiceImages?.[choiceIdx] : null;
+                                                                        return imgUrl ? (
+                                                                            <img 
+                                                                                src={imgUrl} 
+                                                                                alt="Your selected answer" 
+                                                                                className="max-w-full max-h-32 object-contain rounded-lg border border-black/5 dark:border-white/5 bg-slate-50 dark:bg-slate-900/50 p-1"
+                                                                            />
+                                                                        ) : null;
+                                                                    })()}
+                                                                </div>
                                                             </div>
                                                             <div className="bg-white/60 dark:bg-slate-950/40 p-2.5 rounded-lg border border-black/5 dark:border-white/5">
                                                                 <p className="text-[9px] font-black uppercase text-slate-400 mb-0.5">Correct Answer</p>
-                                                                <p className="text-[13px] font-semibold text-emerald-700 dark:text-emerald-500">
-                                                                    {question.correctAnswer || "Manual grading required"}
-                                                                </p>
+                                                                <div className="space-y-2">
+                                                                    <p className="text-[13px] font-semibold text-emerald-700 dark:text-emerald-500">
+                                                                        {question.correctAnswer || "Manual grading required"}
+                                                                    </p>
+                                                                    {(() => {
+                                                                        const choiceIdx = question.choices.findIndex(c => c.trim() === question.correctAnswer?.trim());
+                                                                        const imgUrl = choiceIdx !== -1 ? question.choiceImages?.[choiceIdx] : null;
+                                                                        return imgUrl ? (
+                                                                            <img 
+                                                                                src={imgUrl} 
+                                                                                alt="Correct answer" 
+                                                                                className="max-w-full max-h-32 object-contain rounded-lg border border-emerald-500/10 bg-emerald-50/30 dark:bg-emerald-950/20 p-1"
+                                                                            />
+                                                                        ) : null;
+                                                                    })()}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

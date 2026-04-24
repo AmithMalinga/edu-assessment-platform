@@ -60,6 +60,7 @@ export class AssessmentService {
                 type: true,
                 lesson: true,
                 choices: true,
+                choiceImages: true,
                 correctAnswer: true,
                 images: true,
                 createdAt: true,
@@ -185,6 +186,9 @@ export class AssessmentService {
                                     content: true,
                                     lesson: true,
                                     type: true,
+                                    choices: true,
+                                    choiceImages: true,
+                                    images: true,
                                 },
                             },
                         },
@@ -230,7 +234,20 @@ export class AssessmentService {
             where: { id },
             include: {
                 examQuestions: {
-                    include: { question: true },
+                    include: { 
+                        question: {
+                            select: {
+                                id: true,
+                                content: true,
+                                type: true,
+                                lesson: true,
+                                choices: true,
+                                choiceImages: true,
+                                images: true,
+                                correctAnswer: true,
+                            }
+                        } 
+                    },
                     orderBy: { order: 'asc' },
                 },
                 _count: { select: { attempts: true } },

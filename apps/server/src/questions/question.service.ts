@@ -116,6 +116,7 @@ export class QuestionService {
         type: dto.type,
         lesson: dto.lesson,
         choices: dto.choices ?? [],
+        choiceImages: dto.choiceImages ?? [],
         correctAnswer: dto.correctAnswer,
         images,
         subjectId: dto.subjectId,

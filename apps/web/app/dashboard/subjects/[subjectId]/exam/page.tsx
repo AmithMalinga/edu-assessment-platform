@@ -26,6 +26,7 @@ interface UiQuestion {
     content: string
     type: "MCQ" | "STRUCTURED" | "ESSAY"
     options?: string[]
+    choiceImages?: string[]
     images?: string[]
 }
 
@@ -109,8 +110,9 @@ export default function ExamPage() {
                     title: `Question ${index + 1}`,
                     content: question.content,
                     type: question.type,
-                    options: question.choices?.length ? question.choices : undefined,
-                    images: question.images?.length ? question.images : undefined,
+                    options: question.choices || [],
+                    choiceImages: question.choiceImages || [],
+                    images: question.images || [],
                 }
             })
     }, [exam])
@@ -380,24 +382,35 @@ export default function ExamPage() {
                                                                 "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
                                                                 isSelected ? "border-indigo-500" : "border-slate-300 dark:border-slate-600 group-hover:border-indigo-400"
                                                             )}>
-                                                                {isSelected && <motion.div layoutId="mcq-select" className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />}
-                                                            </div>
-                                                            <input
-                                                                type="radio"
-                                                                className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
-                                                                name={`question-${currentQuestion.id}`}
-                                                                value={option}
-                                                                checked={isSelected}
-                                                                onChange={() => handleAnswerChange(option)}
-                                                            />
+                                                            {isSelected && <motion.div layoutId="mcq-select" className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />}
                                                         </div>
-                                                        <span className={cn(
-                                                            "text-[15px] font-medium leading-normal",
-                                                            isSelected ? "text-indigo-950 dark:text-indigo-100" : "text-slate-700 dark:text-slate-300"
-                                                        )}>
-                                                            {option}
-                                                        </span>
-                                                    </label>
+                                                        <input
+                                                            type="radio"
+                                                            className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
+                                                            name={`question-${currentQuestion.id}`}
+                                                            value={option}
+                                                            checked={isSelected}
+                                                            onChange={() => handleAnswerChange(option)}
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-col gap-3 flex-1">
+                                                        {option && (
+                                                            <span className={cn(
+                                                                "text-[15px] font-medium leading-normal",
+                                                                isSelected ? "text-indigo-950 dark:text-indigo-100" : "text-slate-700 dark:text-slate-300"
+                                                            )}>
+                                                                {option}
+                                                            </span>
+                                                        )}
+                                                        {currentQuestion.choiceImages?.[idx] && (
+                                                            <img 
+                                                                src={currentQuestion.choiceImages[idx]} 
+                                                                alt={`Choice ${idx + 1}`} 
+                                                                className="max-w-full max-h-48 object-contain rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-2"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </label>
                                                 )
                                             })}
                                         </div>

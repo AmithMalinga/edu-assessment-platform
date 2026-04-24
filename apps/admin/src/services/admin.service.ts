@@ -25,6 +25,7 @@ export interface RelevantQuestion {
   type: ExamQuestionType;
   lesson: string;
   choices: string[];
+  choiceImages?: string[];
   correctAnswer: string;
   images?: string[];
   createdAt: string;

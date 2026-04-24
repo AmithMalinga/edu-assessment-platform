@@ -52,6 +52,7 @@ export interface AssessmentQuestion {
     lesson: string
     images: string[]
     choices: string[]
+    choiceImages: string[]
     correctAnswer: string | null
 }
 

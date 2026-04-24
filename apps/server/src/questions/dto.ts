@@ -109,6 +109,10 @@ export class CreateQuestionDto {
   @IsOptional()
   choices?: string[];
 
+  @IsArray()
+  @IsOptional()
+  choiceImages?: string[];
+
   @IsString()
   @IsOptional()
   correctAnswer?: string;
@@ -143,6 +147,10 @@ export class CreateAdminQuestionDto {
   @IsOptional()
   choices?: string[];
 
+  @IsArray()
+  @IsOptional()
+  choiceImages?: string[];
+
   @IsString()
   @IsOptional()
   correctAnswer?: string;
@@ -172,6 +180,10 @@ export class UpdateQuestionDto {
   @IsArray()
   @IsOptional()
   choices?: string[];
+
+  @IsArray()
+  @IsOptional()
+  choiceImages?: string[];
 
   @IsString()
   @IsOptional()

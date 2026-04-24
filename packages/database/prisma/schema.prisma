@@ -160,6 +160,7 @@ model Question {
   lesson        String         @default("General")
   images        String[]
   choices       String[]
+  choiceImages  String[]
   correctAnswer String?
   subjectId     String
   subject       Subject        @relation(fields: [subjectId], references: [id])

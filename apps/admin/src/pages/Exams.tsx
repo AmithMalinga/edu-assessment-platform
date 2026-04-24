@@ -526,6 +526,13 @@ const Exams: React.FC = () => {
                                                     ))}
                                                 </div>
                                             )}
+                                            {question.type === 'MCQ' && question.choiceImages && question.choiceImages.some(img => !!img) && (
+                                                <div className="flex gap-2 mt-3 overflow-x-auto pb-1 no-scrollbar max-w-[300px]">
+                                                    {question.choiceImages.map((img: string, i: number) => (
+                                                        img && <img key={i} src={img} alt={`Choice ${i+1}`} className="h-12 w-auto rounded-lg object-contain border border-white/10 bg-black/20 shrink-0" />
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         {selected && (
                                             <div className="flex flex-col items-center gap-2" onClick={e => e.stopPropagation()}>
