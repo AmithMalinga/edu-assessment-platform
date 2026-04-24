@@ -5,3 +5,4 @@ dist
 .env
 apps/server/tsconfig.tsbuildinfo
 apps/web/.env.local
+apps/web/.env.local
