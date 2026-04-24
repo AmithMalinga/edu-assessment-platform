@@ -1,8 +1,11 @@
-export { Header } from './Header'
-export { Hero } from './Hero'
-export { Features } from './Features'
-export { FeatureCard } from './FeatureCard'
-export { Stats } from './Stats'
-export { Testimonials } from './Testimonials'
-export { Footer } from './Footer'
-export { TutorSection } from './TutorSection'
+export * from "./Header";
+export * from "./Hero";
+export * from "./Marquee";
+export * from "./Features";
+export * from "./HowItWorks";
+export * from "./Stats";
+export * from "./Pricing";
+export * from "./TutorSection";
+export * from "./Testimonials";
+export * from "./FAQ";
+export * from "./Footer";
