@@ -21,6 +21,7 @@ const authHeaders = (token: string) => ({
 export interface SubmitExamPayload {
     examId: string
     answers: Record<string, string>
+    questionTimes?: Record<string, number>
     timeTaken: number
 }
 

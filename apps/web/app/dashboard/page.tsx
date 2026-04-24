@@ -182,6 +182,9 @@ export default function DashboardPage() {
                                             duration={exam.duration}
                                             createdAt={exam.createdAt}
                                             color={SUBJECT_COLORS[index % SUBJECT_COLORS.length]}
+                                            isLive={exam.metadata?.examTypeCategory === 'LIVE'}
+                                            startsAt={exam.metadata?.startsAt || undefined}
+                                            endsAt={exam.metadata?.endsAt || undefined}
                                         />
                                     </motion.div>
                                 )

@@ -17,6 +17,7 @@ interface ExamState {
     currentQuestionIndex: number
     answers: Record<string, string>
     flaggedQuestions: Set<string>
+    questionTimes: Record<string, number>
 }
 
 interface UiQuestion {
@@ -45,6 +46,7 @@ export default function ExamPage() {
         currentQuestionIndex: 0,
         answers: {},
         flaggedQuestions: new Set(),
+        questionTimes: {},
     })
     const [timeRemaining, setTimeRemaining] = useState(0)
     const [isSubmitted, setIsSubmitted] = useState(false)
@@ -129,6 +131,18 @@ export default function ExamPage() {
         if (!exam || questions.length === 0) return
 
         timerRef.current = setInterval(() => {
+            const currentQId = questions.length > 0 ? questions[examStateRef.current.currentQuestionIndex]?.id : null;
+            
+            if (currentQId) {
+                setExamState((prev) => ({
+                    ...prev,
+                    questionTimes: {
+                        ...prev.questionTimes,
+                        [currentQId]: (prev.questionTimes[currentQId] || 0) + 1
+                    }
+                }));
+            }
+
             setTimeRemaining((prev) => {
                 if (prev <= 1) {
                     if (timerRef.current) clearInterval(timerRef.current)
@@ -227,6 +241,7 @@ export default function ExamPage() {
             const response = await resultService.submitExam(token, {
                 examId: exam.id,
                 answers: examStateRef.current.answers,
+                questionTimes: examStateRef.current.questionTimes,
                 timeTaken,
             })
 
