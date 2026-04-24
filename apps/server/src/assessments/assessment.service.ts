@@ -61,6 +61,7 @@ export class AssessmentService {
                 lesson: true,
                 choices: true,
                 correctAnswer: true,
+                images: true,
                 createdAt: true,
             },
             orderBy: [{ lesson: 'asc' }, { createdAt: 'desc' }],

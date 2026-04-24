@@ -1,0 +1,14 @@
+{
+  "root": true,
+  "extends": [
+    "next/core-web-vitals"
+  ],
+  "settings": {
+    "next": {
+      "rootDir": "apps/web/"
+    }
+  },
+  "rules": {
+    "react/no-unescaped-entities": "off"
+  }
+}

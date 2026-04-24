@@ -20,14 +20,32 @@ model User {
   requiresPasswordChange Boolean @default(false)
   // Tutor-specific fields
   subject         String?
+  tutorCode       String?  @unique
   studentCount    StudentCountRange?
   bio             String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   attempts        Attempt[]
   tutorRegistration TutorRegistration?
+  
+  // Relations for Tutors and Students
+  studentTutors   StudentTutor[] @relation("StudentRelation")
+  myStudents      StudentTutor[] @relation("TutorRelation")
 
   @@map("users")
+}
+
+model StudentTutor {
+  id          String   @id @default(uuid())
+  studentId   String
+  student     User     @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
+  tutorId     String
+  tutor       User     @relation("TutorRelation", fields: [tutorId], references: [id], onDelete: Cascade)
+  consentGiven Boolean @default(true)
+  createdAt   DateTime @default(now())
+
+  @@unique([studentId, tutorId])
+  @@map("student_tutors")
 }
 
 enum Role {

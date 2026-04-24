@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+// Trigger file watcher reload
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';

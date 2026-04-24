@@ -86,7 +86,8 @@ const ExamDetails: React.FC = () => {
     }
 
     const config = parseExamConfig(exam.description);
-    const formattedDescription = exam.description.split('\n\n')[0];
+    const cleanDescription = exam.description ? exam.description.replace(/Exam Config: \{.*\}/, '').trim() : '';
+    const formattedDescription = cleanDescription || null;
 
     return (
         <Layout title={exam.title}>
@@ -189,7 +190,16 @@ const ExamDetails: React.FC = () => {
                                                 {idx + 1}
                                             </div>
                                             <div className="space-y-2">
-                                                <p className="text-white text-sm leading-relaxed">{eq.question.content}</p>
+                                                <p className="text-white text-sm leading-relaxed">
+                                                    {eq.question.content || (eq.question.images?.length > 0 ? <span className="text-slate-500 italic">[Image-Based Question]</span> : "")}
+                                                </p>
+                                                {eq.question.images && eq.question.images.length > 0 && (
+                                                    <div className="flex gap-2 mt-2 overflow-x-auto pb-1 no-scrollbar max-w-[400px]">
+                                                        {eq.question.images.map((img: string, i: number) => (
+                                                            <img key={i} src={img} alt="Question ref" className="h-12 w-auto rounded-lg object-cover border border-white/10 shrink-0" />
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 <div className="flex gap-2">
                                                     <span className="px-2 py-0.5 rounded-lg bg-indigo-500/5 text-[9px] font-bold text-indigo-400/80 uppercase tracking-widest border border-indigo-500/10">
                                                         {eq.question.lesson || 'General'}

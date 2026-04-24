@@ -28,6 +28,88 @@ export class TutorController {
   }
 
   /**
+   * Tutor: Get or generate tutor code
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('code')
+  async getTutorCode(@Request() req) {
+    if (req.user.role !== 'TUTOR') {
+      throw new ForbiddenException('Only tutors can access their code');
+    }
+    return this.tutorService.getTutorCode(req.user.userId);
+  }
+
+  /**
+   * Student: Assign themselves to a tutor
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('assign')
+  async assignToTutor(
+    @Request() req,
+    @Body() body: { tutorCode: string; consentGiven: boolean },
+  ) {
+    if (req.user.role !== 'STUDENT') {
+      throw new ForbiddenException('Only students can assign themselves to tutors');
+    }
+    return this.tutorService.assignStudentToTutor(
+      req.user.userId,
+      body.tutorCode,
+      body.consentGiven,
+    );
+  }
+
+  /**
+   * Tutor: Get all their assigned students
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('students')
+  async getTutorStudents(@Request() req) {
+    if (req.user.role !== 'TUTOR') {
+      throw new ForbiddenException('Only tutors can view their students');
+    }
+    return this.tutorService.getTutorStudents(req.user.userId);
+  }
+
+  /**
+   * Student: Get their assigned tutors
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('my-tutors')
+  async getMyTutors(@Request() req) {
+    if (req.user.role !== 'STUDENT') {
+      throw new ForbiddenException('Only students can view their tutors');
+    }
+    return this.tutorService.getStudentTutors(req.user.userId);
+  }
+
+  /**
+   * Student: Remove a tutor assignment
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post(':tutorId/remove')
+  async removeMyTutor(
+    @Request() req,
+    @Param('tutorId') tutorId: string,
+  ) {
+    if (req.user.role !== 'STUDENT') {
+      throw new ForbiddenException('Only students can remove tutors');
+    }
+    return this.tutorService.removeStudentTutor(req.user.userId, tutorId);
+  }
+
+  /**
+   * Admin: Get all student-tutor associations
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('associations')
+  async getAllAssociations(@Request() req) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admins can view student-tutor associations');
+    }
+    return this.tutorService.getAllStudentTutorAssociations();
+  }
+
+  /**
    * Public: Check if username is available
    */
   @Post('check-username')

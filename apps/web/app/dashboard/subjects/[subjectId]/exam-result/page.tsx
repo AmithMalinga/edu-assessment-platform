@@ -274,8 +274,15 @@ export default function ExamResultPage() {
                                                     </div>
                                                     <div className="space-y-3 flex-1">
                                                         <h3 className="text-[13px] font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
-                                                            {question.content}
+                                                            {question.content || (question.images?.length ? <span className="italic text-slate-400 font-normal">Please refer to the reference image below.</span> : "Question content missing.")}
                                                         </h3>
+                                                        {question.images && question.images.length > 0 && (
+                                                            <div className="flex flex-col gap-2 mt-2">
+                                                                {question.images.map((img, i) => (
+                                                                    <img key={i} src={img} alt="Question reference" className="w-full max-w-[300px] h-auto object-cover rounded-lg border border-slate-200 dark:border-slate-800" />
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                         <div className="grid sm:grid-cols-2 gap-3">
                                                             <div className="bg-white/60 dark:bg-slate-950/40 p-2.5 rounded-lg border border-black/5 dark:border-white/5">
                                                                 <p className="text-[9px] font-black uppercase text-slate-400 mb-0.5">Your Answer</p>

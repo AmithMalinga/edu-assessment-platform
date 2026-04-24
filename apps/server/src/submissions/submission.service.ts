@@ -213,6 +213,7 @@ export class SubmissionService {
                     lesson: eq.question.lesson,
                     questionType: eq.question.type,
                     content: eq.question.content,
+                    images: eq.question.images || [],
                     choices: eq.question.choices,
                     selectedAnswer,
                     correctAnswer,

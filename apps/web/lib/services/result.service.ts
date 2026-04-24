@@ -47,6 +47,7 @@ export interface AttemptReviewQuestion {
     lesson: string
     questionType: "MCQ" | "STRUCTURED" | "ESSAY"
     content: string
+    images?: string[]
     choices: string[]
     selectedAnswer: string | null
     correctAnswer: string | null

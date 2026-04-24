@@ -17,6 +17,7 @@ import { SubjectModule } from './subjects/subject.module';
 import { LandingModule } from './landing/landing.module';
 import { EmailModule } from './email/email.module';
 import { TutorModule } from './tutors/tutor.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
@@ -31,7 +32,8 @@ import { TutorModule } from './tutors/tutor.module';
         SubjectModule,
         LandingModule,
         EmailModule,
-        TutorModule
+        TutorModule,
+        CloudinaryModule
     ],
     controllers: [AppController],
     providers: [AppService],

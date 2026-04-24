@@ -12,20 +12,20 @@ import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { TutorRegisterDto } from './dto/tutor-register.dto';
 import { randomBytes } from 'crypto';
-import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class TutorService {
   private mailTransporter: nodemailer.Transporter | null = null;
 
   constructor(
-    private prisma: PrismaService,
-    private configService: ConfigService,
-  ) {}
+        private prisma: PrismaService,
+        private configService: ConfigService,
+    ) {}
 
-  private normalizeEmail(email: string) {
-    return email.trim().toLowerCase();
-  }
+    private normalizeEmail(email: string) {
+        return email.trim().toLowerCase();
+    }
 
   private getTransporter() {
     if (this.mailTransporter) return this.mailTransporter;
@@ -116,6 +116,173 @@ export class TutorService {
         status: tutorRegistration.status,
       },
     };
+  }
+
+  /**
+   * Helper to generate a unique tutor code
+   */
+  private async generateUniqueTutorCode(): Promise<string> {
+    while (true) {
+      const code = 'TU-' + randomBytes(3).toString('hex').toUpperCase();
+      const existing = await this.prisma.user.findUnique({
+        where: { tutorCode: code },
+      });
+      if (!existing) {
+        return code;
+      }
+    }
+  }
+
+  /**
+   * Generate or retrieve tutor code
+   */
+  async getTutorCode(tutorId: string) {
+    const tutor = await this.prisma.user.findUnique({
+      where: { id: tutorId },
+      select: { tutorCode: true },
+    });
+    
+    if (!tutor) {
+      throw new NotFoundException('Tutor not found');
+    }
+    
+    if (tutor.tutorCode) {
+      return { tutorCode: tutor.tutorCode };
+    }
+    
+    const newCode = await this.generateUniqueTutorCode();
+    await this.prisma.user.update({
+      where: { id: tutorId },
+      data: { tutorCode: newCode },
+    });
+    
+    return { tutorCode: newCode };
+  }
+
+  /**
+   * Assign a student to a tutor using tutor code
+   */
+  async assignStudentToTutor(studentId: string, tutorCode: string, consentGiven: boolean) {
+    if (!consentGiven) {
+      throw new BadRequestException('Consent is required to assign to a tutor');
+    }
+
+    const tutor = await this.prisma.user.findUnique({
+      where: { tutorCode },
+    });
+
+    if (!tutor || tutor.role !== 'TUTOR') {
+      throw new NotFoundException('Invalid tutor code');
+    }
+
+    const existingAssignment = await this.prisma.studentTutor.findUnique({
+      where: {
+        studentId_tutorId: {
+          studentId,
+          tutorId: tutor.id,
+        }
+      }
+    });
+
+    if (existingAssignment) {
+      throw new ConflictException('Already assigned to this tutor');
+    }
+
+    await this.prisma.studentTutor.create({
+      data: {
+        studentId,
+        tutorId: tutor.id,
+        consentGiven,
+      }
+    });
+
+    return { message: 'Successfully assigned to tutor', tutorName: tutor.name };
+  }
+
+  /**
+   * Get students for a specific tutor
+   */
+  async getTutorStudents(tutorId: string) {
+    const students = await this.prisma.studentTutor.findMany({
+      where: { tutorId },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            educationalLevel: true,
+            phone: true,
+          }
+        }
+      }
+    });
+    
+    return students.map(s => s.student);
+  }
+
+  /**
+   * Student: Get their assigned tutors
+   */
+  async getStudentTutors(studentId: string) {
+    const tutors = await this.prisma.studentTutor.findMany({
+      where: { studentId },
+      include: {
+        tutor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            subject: true,
+            username: true,
+          }
+        }
+      }
+    });
+    
+    return tutors.map(t => ({ ...t.tutor, assignedAt: t.createdAt, consentGiven: t.consentGiven }));
+  }
+
+  /**
+   * Student: Remove a tutor assignment
+   */
+  async removeStudentTutor(studentId: string, tutorId: string) {
+    const association = await this.prisma.studentTutor.findUnique({
+      where: {
+        studentId_tutorId: {
+          studentId,
+          tutorId
+        }
+      }
+    });
+
+    if (!association) {
+      throw new NotFoundException('Tutor assignment not found');
+    }
+
+    await this.prisma.studentTutor.delete({
+      where: {
+        studentId_tutorId: {
+          studentId,
+          tutorId
+        }
+      }
+    });
+
+    return { message: 'Tutor removed successfully' };
+  }
+
+  /**
+   * Admin: Get all student-tutor associations
+   */
+  async getAllStudentTutorAssociations() {
+    return this.prisma.studentTutor.findMany({
+      include: {
+        student: { select: { id: true, name: true, email: true } },
+        tutor: { select: { id: true, name: true, tutorCode: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 
   /**
@@ -283,7 +450,7 @@ export class TutorService {
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           const target = Array.isArray(error.meta?.target)
             ? (error.meta?.target as string[])

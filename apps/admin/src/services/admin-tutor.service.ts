@@ -118,4 +118,18 @@ export const adminTutorService = {
       throw new Error(extractErrorMessage(error, 'Failed to reject tutor registration.'))
     }
   },
+
+  /**
+   * Get all student-tutor associations
+   */
+  async getStudentTutorAssociations(token?: string) {
+    try {
+      const response = await api.get('/tutors/associations', {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      })
+      return response.data
+    } catch (error) {
+      throw new Error(extractErrorMessage(error, 'Failed to fetch associations.'))
+    }
+  }
 }

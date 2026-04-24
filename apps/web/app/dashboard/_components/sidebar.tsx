@@ -20,7 +20,8 @@ import {
     LineChart,
     AlertTriangle,
     X,
-    CheckCircle2
+    CheckCircle2,
+    Users
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -31,6 +32,8 @@ const navigation = [
     // { name: "Courses", href: "/dashboard/courses", icon: BookOpen },
     // { name: "Assignments", href: "/dashboard/assignments", icon: ClipboardList },
     { name: "Results", href: "/dashboard/results", icon: Activity },
+    { name: "Assign Tutor", href: "/dashboard/assign-tutor", icon: User },
+    { name: "My Tutors", href: "/dashboard/my-tutors", icon: Users },
     { name: "Analytics", href: "/dashboard/analytics", icon: LineChart },
     { name: "Profile", href: "/dashboard/profile", icon: User },
     // { name: "Resources", href: "/dashboard/resources", icon: FileText },
