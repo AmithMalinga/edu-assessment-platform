@@ -72,6 +72,12 @@ model Exam {
   description   String?
   duration      Int            // Duration in minutes
   passingScore  Int
+  
+  // LIVE EXAM fields
+  isLive        Boolean        @default(false)
+  startTime     DateTime?
+  endTime       DateTime?
+
   attempts      Attempt[]
   examQuestions ExamQuestion[]
   createdAt     DateTime       @default(now())
@@ -99,6 +105,7 @@ model Attempt {
   score       Int
   timeTaken   Int      // Time taken in seconds
   answers     Json?    // { questionId: selectedAnswer }
+  questionTimes Json?  // { questionId: timeTakenInSeconds }
   completedAt DateTime @default(now())
 }
 
