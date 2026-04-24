@@ -30,6 +30,7 @@
         "class-validator": "^0.14.0",
         "cloudinary": "^2.9.0",
         "multer": "^2.0.2",
+        "next": "^14.2.35",
         "nodemailer": "^6.10.1",
         "passport": "^0.7.0",
         "passport-google-oauth20": "^2.0.0",
