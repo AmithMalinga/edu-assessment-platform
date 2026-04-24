@@ -4,7 +4,7 @@ import { Star, Quote } from "lucide-react"
 import { useEffect, useState, useRef } from "react"
 import { landingService, Testimonial } from "../../lib/services/landing.service"
 
-export function Testimonials() {
+export function Testimonials({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
     const [testimonials, setTestimonials] = useState<Testimonial[]>([])
 
     useEffect(() => {
@@ -33,6 +33,12 @@ export function Testimonials() {
         }
     }, [isPaused, controls, testimonials])
 
+    const t = {
+        badge: lang === 'si' ? "සාක්ෂි" : lang === 'ta' ? "சான்றுகள்" : "Testimonials",
+        title1: lang === 'si' ? "ශ්‍රී ලංකාව පුරා සිසුන්ගේ " : lang === 'ta' ? "இலங்கை முழுவதும் உள்ள மாணவர்களால் " : "Loved by Students",
+        title2: lang === 'si' ? "විශ්වාසය දිනාගත්" : lang === 'ta' ? "விரும்பப்படுகிறது" : "Across Sri Lanka"
+    }
+
     return (
         <section id="testimonials" className="py-24 relative overflow-hidden">
             {/* Background */}
@@ -47,16 +53,16 @@ export function Testimonials() {
                     transition={{ duration: 0.5 }}
                     className="text-center mb-16"
                 >
-                    <span className="inline-block py-1.5 px-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-semibold mb-4">
-                        Testimonials
+                    <span className={`inline-block py-1.5 px-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-semibold mb-4 ${lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''}`}>
+                        {t.badge}
                     </span>
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4">
+                    <h2 className={`text-3xl md:text-4xl lg:text-5xl font-black mb-4 ${lang === 'si' ? 'font-sinhala leading-normal md:leading-normal lg:leading-normal' : lang === 'ta' ? 'font-tamil leading-normal md:leading-normal lg:leading-normal' : 'leading-tight'}`}>
                         <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                            Loved by Students
+                            {t.title1}
                         </span>
-                        <br />
-                        <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                            Across Sri Lanka
+                        <br className="hidden sm:block" />
+                        <span className={`bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent ${lang === 'si' || lang === 'ta' ? 'inline-block mt-2' : ''}`}>
+                            {t.title2}
                         </span>
                     </h2>
                 </motion.div>

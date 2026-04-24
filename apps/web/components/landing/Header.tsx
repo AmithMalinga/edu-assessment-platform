@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence, useScroll } from "framer-motion"
 import { Zap, Menu, X, Globe, ChevronRight } from "lucide-react"
@@ -12,6 +13,7 @@ const DEFAULT_NAV_ITEMS = [
 ]
 
 export function Header() {
+    const pathname = usePathname()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [dashboardHref, setDashboardHref] = useState("/dashboard")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -104,16 +106,31 @@ export function Header() {
                 <div className="flex items-center gap-6">
                     {/* Language Switcher - Premium Look */}
                     <div className="hidden sm:flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50">
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black rounded-full bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm transition-all">
+                        <Link 
+                            href="/" 
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black rounded-full shadow-sm transition-all ${
+                                pathname !== '/si' && pathname !== '/ta' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                            }`}
+                        >
                             <Globe className="h-3 w-3" />
                             EN
-                        </button>
-                        <button className="px-3 py-1.5 text-[11px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 transition-colors">
+                        </Link>
+                        <Link 
+                            href="/si" 
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black rounded-full shadow-sm transition-all font-sinhala ${
+                                pathname === '/si' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                            }`}
+                        >
                             සිං
-                        </button>
-                        <button className="px-3 py-1.5 text-[11px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 transition-colors">
+                        </Link>
+                        <Link 
+                            href="/ta" 
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black rounded-full shadow-sm transition-all font-tamil ${
+                                pathname === '/ta' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                            }`}
+                        >
                             தமிழ்
-                        </button>
+                        </Link>
                     </div>
 
                     {/* CTA Button */}

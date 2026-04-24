@@ -58,6 +58,10 @@ const config = {
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
+            fontFamily: {
+                sinhala: ['var(--font-sinhala)'],
+                tamil: ['var(--font-tamil)'],
+            },
             keyframes: {
                 "accordion-down": {
                     from: { height: "0" },
