@@ -61,8 +61,55 @@ export default function ExamOverviewPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [showConfirm, setShowConfirm] = useState(false)
+    const [countdown, setCountdown] = useState<{ message: string, time: string, isLive: boolean } | null>(null)
 
     const examTypeInfo = useMemo(() => EXAM_TYPE_INFO[examType], [examType])
+
+    useEffect(() => {
+        if (!exam || exam.metadata?.examTypeCategory !== 'LIVE' || !exam.metadata?.startsAt || !exam.metadata?.endsAt) {
+            setCountdown(null);
+            return;
+        }
+
+        const startsAtTime = exam.metadata.startsAt as string;
+        const endsAtTime = exam.metadata.endsAt as string;
+
+        const interval = setInterval(() => {
+            const now = new Date();
+            const startsAt = new Date(startsAtTime);
+            const endsAt = new Date(endsAtTime);
+
+            if (now < startsAt) {
+                const diff = (startsAt.getTime() - now.getTime()) / 1000;
+                const hours = Math.floor(diff / 3600);
+                const mins = Math.floor((diff % 3600) / 60);
+                const secs = Math.floor(diff % 60);
+                setCountdown({
+                    message: "Starts In:",
+                    time: `${hours}h ${mins}m ${secs}s`,
+                    isLive: false
+                });
+            } else if (now > endsAt) {
+                setCountdown({
+                    message: "Exam has ended.",
+                    time: "-",
+                    isLive: false
+                });
+            } else {
+                const diff = (endsAt.getTime() - now.getTime()) / 1000;
+                const hours = Math.floor(diff / 3600);
+                const mins = Math.floor((diff % 3600) / 60);
+                const secs = Math.floor(diff % 60);
+                setCountdown({
+                    message: "Ends In:",
+                    time: `${hours}h ${mins}m ${secs}s`,
+                    isLive: true
+                });
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [exam]);
 
     useEffect(() => {
         const loadPageData = async () => {
@@ -102,6 +149,20 @@ export default function ExamOverviewPage() {
     }, [router, subjectId, examId, examType])
 
     const handleStartExam = () => {
+        if (exam?.metadata?.examTypeCategory === 'LIVE' && exam.metadata?.startsAt && exam.metadata?.endsAt) {
+            const now = new Date();
+            const startsAt = new Date(exam.metadata.startsAt as string);
+            const endsAt = new Date(exam.metadata.endsAt as string);
+            
+            if (now < startsAt) {
+                // Remove alert, it's handled by disabled button anyway
+                return;
+            }
+            if (now > endsAt) {
+                // Remove alert
+                return;
+            }
+        }
         setShowConfirm(true)
     }
 
@@ -283,12 +344,20 @@ export default function ExamOverviewPage() {
                                     </p>
                                 </div>
 
-                                <div className="pt-2">
-                                    <div className="flex flex-col gap-2.5">
-                                        <button
-                                            onClick={handleStartExam}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-lg shadow-blue-600/20 active:scale-95 transition-all group/start hover:-translate-y-0.5"
-                                        >
+                                    <div className="pt-2">
+                                        <div className="flex flex-col gap-2.5">
+                                            {countdown && (
+                                                <div className={`p-4 rounded-xl text-center shadow-inner ${countdown.isLive ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'}`}>
+                                                    <span className="text-xs font-black uppercase tracking-wider">{countdown.message}</span>
+                                                    <div className="text-2xl font-black mt-1 font-mono tracking-tight">{countdown.time}</div>
+                                                </div>
+                                            )}
+
+                                            <button
+                                                onClick={handleStartExam}
+                                                disabled={countdown !== null && !countdown.isLive && countdown.message === "Starts In:" || countdown?.message === "Exam has ended."}
+                                                className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black rounded-xl shadow-lg shadow-blue-600/20 active:scale-95 transition-all group/start hover:-translate-y-0.5"
+                                            >
                                             <Play className="h-4 w-4 fill-current group-hover:translate-x-1 transition-transform" />
                                             <span className="text-sm">Start Examination</span>
                                         </button>

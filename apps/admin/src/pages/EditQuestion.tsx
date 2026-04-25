@@ -340,7 +340,22 @@ const EditQuestion: React.FC = () => {
                               onChange={(e) => {
                                 const newChoices = [...questionData.choices];
                                 newChoices[i] = e.target.value;
-                                setQuestionData({...questionData, choices: newChoices});
+                                
+                                const newChoiceImages = [...questionData.choiceImages];
+                                
+                                // Automatically add a new empty choice if the last one was typed into
+                                if (i === newChoices.length - 1 && e.target.value.trim() !== '') {
+                                  newChoices.push('');
+                                  newChoiceImages.push('');
+                                }
+                                
+                                // If this is the current correct answer, update the string value as well
+                                const updates: any = { choices: newChoices, choiceImages: newChoiceImages };
+                                if (questionData.correctAnswerIndex === i) {
+                                  updates.correctAnswer = e.target.value;
+                                }
+                                
+                                setQuestionData({...questionData, ...updates});
                               }}
                               placeholder={questionData.choiceImages[i] ? `Label for Image (Optional)` : `Choice ${i+1} Text`}
                               className={`w-full pl-5 pr-12 py-4 bg-white/5 border rounded-2xl text-white placeholder:text-slate-600 focus:outline-none transition-all ${
@@ -351,7 +366,7 @@ const EditQuestion: React.FC = () => {
                             />
                             <button 
                               type="button"
-                              onClick={() => setQuestionData({...questionData, correctAnswerIndex: i})}
+                              onClick={() => setQuestionData({...questionData, correctAnswerIndex: i, correctAnswer: choice})}
                               className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all shadow-lg ${
                                   questionData.correctAnswerIndex === i 
                                   ? 'bg-emerald-500 text-white scale-110' 

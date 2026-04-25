@@ -132,6 +132,16 @@ export class QuestionService {
   }
 
   async update(id: string, dto: UpdateQuestionDto) {
+    if (dto.type === 'MCQ' || (dto.choices)) {
+      if (dto.choices && dto.choices.length < 2) {
+        throw new BadRequestException('MCQ questions require at least 2 choices');
+      }
+      
+      if (dto.choices && dto.correctAnswer && !dto.choices.includes(dto.correctAnswer)) {
+        throw new BadRequestException('Correct answer must be one of the provided choices');
+      }
+    }
+
     return this.prisma.question.update({
       where: { id },
       data: dto,

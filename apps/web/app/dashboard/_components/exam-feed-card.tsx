@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { Clock, FileCheck, ChevronRight, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
 interface ExamFeedCardProps {
     id: string
@@ -15,13 +16,50 @@ interface ExamFeedCardProps {
     duration: number
     createdAt: string
     color: string
+    isLive?: boolean
+    startsAt?: string
+    endsAt?: string
 }
 
-export function ExamFeedCard({ id, title, subject, subjectId, typeSlug, questions, duration, createdAt, color }: ExamFeedCardProps) {
+export function ExamFeedCard({ id, title, subject, subjectId, typeSlug, questions, duration, createdAt, color, isLive, startsAt, endsAt }: ExamFeedCardProps) {
     const router = useRouter()
+    const [countdown, setCountdown] = useState<{ message: string, time: string, isActive: boolean, isEnded: boolean } | null>(null)
     
     const examDate = new Date(createdAt)
     const isNew = (new Date().getTime() - examDate.getTime()) < 7 * 24 * 60 * 60 * 1000
+
+    useEffect(() => {
+        if (!isLive || !startsAt || !endsAt) {
+            setCountdown(null);
+            return;
+        }
+
+        const updateTimer = () => {
+            const now = new Date();
+            const start = new Date(startsAt);
+            const end = new Date(endsAt);
+
+            if (now < start) {
+                const diff = (start.getTime() - now.getTime()) / 1000;
+                const hours = Math.floor(diff / 3600);
+                const mins = Math.floor((diff % 3600) / 60);
+                const secs = Math.floor((diff % 60));
+                setCountdown({ message: "Starts in", time: `${hours}h ${mins}m ${secs}s`, isActive: false, isEnded: false });
+            } else if (now > end) {
+                setCountdown({ message: "Ended", time: "-", isActive: false, isEnded: true });
+            } else {
+                const diff = (end.getTime() - now.getTime()) / 1000;
+                const hours = Math.floor(diff / 3600);
+                const mins = Math.floor((diff % 3600) / 60);
+                const secs = Math.floor((diff % 60));
+                setCountdown({ message: "Ends in", time: `${hours}h ${mins}m ${secs}s`, isActive: true, isEnded: false });
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [isLive, startsAt, endsAt]);
 
     return (
         <motion.div 
@@ -39,6 +77,17 @@ export function ExamFeedCard({ id, title, subject, subjectId, typeSlug, question
                 {isNew && (
                     <div className="absolute top-3 left-3 bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-black text-white uppercase tracking-tighter">
                         New Exam
+                    </div>
+                )}
+                
+                {countdown && (
+                    <div className={cn("absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm border", countdown.isActive ? "border-emerald-500/30" : (countdown.isEnded ? "border-slate-500/30" : "border-amber-500/30"))}>
+                        <div className={cn("text-[9px] font-black uppercase tracking-widest", countdown.isActive ? "text-emerald-600" : (countdown.isEnded ? "text-slate-500" : "text-amber-600"))}>
+                            {countdown.message}
+                        </div>
+                        <div className="text-xs font-mono font-bold text-slate-900">
+                            {countdown.time}
+                        </div>
                     </div>
                 )}
                 

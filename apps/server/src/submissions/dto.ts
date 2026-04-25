@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsObject, Min } from 'class-validator';
+import { IsString, IsInt, IsObject, Min, IsOptional } from 'class-validator';
 
 export class SubmitExamDto {
     @IsString()
@@ -6,6 +6,10 @@ export class SubmitExamDto {
 
     @IsObject()
     answers: Record<string, string>; // { questionId: selectedAnswer }
+
+    @IsOptional()
+    @IsObject()
+    questionTimes?: Record<string, number>; // { questionId: timeSpentInSeconds }
 
     @IsInt()
     @Min(0)
