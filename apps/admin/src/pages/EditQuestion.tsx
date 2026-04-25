@@ -49,12 +49,20 @@ const EditQuestion: React.FC = () => {
       try {
         setIsLoadingQuestion(true);
         const data = await adminService.getQuestion(id);
+        const choices = data.choices?.length > 0 ? [...data.choices] : ['', '', '', ''];
+        const choiceImages = data.choiceImages?.length > 0 ? [...data.choiceImages] : [];
+        
+        // Pad choiceImages to match choices length
+        while (choiceImages.length < choices.length) {
+          choiceImages.push('');
+        }
+
         setQuestionData({
           content: data.content,
           type: data.type,
           lesson: data.lesson,
-          choices: data.choices?.length > 0 ? [...data.choices] : ['', '', '', ''],
-          choiceImages: data.choiceImages?.length > 0 ? [...data.choiceImages] : ['', '', '', ''],
+          choices: choices,
+          choiceImages: choiceImages,
           correctAnswer: data.correctAnswer || '',
           correctAnswerIndex: data.choices?.indexOf(data.correctAnswer) ?? -1,
           subjectId: data.subjectId,
