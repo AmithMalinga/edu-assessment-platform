@@ -291,6 +291,12 @@ const AddQuestion: React.FC = () => {
                             onChange={(e) => {
                               const newChoices = [...newQuestion.choices];
                               newChoices[i] = e.target.value;
+                              
+                              // Automatically add a new empty choice if the last one was typed into
+                              if (i === newChoices.length - 1 && e.target.value.trim() !== '') {
+                                newChoices.push('');
+                              }
+                              
                               setNewQuestion({...newQuestion, choices: newChoices});
                             }}
                             placeholder={`Choice ${i+1}`}

@@ -48,7 +48,7 @@ const EditQuestion: React.FC = () => {
           content: data.content,
           type: data.type,
           lesson: data.lesson,
-          choices: data.choices?.length > 0 ? [...data.choices] : ['', '', '', ''],
+          choices: data.choices?.length > 0 ? [...data.choices, ''] : ['', '', '', ''],
           correctAnswer: data.correctAnswer || '',
           subjectId: data.subjectId,
           gradeId: data.subject?.gradeId?.toString() || '',
@@ -278,6 +278,11 @@ const EditQuestion: React.FC = () => {
                             onChange={(e) => {
                               const newChoices = [...questionData.choices];
                               newChoices[i] = e.target.value;
+                              
+                              if (i === newChoices.length - 1 && e.target.value.trim() !== '') {
+                                newChoices.push('');
+                              }
+                              
                               setQuestionData({...questionData, choices: newChoices});
                             }}
                             placeholder={`Choice ${i+1}`}
