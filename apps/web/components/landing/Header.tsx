@@ -121,7 +121,7 @@ export function Header() {
                 </nav>
 
                 <div className="flex items-center gap-6">
-                    {/* Language Switcher - Premium Look */}
+                    {/* Language Switcher  */}
                     <div className="hidden sm:flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 font-sans">
                         <Link 
                             href="/" 
