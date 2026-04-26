@@ -50,6 +50,7 @@ export interface AttemptReviewQuestion {
     content: string
     images?: string[]
     choices: string[]
+    choiceImages?: string[]
     selectedAnswer: string | null
     correctAnswer: string | null
     isAnswered: boolean

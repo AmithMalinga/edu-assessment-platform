@@ -28,11 +28,16 @@ const EditQuestion: React.FC = () => {
     type: 'MCQ' as 'MCQ' | 'STRUCTURED' | 'ESSAY',
     lesson: 'General',
     choices: ['', '', '', ''],
+    choiceImages: ['', '', '', ''],
     correctAnswer: '',
+    correctAnswerIndex: -1,
     subjectId: '',
     gradeId: '',
     images: [] as string[]
   });
+  
+  const [choiceUploadingIdx, setChoiceUploadingIdx] = useState<number | null>(null);
+  const choiceFileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState('');
@@ -44,12 +49,22 @@ const EditQuestion: React.FC = () => {
       try {
         setIsLoadingQuestion(true);
         const data = await adminService.getQuestion(id);
+        const choices = data.choices?.length > 0 ? [...data.choices] : ['', '', '', ''];
+        const choiceImages = data.choiceImages?.length > 0 ? [...data.choiceImages] : [];
+        
+        // Pad choiceImages to match choices length
+        while (choiceImages.length < choices.length) {
+          choiceImages.push('');
+        }
+
         setQuestionData({
           content: data.content,
           type: data.type,
           lesson: data.lesson,
-          choices: data.choices?.length > 0 ? [...data.choices, ''] : ['', '', '', ''],
+          choices: choices,
+          choiceImages: choiceImages,
           correctAnswer: data.correctAnswer || '',
+          correctAnswerIndex: data.choices?.indexOf(data.correctAnswer) ?? -1,
           subjectId: data.subjectId,
           gradeId: data.subject?.gradeId?.toString() || '',
           images: data.images || []
@@ -100,6 +115,38 @@ const EditQuestion: React.FC = () => {
     }));
   };
 
+  const handleChoiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setChoiceUploadingIdx(index);
+    try {
+      const { url } = await adminService.uploadQuestionImage(file);
+      const newChoiceImages = [...questionData.choiceImages];
+      newChoiceImages[index] = url;
+      setQuestionData(prev => ({
+        ...prev,
+        choiceImages: newChoiceImages
+      }));
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to upload choice image');
+    } finally {
+      setChoiceUploadingIdx(null);
+      if (choiceFileInputRefs.current[index]) {
+        choiceFileInputRefs.current[index]!.value = '';
+      }
+    }
+  };
+
+  const removeChoiceImage = (index: number) => {
+    const newChoiceImages = [...questionData.choiceImages];
+    newChoiceImages[index] = '';
+    setQuestionData(prev => ({
+      ...prev,
+      choiceImages: newChoiceImages
+    }));
+  };
+
   const handleUpdateQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
@@ -112,19 +159,41 @@ const EditQuestion: React.FC = () => {
       }
 
       if (questionData.type === 'MCQ') {
-        const validChoices = questionData.choices.filter(c => c.trim() !== '');
-        if (validChoices.length < 2) throw new Error('At least 2 choices required');
-        if (!questionData.correctAnswer) throw new Error('Please select a correct answer');
-        if (!questionData.choices.includes(questionData.correctAnswer)) {
-            throw new Error('Correct answer must be one of the choices');
-        }
-      }
+        const processedChoices = questionData.choices.map((c, i) => {
+          if (c.trim() === '' && questionData.choiceImages[i]) {
+            return `Option ${i + 1}`;
+          }
+          return c.trim();
+        });
 
-      await updateQuestion(id, {
-        ...questionData,
-        gradeId: Number.parseInt(questionData.gradeId, 10),
-        choices: questionData.type === 'MCQ' ? questionData.choices.filter(c => c.trim() !== '') : []
-      });
+        const validIndices = processedChoices.map((c, i) => i).filter(i => processedChoices[i] !== '' || questionData.choiceImages[i]);
+        
+        if (validIndices.length < 2) throw new Error('At least 2 choices (text or image) required');
+        if (questionData.correctAnswerIndex === -1) throw new Error('Please select a correct answer');
+        
+        const finalChoices = processedChoices.filter((_, i) => validIndices.includes(i));
+        const finalChoiceImages = questionData.choiceImages.filter((_, i) => validIndices.includes(i));
+        
+        // Map the correct answer index to the new filtered array's text
+        const correctChoiceOriginalIndex = questionData.correctAnswerIndex;
+        const correctChoiceText = processedChoices[correctChoiceOriginalIndex];
+
+        await updateQuestion(id, {
+          ...questionData,
+          gradeId: Number.parseInt(questionData.gradeId, 10),
+          choices: finalChoices,
+          choiceImages: finalChoiceImages,
+          correctAnswer: correctChoiceText
+        });
+      } else {
+        await updateQuestion(id, {
+          ...questionData,
+          gradeId: Number.parseInt(questionData.gradeId, 10),
+          choices: [],
+          choiceImages: [],
+          correctAnswer: questionData.correctAnswer
+        });
+      }
       
       navigate('/questions');
     } catch (err: any) {
@@ -269,40 +338,96 @@ const EditQuestion: React.FC = () => {
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Configure Choices</label>
                         <span className="text-[10px] text-slate-600 italic">Select one correct answer</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       {questionData.choices.map((choice, i) => (
-                        <div key={`mcq-choice-input-${i}`} className="relative group">
-                          <input 
-                            type="text" 
-                            value={choice} 
-                            onChange={(e) => {
-                              const newChoices = [...questionData.choices];
-                              newChoices[i] = e.target.value;
-                              
-                              if (i === newChoices.length - 1 && e.target.value.trim() !== '') {
-                                newChoices.push('');
-                              }
-                              
-                              setQuestionData({...questionData, choices: newChoices});
-                            }}
-                            placeholder={`Choice ${i+1}`}
-                            className={`w-full pl-5 pr-12 py-4 bg-white/5 border rounded-2xl text-white placeholder:text-slate-600 focus:outline-none transition-all ${
-                                questionData.correctAnswer === choice && choice !== '' 
-                                ? 'border-emerald-500/50 ring-1 ring-emerald-500/30 bg-emerald-500/5' 
-                                : 'border-white/10 focus:border-indigo-500/50'
-                            }`}
-                          />
-                          <button 
-                            type="button"
-                            onClick={() => setQuestionData({...questionData, correctAnswer: choice})}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all shadow-lg ${
-                                questionData.correctAnswer === choice && choice !== '' 
-                                ? 'bg-emerald-500 text-white scale-110' 
-                                : 'text-slate-700 hover:text-slate-500 hover:bg-white/5'
-                            }`}
-                          >
-                            <CheckCircle size={18} />
-                          </button>
+                        <div key={`mcq-choice-input-${i}`} className="space-y-3">
+                          <div className="relative group">
+                            <input 
+                              type="text" 
+                              value={choice} 
+                              onChange={(e) => {
+                                const newChoices = [...questionData.choices];
+                                newChoices[i] = e.target.value;
+                                
+                                const newChoiceImages = [...questionData.choiceImages];
+                                
+                                // Automatically add a new empty choice if the last one was typed into
+                                if (i === newChoices.length - 1 && e.target.value.trim() !== '') {
+                                  newChoices.push('');
+                                  newChoiceImages.push('');
+                                }
+                                
+                                // If this is the current correct answer, update the string value as well
+                                const updates: any = { choices: newChoices, choiceImages: newChoiceImages };
+                                if (questionData.correctAnswerIndex === i) {
+                                  updates.correctAnswer = e.target.value;
+                                }
+                                
+                                setQuestionData({...questionData, ...updates});
+                              }}
+                              placeholder={questionData.choiceImages[i] ? `Label for Image (Optional)` : `Choice ${i+1} Text`}
+                              className={`w-full pl-5 pr-12 py-4 bg-white/5 border rounded-2xl text-white placeholder:text-slate-600 focus:outline-none transition-all ${
+                                  questionData.correctAnswerIndex === i 
+                                  ? 'border-emerald-500/50 ring-1 ring-emerald-500/30 bg-emerald-500/5' 
+                                  : 'border-white/10 focus:border-indigo-500/50'
+                              }`}
+                            />
+                            <button 
+                              type="button"
+                              onClick={() => setQuestionData({...questionData, correctAnswerIndex: i, correctAnswer: choice})}
+                              className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all shadow-lg ${
+                                  questionData.correctAnswerIndex === i 
+                                  ? 'bg-emerald-500 text-white scale-110' 
+                                  : 'text-slate-700 hover:text-slate-500 hover:bg-white/5'
+                              }`}
+                            >
+                              <CheckCircle size={18} />
+                            </button>
+                          </div>
+
+                          {/* Choice Image Upload */}
+                          <div className="flex items-center gap-4">
+                            {questionData.choiceImages[i] ? (
+                              <div className="relative group w-20 h-20 rounded-xl overflow-hidden border border-white/10 bg-white/5 shrink-0">
+                                <img src={questionData.choiceImages[i]} alt={`Choice ${i + 1}`} className="w-full h-full object-cover" />
+                                <button 
+                                  type="button" 
+                                  onClick={() => removeChoiceImage(i)}
+                                  className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X size={16} className="text-red-400" />
+                                </button>
+                              </div>
+                            ) : (
+                              <button 
+                                type="button"
+                                onClick={() => choiceFileInputRefs.current[i]?.click()}
+                                disabled={choiceUploadingIdx !== null}
+                                className="w-20 h-20 rounded-xl border border-dashed border-white/20 bg-white/5 flex flex-col items-center justify-center hover:bg-white/10 transition-all hover:border-indigo-500/50 group shrink-0"
+                              >
+                                {choiceUploadingIdx === i ? (
+                                  <Loader2 size={18} className="text-indigo-400 animate-spin" />
+                                ) : (
+                                  <>
+                                    <ImageIcon size={18} className="text-slate-500 group-hover:text-indigo-400 transition-colors mb-1" />
+                                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">Image</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                            <div className="flex-1">
+                               <p className="text-[10px] text-slate-500 font-medium">
+                                 {questionData.choiceImages[i] ? 'Image uploaded for this choice' : 'Optional: Add an image for this answer option'}
+                               </p>
+                            </div>
+                            <input 
+                              type="file" 
+                              ref={el => choiceFileInputRefs.current[i] = el} 
+                              className="hidden" 
+                              accept="image/*" 
+                              onChange={(e) => handleChoiceImageUpload(e, i)} 
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -455,20 +580,29 @@ const EditQuestion: React.FC = () => {
                                 {questionData.choices.map((choice, idx) => (
                                     <div 
                                         key={`preview-choice-${idx}`}
-                                        className={`p-4 rounded-xl border text-sm flex items-center gap-4 transition-all ${
+                                        className={`p-4 rounded-xl border text-sm flex flex-col gap-3 transition-all ${
                                             choice && choice === questionData.correctAnswer && choice.trim() !== ''
                                             ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
-                                            : choice ? 'bg-white/5 border-white/5 text-slate-300' : 'bg-transparent border-dashed border-white/5 text-slate-700'
+                                            : choice || questionData.choiceImages[idx] ? 'bg-white/5 border-white/5 text-slate-300' : 'bg-transparent border-dashed border-white/5 text-slate-700'
                                         }`}
                                     >
-                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                                            choice && choice === questionData.correctAnswer && choice.trim() !== ''
-                                            ? 'border-emerald-500 bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
-                                            : 'border-slate-700'
-                                        }`}>
-                                            {choice && choice === questionData.correctAnswer && choice.trim() !== '' ? <CheckCircle size={14} /> : String.fromCharCode(65 + idx)}
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                                                choice && choice === questionData.correctAnswer && choice.trim() !== ''
+                                                ? 'border-emerald-500 bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                                                : 'border-slate-700'
+                                            }`}>
+                                                {choice && choice === questionData.correctAnswer && choice.trim() !== '' ? <CheckCircle size={14} /> : String.fromCharCode(65 + idx)}
+                                            </div>
+                                            <span>{choice || (questionData.choiceImages[idx] ? 'Selected Image' : `Choice ${idx + 1}...`)}</span>
                                         </div>
-                                        <span>{choice || `Choice ${idx + 1}...`}</span>
+                                        {questionData.choiceImages[idx] && (
+                                            <img 
+                                                src={questionData.choiceImages[idx]} 
+                                                alt={`Choice ${idx + 1}`} 
+                                                className="w-full max-h-40 object-contain rounded-lg border border-white/5 bg-black/20"
+                                            />
+                                        )}
                                     </div>
                                 ))}
                             </div>

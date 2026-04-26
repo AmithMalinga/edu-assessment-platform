@@ -274,6 +274,7 @@ export class SubmissionService {
                     content: eq.question.content,
                     images: eq.question.images || [],
                     choices: eq.question.choices,
+                    choiceImages: (eq.question as any).choiceImages || [],
                     selectedAnswer,
                     correctAnswer,
                     isAnswered,

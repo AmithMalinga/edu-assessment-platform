@@ -27,6 +27,7 @@ interface UiQuestion {
     content: string
     type: "MCQ" | "STRUCTURED" | "ESSAY"
     options?: string[]
+    choiceImages?: string[]
     images?: string[]
 }
 
@@ -53,6 +54,7 @@ export default function ExamPage() {
     const [submissionError, setSubmissionError] = useState("")
     const [submitting, setSubmitting] = useState(false)
     const [showSubmitModal, setShowSubmitModal] = useState(false)
+    const [showCancelModal, setShowCancelModal] = useState(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
     const examStateRef = useRef<ExamState>(examState)
     const timeRemainingRef = useRef<number>(0)
@@ -111,8 +113,9 @@ export default function ExamPage() {
                     title: `Question ${index + 1}`,
                     content: question.content,
                     type: question.type,
-                    options: question.choices?.length ? question.choices : undefined,
-                    images: question.images?.length ? question.images : undefined,
+                    options: question.choices || [],
+                    choiceImages: question.choiceImages || [],
+                    images: question.images || [],
                 }
             })
     }, [exam])
@@ -377,7 +380,7 @@ export default function ExamPage() {
                             <div className="mt-auto">
                                 {currentQuestion.type === "MCQ" && currentQuestion.options ? (
                                     <div className="space-y-3">
-                                        <div className="grid gap-2.5">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {currentQuestion.options.map((option, idx) => {
                                                 const isSelected = examState.answers[currentQuestion.id] === option;
                                                 return (
@@ -395,24 +398,35 @@ export default function ExamPage() {
                                                                 "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
                                                                 isSelected ? "border-indigo-500" : "border-slate-300 dark:border-slate-600 group-hover:border-indigo-400"
                                                             )}>
-                                                                {isSelected && <motion.div layoutId="mcq-select" className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />}
-                                                            </div>
-                                                            <input
-                                                                type="radio"
-                                                                className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
-                                                                name={`question-${currentQuestion.id}`}
-                                                                value={option}
-                                                                checked={isSelected}
-                                                                onChange={() => handleAnswerChange(option)}
-                                                            />
+                                                            {isSelected && <motion.div layoutId="mcq-select" className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />}
                                                         </div>
-                                                        <span className={cn(
-                                                            "text-[15px] font-medium leading-normal",
-                                                            isSelected ? "text-indigo-950 dark:text-indigo-100" : "text-slate-700 dark:text-slate-300"
-                                                        )}>
-                                                            {option}
-                                                        </span>
-                                                    </label>
+                                                        <input
+                                                            type="radio"
+                                                            className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
+                                                            name={`question-${currentQuestion.id}`}
+                                                            value={option}
+                                                            checked={isSelected}
+                                                            onChange={() => handleAnswerChange(option)}
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-col gap-3 flex-1">
+                                                        {option && (
+                                                            <span className={cn(
+                                                                "text-[15px] font-medium leading-normal",
+                                                                isSelected ? "text-indigo-950 dark:text-indigo-100" : "text-slate-700 dark:text-slate-300"
+                                                            )}>
+                                                                {option}
+                                                            </span>
+                                                        )}
+                                                        {currentQuestion.choiceImages?.[idx] && (
+                                                            <img 
+                                                                src={currentQuestion.choiceImages[idx]} 
+                                                                alt={`Choice ${idx + 1}`} 
+                                                                className="max-w-full max-h-48 object-contain rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-2"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </label>
                                                 )
                                             })}
                                         </div>
@@ -449,9 +463,20 @@ export default function ExamPage() {
                                 <span className="hidden sm:inline">Next</span>
                                 <ArrowRight className="h-4 w-4" />
                             </button>
+                            {exam.metadata?.examTypeCategory !== "LIVE" && (
+                                <button
+                                    onClick={() => setShowCancelModal(true)}
+                                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 font-bold text-sm hover:text-red-500 dark:hover:text-red-400 transition-all ml-auto"
+                                >
+                                    Cancel Exam
+                                </button>
+                            )}
                             <button
                                 onClick={handleSubmitExam}
-                                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-emerald-500 text-white font-black text-sm hover:bg-emerald-600 shadow-md shadow-emerald-500/25 active:scale-95 transition-all ml-auto"
+                                className={cn(
+                                    "flex items-center gap-2 px-6 py-3 rounded-lg bg-emerald-500 text-white font-black text-sm hover:bg-emerald-600 shadow-md shadow-emerald-500/25 active:scale-95 transition-all",
+                                    exam.metadata?.examTypeCategory === "LIVE" && "ml-auto"
+                                )}
                             >
                                 {submitting ? "Submitting..." : "Submit Exam"}
                             </button>
@@ -569,6 +594,71 @@ export default function ExamPage() {
                                     >
                                         <CheckCircle2 className="h-4 w-4 shrink-0" />
                                         Submit Now
+                                    </button>
+                                </div>
+
+                                {exam.metadata?.examTypeCategory !== "LIVE" && (
+                                    <button
+                                        onClick={() => router.push(`/dashboard/subjects/${subjectId}`)}
+                                        className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors mt-2"
+                                    >
+                                        Cancel and Exit Exam
+                                    </button>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Cancel Modal */}
+            <AnimatePresence>
+                {showCancelModal && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                            className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800"
+                        >
+                            <div className="relative p-6 text-center space-y-6">
+                                <button 
+                                    onClick={() => setShowCancelModal(false)}
+                                    className="absolute top-4 right-4 h-8 w-8 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 rounded-full flex items-center justify-center transition-colors"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+
+                                <div className="mx-auto h-16 w-16 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mt-2 shadow-inner border border-red-100 dark:border-red-800/50">
+                                    <AlertTriangle className="h-7 w-7" />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                                        Cancel Examination?
+                                    </h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium px-2 leading-relaxed">
+                                        Are you sure you want to cancel? All your progress in this session will be lost and you will be redirected to the subject page.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 pt-2">
+                                    <button
+                                        onClick={() => setShowCancelModal(false)}
+                                        className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all active:scale-95 text-sm"
+                                    >
+                                        Keep Taking
+                                    </button>
+                                    <button
+                                        onClick={() => router.push(`/dashboard/subjects/${subjectId}`)}
+                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-black rounded-xl shadow-lg shadow-red-500/20 transition-all active:scale-95 text-sm"
+                                    >
+                                        Yes, Cancel
                                     </button>
                                 </div>
                             </div>
