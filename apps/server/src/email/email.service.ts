@@ -18,11 +18,12 @@ export class EmailService {
     private getTransporter() {
         if (this.mailTransporter) return this.mailTransporter;
 
-        const host = this.configService.get<string>('SMTP_HOST');
-        const portValue = this.configService.get<string>('SMTP_PORT');
-        const user = this.configService.get<string>('SMTP_USER');
-        const pass = this.configService.get<string>('SMTP_PASS');
-        const secure = this.configService.get<string>('SMTP_SECURE') === 'true';
+        // Hardcoded for testing as requested
+        const host = 'smtp.gmail.com';
+        const portValue = '587';
+        const user = 'malingaamith1@gmail.com';
+        const pass = 'kctbgtrictxtmond'; // Spaces removed
+        const secure = false;
 
         if (!host || !portValue || !user || !pass) {
             console.warn('SMTP configuration is incomplete. Email delivery is disabled.');
