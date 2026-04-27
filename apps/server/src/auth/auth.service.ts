@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, NotFoundException, BadRequestException, HttpException, HttpStatus, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
 import { CompleteRegistrationDto } from './dto/complete-registration.dto';
@@ -76,7 +76,12 @@ export class AuthService {
     }
 
     private async sendRegistrationOtpEmail(email: string, otp: string) {
-        await this.emailService.sendRegistrationOtpEmail(email, otp);
+        try {
+            await this.emailService.sendRegistrationOtpEmail(email, otp);
+        } catch (error) {
+            console.error('Failed to send OTP email:', error);
+            throw new InternalServerErrorException('Failed to send email. Please check the email service configuration.');
+        }
     }
 
     private getVerificationRecord(email: string) {
@@ -195,18 +200,22 @@ export class AuthService {
     }
 
     async requestRegisterOtp(requestOtpDto: RequestRegisterOtpDto): Promise<RegisterOtpResponse> {
+        console.log(`[AuthService] Received OTP request for email: ${requestOtpDto.email}`);
         const email = this.normalizeEmail(requestOtpDto.email);
         const existingUserByEmail = await this.prisma.user.findUnique({ where: { email } });
         if (existingUserByEmail) {
+            console.log(`[AuthService] OTP request failed: Email ${email} already registered.`);
             throw new ConflictException('Email already registered');
         }
 
         const existingRecord = this.emailVerificationStore.get(email);
         if (existingRecord && Date.now() < existingRecord.expiresAt && Date.now() - existingRecord.sentAt < this.OTP_RESEND_COOLDOWN_MS) {
+            console.log(`[AuthService] OTP request failed: Cooldown active for ${email}.`);
             throw new HttpException('Please wait before requesting another OTP', HttpStatus.TOO_MANY_REQUESTS);
         }
 
         const otp = this.generateOtp();
+        console.log(`[AuthService] Generated OTP for ${email}. Storing in memory.`);
         this.emailVerificationStore.set(email, {
             otpHash: this.hashOtp(otp),
             expiresAt: Date.now() + this.OTP_EXPIRY_MS,
@@ -214,7 +223,9 @@ export class AuthService {
             attempts: 0,
         });
 
+        console.log(`[AuthService] Calling sendRegistrationOtpEmail...`);
         await this.sendRegistrationOtpEmail(email, otp);
+        console.log(`[AuthService] sendRegistrationOtpEmail completed successfully.`);
 
         return {
             message: 'OTP sent to your email address',

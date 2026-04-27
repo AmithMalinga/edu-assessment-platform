@@ -29,6 +29,7 @@ export class EmailService {
             return null;
         }
 
+        console.log(`[EmailService] Creating SMTP transporter: host=${host}, port=${portValue}, secure=${secure}, user=${user}`);
         this.mailTransporter = nodemailer.createTransport({
             host,
             port: Number(portValue),
@@ -37,27 +38,38 @@ export class EmailService {
                 user,
                 pass,
             },
+            logger: true, // Enable built-in nodemailer logger
+            debug: true,  // Include SMTP traffic in the logs
         });
 
         return this.mailTransporter;
     }
 
     async sendRegistrationOtpEmail(email: string, otp: string) {
+        console.log(`[EmailService] Preparing to send OTP email to: ${email}`);
         const transporter = this.getTransporter();
         const from = this.configService.get<string>('SMTP_FROM') || 'ExamMaster <no-reply@exammaster.local>';
 
         if (!transporter) {
-            console.log(`Email OTP for ${email}: ${otp}`);
+            console.log(`[EmailService] Transporter not found. Logging OTP to console for ${email}: ${otp}`);
             return;
         }
 
-        await transporter.sendMail({
-            from,
-            to: email,
-            subject: 'Your ExamMaster verification code',
-            text: `Your verification code is ${otp}. It expires in 10 minutes.`,
-            html: `<p>Your verification code is <strong>${otp}</strong>.</p><p>This code expires in 10 minutes.</p>`,
-        });
+        console.log(`[EmailService] Sending email... FROM: ${from} TO: ${email}`);
+        
+        try {
+            const info = await transporter.sendMail({
+                from,
+                to: email,
+                subject: 'Your ExamMaster verification code',
+                text: `Your verification code is ${otp}. It expires in 10 minutes.`,
+                html: `<p>Your verification code is <strong>${otp}</strong>.</p><p>This code expires in 10 minutes.</p>`,
+            });
+            console.log(`[EmailService] Email sent successfully. MessageId: ${info.messageId}`);
+        } catch (error) {
+            console.error(`[EmailService] Error occurred while sending email to ${email}:`, error);
+            throw error;
+        }
     }
 
     async sendContactEmail(dto: ContactEmailDto) {
