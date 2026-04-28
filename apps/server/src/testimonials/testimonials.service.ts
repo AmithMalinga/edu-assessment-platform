@@ -1,5 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateTestimonialDto, UpdateTestimonialDto } from './dto';
 
 @Injectable()
 export class TestimonialsService implements OnModuleInit {
@@ -57,6 +58,41 @@ export class TestimonialsService implements OnModuleInit {
             orderBy: {
                 createdAt: 'desc',
             },
+        });
+    }
+
+    async findOne(id: string) {
+        const testimonial = await this.prisma.testimonial.findUnique({
+            where: { id },
+        });
+
+        if (!testimonial) {
+            throw new NotFoundException(`Testimonial with ID ${id} not found`);
+        }
+
+        return testimonial;
+    }
+
+    async create(createTestimonialDto: CreateTestimonialDto) {
+        return this.prisma.testimonial.create({
+            data: createTestimonialDto,
+        });
+    }
+
+    async update(id: string, updateTestimonialDto: UpdateTestimonialDto) {
+        await this.findOne(id); // check if exists
+
+        return this.prisma.testimonial.update({
+            where: { id },
+            data: updateTestimonialDto,
+        });
+    }
+
+    async remove(id: string) {
+        await this.findOne(id); // check if exists
+
+        return this.prisma.testimonial.delete({
+            where: { id },
         });
     }
 }
