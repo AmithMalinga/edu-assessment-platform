@@ -42,7 +42,8 @@ export function TutorSection({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
         activeStudents: 0,
         totalQuestions: 0,
         totalExams: 0,
-        passRate: 0
+        passRate: 0,
+        recentStudents: []
     })
 
     useEffect(() => {
