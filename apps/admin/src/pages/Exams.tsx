@@ -18,6 +18,7 @@ import type {
 } from '../services/admin.service';
 import CustomSelect from '../components/common/CustomSelect';
 import CustomDateTimePicker from '../components/common/CustomDateTimePicker';
+import CreateQuestionModal from '../components/common/CreateQuestionModal';
 import { toast } from 'react-hot-toast';
 
 const Exams: React.FC = () => {
@@ -53,6 +54,7 @@ const Exams: React.FC = () => {
 
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [submittingExam, setSubmittingExam] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const filteredSubjects = useMemo(
     () => subjects.filter((subject) => subject.gradeId === Number.parseInt(gradeId, 10)),
@@ -77,7 +79,7 @@ const Exams: React.FC = () => {
     setSelectedMarks((prev) => ({ ...prev, [questionId]: Math.max(1, marks) }));
   };
 
-  const handleFindRelevantQuestions = async () => {
+  const handleFindRelevantQuestions = async (preserveSelections = false, autoSelectId?: string) => {
     if (!gradeId || !subjectId) {
       toast.error('Please complete Step 2 before loading questions.');
       return;
@@ -94,10 +96,17 @@ const Exams: React.FC = () => {
       });
 
       setQuestions(response.questions);
-      setSelectedMarks({});
+      if (!preserveSelections) {
+        setSelectedMarks({});
+      }
+      
+      if (autoSelectId) {
+        setSelectedMarks(prev => ({ ...prev, [autoSelectId]: 1 }));
+      }
+
       if (response.totalQuestions === 0) {
         toast.error('No questions match these filters. Try adjusting your settings.');
-      } else {
+      } else if (!autoSelectId) {
         toast.success(`Loaded ${response.totalQuestions} questions.`);
       }
     } catch (err: any) {
@@ -435,21 +444,30 @@ const Exams: React.FC = () => {
                             <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><ListChecks size={24} /></div>
                             Select Exam Questions
                         </h2>
-                        <div className="flex gap-3 w-full md:w-auto">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                             <input
                                 value={lesson}
                                 onChange={(e) => setLesson(e.target.value)}
                                 className="flex-1 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:outline-none"
                                 placeholder="Filter by lesson..."
                             />
-                            <button
-                                onClick={handleFindRelevantQuestions}
-                                disabled={loadingQuestions}
-                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/20"
-                            >
-                                {loadingQuestions ? <Loader2 size={18} className="animate-spin" /> : <Layers size={18} />}
-                                Load
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                    className="px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/50 text-white rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg"
+                                >
+                                    <Sparkles size={18} className="text-emerald-400" />
+                                    New Question
+                                </button>
+                                <button
+                                    onClick={() => handleFindRelevantQuestions(false)}
+                                    disabled={loadingQuestions}
+                                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/20"
+                                >
+                                    {loadingQuestions ? <Loader2 size={18} className="animate-spin" /> : <Layers size={18} />}
+                                    Load
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -626,6 +644,17 @@ const Exams: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <CreateQuestionModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={(newQuestion) => {
+          handleFindRelevantQuestions(true, newQuestion?.id);
+        }}
+        defaultGradeId={gradeId}
+        defaultSubjectId={subjectId}
+        defaultLesson={lesson}
+      />
     </Layout>
   );
 };

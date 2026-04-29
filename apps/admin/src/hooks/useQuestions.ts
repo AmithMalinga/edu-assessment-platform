@@ -24,8 +24,9 @@ export const useQuestions = () => {
     }, []);
 
     const createQuestion = async (data: any) => {
-        await adminService.createQuestion(data);
+        const res = await adminService.createQuestion(data);
         await fetchQuestions();
+        return res;
     };
 
     const updateQuestion = async (id: string, data: any) => {
