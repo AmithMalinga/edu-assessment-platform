@@ -35,6 +35,7 @@ const navigation = [
     { name: "Assign Tutor", href: "/dashboard/assign-tutor", icon: User },
     { name: "My Tutors", href: "/dashboard/my-tutors", icon: Users },
     { name: "Analytics", href: "/dashboard/analytics", icon: LineChart },
+    { name: "Feedback", href: "/dashboard/testimonials", icon: CheckCircle2 },
     { name: "Profile", href: "/dashboard/profile", icon: User },
     // { name: "Resources", href: "/dashboard/resources", icon: FileText },
     // { name: "Certificates", href: "/dashboard/certificates", icon: Trophy },
