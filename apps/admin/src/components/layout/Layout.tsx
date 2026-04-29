@@ -10,7 +10,8 @@ import {
   ClipboardList,
   LogOut,
   ChevronRight,
-  Award
+  Award,
+  MessageSquare
 } from 'lucide-react';
 interface LayoutProps {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
     { to: '/questions', label: 'Questions', icon: HelpCircle },
     { to: '/exams', label: 'Exams', icon: ClipboardList },
     { to: '/tutors', label: 'Tutor Requests', icon: Award },
+    { to: '/testimonials', label: 'Testimonials', icon: MessageSquare },
   ];
 
   return (
