@@ -2,9 +2,45 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Sparkles, Play, CheckCircle2 } from "lucide-react"
+import { Sparkles, Play, CheckCircle2, Loader2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { landingService, LandingStatsResponse } from "@/lib/services/landing.service"
 
 export function Hero() {
+    const [stats, setStats] = useState<LandingStatsResponse>({
+        activeStudents: 0,
+        totalQuestions: 0,
+        totalExams: 0,
+        passRate: 0,
+        recentStudents: []
+    })
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        const loadStats = async () => {
+            try {
+                const data = await landingService.getStats()
+                setStats(data)
+            } catch (err) {
+                console.error("Failed to load hero stats:", err)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        loadStats()
+    }, [])
+
+    const formatNumber = (num: number) => {
+        if (num >= 1000) {
+            return (num / 1000).toFixed(1) + "k+"
+        }
+        return num.toString() + "+"
+    }
+
+    const getInitials = (name: string) => {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
     return (
         <section className="relative pt-20 pb-32 lg:pt-32 lg:pb-48 overflow-hidden">
             {/* Animated Gradient Background */}
@@ -75,43 +111,58 @@ export function Hero() {
                         {/* Trust Indicators */}
                         <div className="flex flex-wrap items-center gap-6">
                             <div className="flex -space-x-3">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="relative w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 overflow-hidden bg-slate-200 dark:bg-slate-800">
-                                        <Image
-                                            src={`/avatars/avatar${i}.png`}
-                                            alt={`Student Avatar ${i}`}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                ))}
-                                <div className="relative w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-indigo-600 flex items-center justify-center text-white font-bold text-[10px] z-10">
-                                    10k+
+                                {isLoading ? (
+                                    [1, 2, 3, 4, 5].map((i) => (
+                                        <div key={i} className="relative w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                                    ))
+                                ) : (
+                                    stats.recentStudents?.map((student, i) => (
+                                        <motion.div 
+                                            key={i} 
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.1 }}
+                                            className={`relative w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-bold text-white shadow-lg overflow-hidden
+                                                ${i % 4 === 0 ? 'bg-indigo-500' : i % 4 === 1 ? 'bg-purple-500' : i % 4 === 2 ? 'bg-pink-500' : 'bg-amber-500'}`}
+                                            title={student.name}
+                                        >
+                                            {getInitials(student.name)}
+                                        </motion.div>
+                                    ))
+                                )}
+                                <div className="relative w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-900 dark:bg-slate-800 flex items-center justify-center text-white font-bold text-[10px] z-10 shadow-xl">
+                                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin text-slate-500" /> : formatNumber(stats.activeStudents)}
                                 </div>
                             </div>
-                            <div className="text-sm text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2">
-                                <motion.div
-                                    animate={{ 
-                                        scale: [1, 1.2, 1],
-                                        rotate: [0, 10, -10, 0],
-                                        opacity: [0.5, 1, 0.5]
-                                    }}
-                                    transition={{ duration: 3, repeat: Infinity }}
-                                >
-                                    <Sparkles className="h-4 w-4 text-amber-400 fill-amber-400" />
-                                </motion.div>
-                                <span>
-                                    Joined by <span className="relative inline-block text-indigo-600 dark:text-indigo-400 font-black">
-                                        10,000+
-                                        <motion.span 
-                                            animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
-                                            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                                            className="absolute -top-2 -right-3"
+                            <div className="text-sm text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2 min-w-[200px]">
+                                {isLoading ? (
+                                    <div className="h-4 w-40 bg-slate-200 dark:bg-slate-800 animate-pulse rounded" />
+                                ) : (
+                                    <>
+                                        <motion.div
+                                            animate={{ 
+                                                scale: [1, 1.2, 1],
+                                                rotate: [0, 10, -10, 0],
+                                                opacity: [0.5, 1, 0.5]
+                                            }}
+                                            transition={{ duration: 3, repeat: Infinity }}
                                         >
-                                            <Sparkles className="h-3 w-3 text-indigo-400 fill-indigo-400" />
-                                        </motion.span>
-                                    </span> ambitious students
-                                </span>
+                                            <Sparkles className="h-4 w-4 text-amber-400 fill-amber-400" />
+                                        </motion.div>
+                                        <span>
+                                            Joined by <span className="relative inline-block text-indigo-600 dark:text-indigo-400 font-black">
+                                                {stats.activeStudents.toLocaleString() + "+"}
+                                                <motion.span 
+                                                    animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
+                                                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                                                    className="absolute -top-2 -right-3"
+                                                >
+                                                    <Sparkles className="h-3 w-3 text-indigo-400 fill-indigo-400" />
+                                                </motion.span>
+                                            </span> ambitious students
+                                        </span>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </motion.div>
@@ -142,9 +193,11 @@ export function Hero() {
                             <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                                 <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
                             </div>
-                            <div>
+                            <div className="min-w-[80px]">
                                 <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Pass Rate</div>
-                                <div className="text-xl font-black dark:text-white">98.2%</div>
+                                <div className="text-xl font-black dark:text-white">
+                                    {isLoading ? <div className="h-6 w-12 bg-slate-200 dark:bg-slate-800 animate-pulse rounded mt-1" /> : stats.passRate + "%"}
+                                </div>
                             </div>
                         </motion.div>
 
@@ -156,9 +209,11 @@ export function Hero() {
                             <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
                                 <Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
-                            <div>
+                            <div className="min-w-[80px]">
                                 <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Questions</div>
-                                <div className="text-xl font-black dark:text-white">50,000+</div>
+                                <div className="text-xl font-black dark:text-white">
+                                    {isLoading ? <div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded mt-1" /> : formatNumber(stats.totalQuestions)}
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>

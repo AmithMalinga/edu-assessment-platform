@@ -1,6 +1,8 @@
 "use client"
 import { motion } from "framer-motion"
 import { Users, BookOpen, BarChart, Globe, ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
+import { landingService, LandingStatsResponse } from "@/lib/services/landing.service"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -36,6 +38,33 @@ const tutorBenefits = [
 ]
 
 export function TutorSection({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
+    const [stats, setStats] = useState<LandingStatsResponse>({
+        activeStudents: 0,
+        totalQuestions: 0,
+        totalExams: 0,
+        passRate: 0,
+        recentStudents: []
+    })
+
+    useEffect(() => {
+        const loadStats = async () => {
+            try {
+                const data = await landingService.getStats()
+                setStats(data)
+            } catch (err) {
+                console.error("Failed to load tutor section stats:", err)
+            }
+        }
+        loadStats()
+    }, [])
+
+    const formatNumber = (num: number) => {
+        if (num >= 1000) {
+            return (num / 1000).toFixed(1) + "k+"
+        }
+        return num.toString() + "+"
+    }
+
     const t = {
         badge: lang === 'si' ? "ගුරුවරුන් සඳහා" : lang === 'ta' ? "ஆசிரியர்களுக்கானது" : "For Educators",
         title1: lang === 'si' ? "ඔබේ ඉගැන්වීම් සවිබල ගන්වන්න " : lang === 'ta' ? "உங்கள் கற்பித்தலை மேம்படுத்துங்கள் " : "Empower Your Teaching with ",
@@ -159,7 +188,9 @@ export function TutorSection({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
                                     </div>
                                     <div>
                                         <p className="text-sm text-slate-500 dark:text-slate-400">Total Students</p>
-                                        <p className="text-xl font-bold dark:text-white">1,500+</p>
+                                        <p className="text-xl font-bold dark:text-white">
+                                            {stats.activeStudents > 0 ? formatNumber(stats.activeStudents) : "1,500+"}
+                                        </p>
                                     </div>
                                 </div>
                             </motion.div>
@@ -176,7 +207,9 @@ export function TutorSection({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
                                     </div>
                                     <div>
                                         <p className="text-sm text-slate-500 dark:text-slate-400">Avg. Score</p>
-                                        <p className="text-xl font-bold dark:text-white">85.4%</p>
+                                        <p className="text-xl font-bold dark:text-white">
+                                            {stats.passRate > 0 ? stats.passRate + "%" : "85.4%"}
+                                        </p>
                                     </div>
                                 </div>
                             </motion.div>

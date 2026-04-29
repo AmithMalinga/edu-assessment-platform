@@ -12,6 +12,7 @@ export interface LandingStatsResponse {
     totalQuestions: number
     totalExams: number
     passRate: number
+    recentStudents: { name: string }[]
 }
 
 type ApiUser = {
@@ -39,6 +40,7 @@ const ZERO_STATS: LandingStatsResponse = {
     totalQuestions: 0,
     totalExams: 0,
     passRate: 0,
+    recentStudents: [],
 };
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -99,6 +101,7 @@ async function getStatsFromFallbackEndpoints(baseUrl: string): Promise<LandingSt
         totalQuestions: questions.length,
         totalExams: assessments.length,
         passRate,
+        recentStudents: [],
     };
 }
 

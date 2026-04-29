@@ -56,7 +56,7 @@ export function HowItWorks({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
             <div className="container mx-auto px-6 relative z-10">
                 <div className="text-center mb-16">
                     <h2 className={`text-3xl md:text-5xl font-black mb-4 ${lang === 'si' ? 'font-sinhala leading-normal' : lang === 'ta' ? 'font-tamil leading-normal' : ''}`}>
-                        {t.title1} <span className="text-indigo-600 dark:text-indigo-400">{t.title2}</span>
+                        {t.title1} <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{t.title2}</span>
                     </h2>
                     <p className={`text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg ${lang === 'si' ? 'font-sinhala font-medium' : lang === 'ta' ? 'font-tamil font-medium' : ''}`}>
                         {t.desc}
