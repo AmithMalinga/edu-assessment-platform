@@ -73,7 +73,7 @@ export function FAQ({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
                         {t.badge}
                     </span>
                     <h2 className={`text-3xl md:text-5xl font-black mb-4 dark:text-white ${lang === 'si' ? 'font-sinhala leading-normal' : lang === 'ta' ? 'font-tamil leading-normal' : ''}`}>
-                        {t.title1} <span className="text-indigo-600 dark:text-indigo-400">{t.title2}</span>
+                        {t.title1} <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{t.title2}</span>
                     </h2>
                 </div>
 

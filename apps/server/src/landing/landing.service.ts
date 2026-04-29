@@ -7,6 +7,7 @@ export interface LandingStatsResponse {
     totalQuestions: number;
     totalExams: number;
     passRate: number;
+    recentStudents: { name: string }[];
 }
 
 @Injectable()
@@ -17,7 +18,7 @@ export class LandingService {
     ) {}
 
     async getStats(): Promise<LandingStatsResponse> {
-        const [activeStudents, totalQuestions, totalExams, attempts] = await Promise.all([
+        const [activeStudents, totalQuestions, totalExams, attempts, recentStudents] = await Promise.all([
             this.prisma.user.count({ where: { role: 'STUDENT' } }),
             this.prisma.question.count(),
             this.prisma.exam.count(),
@@ -31,6 +32,12 @@ export class LandingService {
                     },
                 },
             }),
+            this.prisma.user.findMany({
+                where: { role: 'STUDENT' },
+                take: 5,
+                orderBy: { createdAt: 'desc' },
+                select: { name: true }
+            })
         ]);
 
         const passRate =
@@ -45,6 +52,7 @@ export class LandingService {
             totalQuestions,
             totalExams,
             passRate,
+            recentStudents
         };
     }
 
