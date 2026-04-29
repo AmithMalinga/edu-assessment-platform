@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { useQuestions } from '../hooks/useQuestions';
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import ConfirmModal from '../components/common/ConfirmModal';
 import CustomSelect from '../components/common/CustomSelect';
+import { toast } from 'react-hot-toast';
 
 const Questions: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +23,6 @@ const Questions: React.FC = () => {
   const { grades, loading: gradesLoading } = useGrades();
   
   // UI States
-  const [error, setError] = useState('');
   const [isCompactView, setIsCompactView] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +38,12 @@ const Questions: React.FC = () => {
   // Modals
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  useEffect(() => {
+    if (questionsError) {
+      toast.error('Failed to load questions: ' + questionsError);
+    }
+  }, [questionsError]);
 
   // Derived Stats
   const stats = useMemo(() => {
@@ -100,26 +106,26 @@ const Questions: React.FC = () => {
 
   const handleDelete = async () => {
     if (!confirmDeleteId) return;
-    setError('');
     try {
       await deleteQuestion(confirmDeleteId);
+      toast.success('Question deleted successfully');
       setConfirmDeleteId(null);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to delete question');
+      toast.error(err.response?.data?.message || 'Failed to delete question');
       setConfirmDeleteId(null);
     }
   };
 
   const handleBulkDelete = async () => {
     setIsBulkDeleting(true);
-    setError('');
     try {
       // Deleting in parallel
       await Promise.all(selectedIds.map(id => deleteQuestion(id)));
       setSelectedIds([]);
-      setIsBulkDeleting(false);
+      toast.success('Selected questions deleted successfully');
     } catch (err: any) {
-      setError('Bulk delete partially failed. Some questions may remain.');
+      toast.error('Bulk delete partially failed. Some questions may remain.');
+    } finally {
       setIsBulkDeleting(false);
     }
   };

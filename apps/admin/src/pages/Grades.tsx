@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { useGrades } from '../hooks/useGrades';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit2, AlertCircle, X, GraduationCap } from 'lucide-react';
+import { Plus, Trash2, Edit2, AlertCircle, X, GraduationCap, Loader2 } from 'lucide-react';
 import ConfirmModal from '../components/common/ConfirmModal';
+import { toast } from 'react-hot-toast';
 
 const Grades: React.FC = () => {
   const { grades, loading, error, createGrade, updateGrade, deleteGrade } = useGrades();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGrade, setEditingGrade] = useState<any>(null);
   const [gradeForm, setGradeForm] = useState({ id: '', name: '' });
-  const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // New Confirm Modal State
@@ -24,25 +24,25 @@ const Grades: React.FC = () => {
       setEditingGrade(null);
       setGradeForm({ id: '', name: '' });
     }
-    setFormError('');
     setIsModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError('');
     setIsSubmitting(true);
     try {
       if (editingGrade) {
         await updateGrade(editingGrade.id, { name: gradeForm.name });
+        toast.success('Grade level updated successfully!');
       } else {
         await createGrade({ id: Number.parseInt(gradeForm.id, 10), name: gradeForm.name });
+        toast.success('Grade level created successfully!');
       }
       setIsModalOpen(false);
       setGradeForm({ id: '', name: '' });
       setEditingGrade(null);
     } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Failed to save grade level');
+      toast.error(err.response?.data?.message || 'Failed to save grade level');
     } finally {
       setIsSubmitting(false);
     }
@@ -52,9 +52,10 @@ const Grades: React.FC = () => {
     if (!confirmDeleteId) return;
     try {
       await deleteGrade(confirmDeleteId);
+      toast.success('Grade level deleted successfully!');
       setConfirmDeleteId(null);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to delete grade');
+      toast.error(err.response?.data?.message || 'Failed to delete grade');
     }
   };
 
@@ -206,7 +207,7 @@ const Grades: React.FC = () => {
                     type="number" 
                     value={gradeForm.id} 
                     onChange={(e) => setGradeForm({...gradeForm, id: e.target.value})}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50 transition-all font-mono"
+                    className="admin-input font-mono"
                     placeholder="e.g. 1" 
                     disabled={!!editingGrade}
                     required
@@ -221,18 +222,11 @@ const Grades: React.FC = () => {
                     type="text" 
                     value={gradeForm.name} 
                     onChange={(e) => setGradeForm({...gradeForm, name: e.target.value})}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                    className="admin-input"
                     placeholder="e.g. Grade 1" 
                     required
                   />
                 </div>
-
-                {formError && (
-                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
-                    <AlertCircle size={14} /> 
-                    {formError}
-                  </div>
-                )}
 
                 <div className="flex gap-3 pt-4">
                   <button 
@@ -247,7 +241,7 @@ const Grades: React.FC = () => {
                     disabled={isSubmitting}
                     className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all"
                   >
-                    {isSubmitting ? 'Saving...' : editingGrade ? 'Update Grade' : 'Create Grade'}
+                    {isSubmitting ? <Loader2 className="animate-spin mx-auto" size={20} /> : editingGrade ? 'Update Grade' : 'Create Grade'}
                   </button>
                 </div>
               </form>

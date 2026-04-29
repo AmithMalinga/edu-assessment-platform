@@ -183,5 +183,9 @@ export const adminService = {
   findOne: async (id: string): Promise<any> => {
     const response = await api.get(`/assessments/${id}`);
     return response.data;
+  },
+  deleteExam: async (id: string) => {
+    const response = await api.delete(`/assessments/${id}`);
+    return response.data;
   }
 };

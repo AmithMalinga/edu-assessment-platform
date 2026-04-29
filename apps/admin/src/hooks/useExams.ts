@@ -43,6 +43,11 @@ export const useExams = () => {
     return created;
   };
 
+  const deleteExam = async (id: string) => {
+    await adminService.deleteExam(id);
+    await fetchExams();
+  };
+
   return {
     exams,
     loading,
@@ -50,5 +55,6 @@ export const useExams = () => {
     refresh: fetchExams,
     getRelevantQuestions,
     createExam,
+    deleteExam,
   };
 };

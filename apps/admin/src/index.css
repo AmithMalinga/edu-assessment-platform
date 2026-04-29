@@ -27,6 +27,10 @@
   .glass-card {
     @apply glass rounded-2xl p-5 transition-all duration-300 hover:border-white/20 hover:bg-slate-900/60;
   }
+
+  .admin-input {
+    @apply w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all;
+  }
 }
 
 /* Custom Scrollbar */

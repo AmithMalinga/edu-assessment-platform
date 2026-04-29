@@ -10,19 +10,21 @@ import Layout from '../components/layout/Layout';
 import { useExams } from '../hooks/useExams';
 import { ExamSummary, ExamQuestionType, ExamTypeCategory } from '../services/admin.service';
 import { parseExamConfig } from '../utils/exam';
+import ConfirmModal from '../components/common/ConfirmModal';
+import { toast } from 'react-hot-toast';
 
 const ExamList: React.FC = () => {
-  const { exams, loading } = useExams();
+  const { exams, loading, deleteExam } = useExams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<ExamQuestionType | 'ALL'>('ALL');
   const [selectedCategory, setSelectedCategory] = useState<ExamTypeCategory | 'ALL'>('ALL');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const filteredExams = exams.filter((exam: ExamSummary) => {
     const matchesSearch = exam.title.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Extract config for filtering
     const config = parseExamConfig(exam.description);
     const matchesType = selectedType === 'ALL' || config?.examQuestionType === selectedType;
     const matchesCategory = selectedCategory === 'ALL' || config?.examTypeCategory === selectedCategory;
@@ -38,6 +40,18 @@ const ExamList: React.FC = () => {
     { label: 'Total Questions', value: exams.reduce((acc: number, e: ExamSummary) => acc + e._count.examQuestions, 0), icon: BookOpen, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
     { label: 'Combined Attempts', value: exams.reduce((acc: number, e: ExamSummary) => acc + e._count.attempts, 0), icon: Users, color: 'text-amber-400', bg: 'bg-amber-500/10' },
   ];
+
+  const handleDelete = async () => {
+    if (!confirmDeleteId) return;
+    try {
+      await deleteExam(confirmDeleteId);
+      toast.success('Exam deleted successfully');
+      setConfirmDeleteId(null);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete exam');
+      setConfirmDeleteId(null);
+    }
+  };
 
   return (
     <Layout title="Exam Management">
@@ -71,7 +85,7 @@ const ExamList: React.FC = () => {
               placeholder="Search exams..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+              className="admin-input pl-12"
             />
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -86,7 +100,7 @@ const ExamList: React.FC = () => {
               <Filter size={18} />
               {isFilterOpen ? 'Hide Filters' : 'Filters'}
               {(selectedType !== 'ALL' || selectedCategory !== 'ALL') && (
-                <span className="w-5 h-5 bg-indigo-500 text-white text-[10px] rounded-full flex items-center justify-center">
+                <span className="w-5 h-5 bg-indigo-500 text-white text-[10px] rounded-full flex items-center justify-center ml-2">
                   {[selectedType, selectedCategory].filter(f => f !== 'ALL').length}
                 </span>
               )}
@@ -193,7 +207,10 @@ const ExamList: React.FC = () => {
                       <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:text-white transition-colors">
                         <Edit size={16} />
                       </button>
-                      <button className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all">
+                      <button 
+                        onClick={() => setConfirmDeleteId(exam.id)}
+                        className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -205,15 +222,15 @@ const ExamList: React.FC = () => {
                   
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-slate-400 text-sm">
-                      <Clock size={14} className="text-slate-500" />
+                      <Clock size={14} className="text-slate-600" />
                       <span>{exam.duration} Minutes Duration</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-400 text-sm">
-                      <BookOpen size={14} className="text-slate-500" />
+                      <BookOpen size={14} className="text-slate-600" />
                       <span>{exam._count.examQuestions} Questions Total</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-400 text-sm">
-                      <Users size={14} className="text-slate-500" />
+                      <Users size={14} className="text-slate-600" />
                       <span>{exam._count.attempts} Total Attempts</span>
                     </div>
                   </div>
@@ -256,6 +273,15 @@ const ExamList: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmDeleteId !== null}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Delete Exam?"
+        message="This will permanently delete the exam. Student attempts and historical data may be affected."
+        confirmText="Delete Exam"
+      />
     </Layout>
   );
 };

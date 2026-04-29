@@ -3,18 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { LogIn, ShieldCheck, Mail, Lock, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     
     try {
       const response = await api.post('/auth/login', { email, password });
@@ -26,9 +25,10 @@ const Login: React.FC = () => {
       
       localStorage.setItem('admin_token', access_token);
       localStorage.setItem('admin_user', JSON.stringify(user));
+      toast.success('Welcome back, Admin!');
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Login failed');
+      toast.error(err.response?.data?.message || err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const Login: React.FC = () => {
               placeholder="admin@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              className="admin-input"
               required
             />
           </div>
@@ -82,21 +82,10 @@ const Login: React.FC = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              className="admin-input"
               required
             />
           </div>
-
-          {error && (
-            <motion.div 
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2"
-            >
-              <AlertCircle size={16} /> 
-              {error}
-            </motion.div>
-          )}
 
           <button 
             type="submit" 
