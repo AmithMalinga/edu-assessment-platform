@@ -3,7 +3,7 @@ import Layout from '../components/layout/Layout';
 import { useSubjects } from '../hooks/useSubjects';
 import { useGrades } from '../hooks/useGrades';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit2, AlertCircle, Book, X, Layers, Search, GraduationCap } from 'lucide-react';
+import { Plus, Trash2, Edit2, AlertCircle, Book, X, Layers, Search, GraduationCap, Loader2 } from 'lucide-react';
 import ConfirmModal from '../components/common/ConfirmModal';
 import CustomSelect from '../components/common/CustomSelect';
 import { toast } from 'react-hot-toast';
