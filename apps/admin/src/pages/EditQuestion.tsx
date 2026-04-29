@@ -12,6 +12,7 @@ import {
   Sparkles, CheckCircle, Info, Clock, FileText, ImageIcon, X, Loader2
 } from 'lucide-react';
 import CustomSelect from '../components/common/CustomSelect';
+import { toast } from 'react-hot-toast';
 
 const EditQuestion: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +22,6 @@ const EditQuestion: React.FC = () => {
   const { grades } = useGrades();
 
   const [isLoadingQuestion, setIsLoadingQuestion] = useState(true);
-  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questionData, setQuestionData] = useState({
     content: '',
@@ -40,7 +40,6 @@ const EditQuestion: React.FC = () => {
   const choiceFileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   
   const [imageUploading, setImageUploading] = useState(false);
-  const [imageError, setImageError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -52,7 +51,6 @@ const EditQuestion: React.FC = () => {
         const choices = data.choices?.length > 0 ? [...data.choices] : ['', '', '', ''];
         const choiceImages = data.choiceImages?.length > 0 ? [...data.choiceImages] : [];
         
-        // Pad choiceImages to match choices length
         while (choiceImages.length < choices.length) {
           choiceImages.push('');
         }
@@ -70,7 +68,7 @@ const EditQuestion: React.FC = () => {
           images: data.images || []
         });
       } catch (err: any) {
-        setError('Failed to load question data');
+        toast.error('Failed to load question data');
       } finally {
         setIsLoadingQuestion(false);
       }
@@ -93,15 +91,15 @@ const EditQuestion: React.FC = () => {
     if (!file) return;
 
     setImageUploading(true);
-    setImageError('');
     try {
       const { url } = await adminService.uploadQuestionImage(file);
       setQuestionData(prev => ({
         ...prev,
         images: [...(prev.images || []), url]
       }));
+      toast.success('Image uploaded successfully');
     } catch (err: any) {
-      setImageError(err.response?.data?.message || 'Failed to upload image');
+      toast.error(err.response?.data?.message || 'Failed to upload image');
     } finally {
       setImageUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -113,6 +111,7 @@ const EditQuestion: React.FC = () => {
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
     }));
+    toast.success('Image removed');
   };
 
   const handleChoiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -128,8 +127,9 @@ const EditQuestion: React.FC = () => {
         ...prev,
         choiceImages: newChoiceImages
       }));
+      toast.success('Choice image uploaded');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to upload choice image');
+      toast.error(err.response?.data?.message || 'Failed to upload choice image');
     } finally {
       setChoiceUploadingIdx(null);
       if (choiceFileInputRefs.current[index]) {
@@ -145,12 +145,12 @@ const EditQuestion: React.FC = () => {
       ...prev,
       choiceImages: newChoiceImages
     }));
+    toast.success('Choice image removed');
   };
 
   const handleUpdateQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
-    setError('');
     setIsSubmitting(true);
     
     try {
@@ -174,7 +174,6 @@ const EditQuestion: React.FC = () => {
         const finalChoices = processedChoices.filter((_, i) => validIndices.includes(i));
         const finalChoiceImages = questionData.choiceImages.filter((_, i) => validIndices.includes(i));
         
-        // Map the correct answer index to the new filtered array's text
         const correctChoiceOriginalIndex = questionData.correctAnswerIndex;
         const correctChoiceText = processedChoices[correctChoiceOriginalIndex];
 
@@ -195,9 +194,10 @@ const EditQuestion: React.FC = () => {
         });
       }
       
+      toast.success('Question updated successfully!');
       navigate('/questions');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to update question');
+      toast.error(err.response?.data?.message || err.message || 'Failed to update question');
     } finally {
       setIsSubmitting(false);
     }
@@ -261,7 +261,7 @@ const EditQuestion: React.FC = () => {
                   placeholder="What would you like to ask?" 
                   required={questionData.images.length === 0}
                   rows={4}
-                  className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-lg leading-relaxed resize-none"
+                  className="admin-input h-auto resize-none text-lg leading-relaxed"
                 />
               </div>
 
@@ -282,12 +282,12 @@ const EditQuestion: React.FC = () => {
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Category / Topic</label>
                   <div className="relative">
-                    <HelpCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <HelpCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
                     <input 
                       type="text" 
                       value={questionData.lesson} 
                       onChange={(e) => setQuestionData({...questionData, lesson: e.target.value})}
-                      className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all"
+                      className="admin-input pl-12"
                       placeholder="e.g. Ancient Civilizations"
                     />
                   </div>
@@ -351,13 +351,11 @@ const EditQuestion: React.FC = () => {
                                 
                                 const newChoiceImages = [...questionData.choiceImages];
                                 
-                                // Automatically add a new empty choice if the last one was typed into
                                 if (i === newChoices.length - 1 && e.target.value.trim() !== '') {
                                   newChoices.push('');
                                   newChoiceImages.push('');
                                 }
                                 
-                                // If this is the current correct answer, update the string value as well
                                 const updates: any = { choices: newChoices, choiceImages: newChoiceImages };
                                 if (questionData.correctAnswerIndex === i) {
                                   updates.correctAnswer = e.target.value;
@@ -366,10 +364,10 @@ const EditQuestion: React.FC = () => {
                                 setQuestionData({...questionData, ...updates});
                               }}
                               placeholder={questionData.choiceImages[i] ? `Label for Image (Optional)` : `Choice ${i+1} Text`}
-                              className={`w-full pl-5 pr-12 py-4 bg-white/5 border rounded-2xl text-white placeholder:text-slate-600 focus:outline-none transition-all ${
+                              className={`admin-input pr-12 ${
                                   questionData.correctAnswerIndex === i 
                                   ? 'border-emerald-500/50 ring-1 ring-emerald-500/30 bg-emerald-500/5' 
-                                  : 'border-white/10 focus:border-indigo-500/50'
+                                  : ''
                               }`}
                             />
                             <button 
@@ -481,24 +479,7 @@ const EditQuestion: React.FC = () => {
                     className="hidden" 
                   />
                 </div>
-                
-                {imageError && (
-                  <p className="text-red-400 text-xs font-medium flex items-center gap-1 mt-2">
-                    <AlertCircle size={14} /> {imageError}
-                  </p>
-                )}
               </div>
-
-              {error && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm flex items-center gap-3"
-                >
-                  <AlertCircle size={20} className="text-red-500 shrink-0" /> 
-                  <span className="font-medium">{error}</span>
-                </motion.div>
-              )}
               
               <div className="flex gap-4 pt-8">
                 <button 
@@ -514,7 +495,7 @@ const EditQuestion: React.FC = () => {
                   className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl font-bold shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 active:scale-95"
                 >
                   {isSubmitting ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <Loader2 size={20} className="animate-spin" />
                   ) : (
                     <>
                       <Save size={18} />

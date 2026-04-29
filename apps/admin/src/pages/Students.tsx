@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { useStudents } from '../hooks/useStudents';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Calendar, Search, GraduationCap } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Search, GraduationCap, AlertCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const Students: React.FC = () => {
   const { students, loading, error } = useStudents();
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Failed to load students: ' + error);
+    }
+  }, [error]);
 
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -26,14 +33,15 @@ const Students: React.FC = () => {
             placeholder="Search students by name or email..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium"
+            className="admin-input pl-12"
           />
         </div>
       </div>
 
       {error ? (
         <div className="glass-card border-red-500/20 p-8 text-center">
-          <p className="text-red-400">{error}</p>
+          <AlertCircle size={40} className="text-red-500 mx-auto mb-4" />
+          <p className="text-white font-medium">{error}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

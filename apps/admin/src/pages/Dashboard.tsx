@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { motion } from 'framer-motion';
@@ -7,9 +7,16 @@ import {
   ArrowUpRight, Clock, Shield, Database, Activity, 
   CheckCircle2, UserPlus, FileEdit, Trash2 
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
   const { stats, loading, error } = useDashboardStats();
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Failed to load dashboard statistics');
+    }
+  }, [error]);
 
   const statCards = [
     { 

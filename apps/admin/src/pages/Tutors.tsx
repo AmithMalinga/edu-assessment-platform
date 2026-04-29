@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Layout from '../components/layout/Layout'
+import { toast } from 'react-hot-toast'
 
 interface TutorRegistration {
   id: string
@@ -43,8 +44,6 @@ export default function Tutors() {
   const [associations, setAssociations] = useState<StudentTutorAssociation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [actionError, setActionError] = useState<string | null>(null)
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
   const [selectedTutor, setSelectedTutor] = useState<TutorRegistration | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('PENDING')
   const [searchQuery, setSearchQuery] = useState('')
@@ -74,8 +73,9 @@ export default function Tutors() {
       const token = localStorage.getItem('admin_token')
       const data = await adminTutorService.getStudentTutorAssociations(token || undefined)
       setAssociations(data || [])
-    } catch (err) {
-      setError((err as Error).message)
+    } catch (err: any) {
+      setError(err.message)
+      toast.error('Failed to load associations: ' + err.message)
     } finally {
       setIsLoading(false)
     }
@@ -94,13 +94,13 @@ export default function Tutors() {
   const loadRegistrations = async () => {
     setIsLoading(true)
     setError(null)
-    setActionError(null)
     try {
       const token = localStorage.getItem('admin_token')
       const data = await adminTutorService.getTutorRegistrations(statusFilter, token || undefined)
       setRegistrations(data || [])
-    } catch (err) {
-      setError((err as Error).message)
+    } catch (err: any) {
+      setError(err.message)
+      toast.error('Failed to load registrations: ' + err.message)
     } finally {
       setIsLoading(false)
     }
@@ -108,17 +108,15 @@ export default function Tutors() {
 
   const handleApproveTutor = async (id: string) => {
     setIsProcessing(true)
-    setActionError(null)
-    setActionSuccess(null)
     try {
       const token = localStorage.getItem('admin_token')
       await adminTutorService.approveTutorRegistration(id, token || undefined)
       setRegistrations(registrations.filter(r => r.id !== id))
       setSelectedTutor(null)
-      setActionSuccess('Tutor approved successfully. Credentials were sent via email.')
+      toast.success('Tutor approved successfully. Credentials were sent via email.')
       loadStats()
-    } catch (err) {
-      setActionError((err as Error).message)
+    } catch (err: any) {
+      toast.error('Approval failed: ' + err.message)
     } finally {
       setIsProcessing(false)
     }
@@ -131,8 +129,6 @@ export default function Tutors() {
     }
 
     setIsProcessing(true)
-    setActionError(null)
-    setActionSuccess(null)
     setRejectionValidationError(null)
     try {
       const token = localStorage.getItem('admin_token')
@@ -140,10 +136,10 @@ export default function Tutors() {
       setRegistrations(registrations.filter(r => r.id !== id))
       setSelectedTutor(null)
       setRejectionReason('')
-      setActionSuccess('Tutor registration rejected successfully.')
+      toast.success('Tutor registration rejected successfully.')
       loadStats()
-    } catch (err) {
-      setActionError((err as Error).message)
+    } catch (err: any) {
+      toast.error('Rejection failed: ' + err.message)
     } finally {
       setIsProcessing(false)
     }
@@ -296,36 +292,6 @@ export default function Tutors() {
             />
           </div>
         </motion.div>
-
-        {/* Notifications */}
-        <AnimatePresence mode="wait">
-          {actionSuccess && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center gap-3 backdrop-blur-md"
-            >
-              <CheckCircle2 size={18} />
-              {actionSuccess}
-            </motion.div>
-          )}
-
-          {actionError && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-center gap-3 backdrop-blur-md"
-            >
-              <AlertCircle size={18} />
-              <div>
-                <p className="font-bold">Action Failed</p>
-                <p className="mt-1 opacity-80">{actionError}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {activeTab === 'registrations' ? (
         <div className="grid lg:grid-cols-3 gap-8">

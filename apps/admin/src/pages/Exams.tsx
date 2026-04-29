@@ -18,6 +18,7 @@ import type {
 } from '../services/admin.service';
 import CustomSelect from '../components/common/CustomSelect';
 import CustomDateTimePicker from '../components/common/CustomDateTimePicker';
+import { toast } from 'react-hot-toast';
 
 const Exams: React.FC = () => {
   const navigate = useNavigate();
@@ -52,24 +53,11 @@ const Exams: React.FC = () => {
 
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [submittingExam, setSubmittingExam] = useState(false);
-  const [formError, setFormError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const filteredSubjects = useMemo(
     () => subjects.filter((subject) => subject.gradeId === Number.parseInt(gradeId, 10)),
     [subjects, gradeId],
   );
-
-  // Auto-hide messages after 5 seconds
-  useEffect(() => {
-    if (formError || successMessage) {
-      const timer = setTimeout(() => {
-        setFormError('');
-        setSuccessMessage('');
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [formError, successMessage]);
 
   const selectedCount = Object.keys(selectedMarks).length;
   const totalMarks = Object.values(selectedMarks).reduce((sum, marks) => sum + marks, 0);
@@ -90,9 +78,8 @@ const Exams: React.FC = () => {
   };
 
   const handleFindRelevantQuestions = async () => {
-    setFormError('');
     if (!gradeId || !subjectId) {
-      setFormError('Please complete Step 2 before loading questions.');
+      toast.error('Please complete Step 2 before loading questions.');
       return;
     }
 
@@ -109,31 +96,30 @@ const Exams: React.FC = () => {
       setQuestions(response.questions);
       setSelectedMarks({});
       if (response.totalQuestions === 0) {
-        setFormError('No questions match these filters. Try adjusting your settings.');
+        toast.error('No questions match these filters. Try adjusting your settings.');
+      } else {
+        toast.success(`Loaded ${response.totalQuestions} questions.`);
       }
     } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Failed to load questions');
+      toast.error(err.response?.data?.message || 'Failed to load questions');
     } finally {
       setLoadingQuestions(false);
     }
   };
 
   const handleCreateExam = async () => {
-    setFormError('');
-    setSuccessMessage('');
-
     try {
       setSubmittingExam(true);
 
       // Date Validation
       const now = new Date();
       if (startsAt && new Date(startsAt) < now) {
-        setFormError('Exam start date cannot be in the past.');
+        toast.error('Exam start date cannot be in the past.');
         setSubmittingExam(false);
         return;
       }
       if (startsAt && endsAt && new Date(endsAt) <= new Date(startsAt)) {
-        setFormError('Exam end date must be after the start date.');
+        toast.error('Exam end date must be after the start date.');
         setSubmittingExam(false);
         return;
       }
@@ -163,10 +149,10 @@ const Exams: React.FC = () => {
         endsAt: endsAt ? new Date(endsAt).toISOString() : undefined,
       });
 
-      setSuccessMessage('Exam created successfully! Redirecting...');
+      toast.success('Exam created successfully! Redirecting...');
       setTimeout(() => navigate('/exams/list'), 2000);
     } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Failed to create exam');
+      toast.error(err.response?.data?.message || 'Failed to create exam');
     } finally {
       setSubmittingExam(false);
     }
@@ -215,19 +201,6 @@ const Exams: React.FC = () => {
           
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            {(formError || successMessage) && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`mb-6 p-4 rounded-2xl border flex items-center gap-3 font-bold ${
-                    formError ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                }`}
-              >
-                {formError ? <AlertTriangle size={20} /> : <CheckCircle2 size={20} />}
-                {formError || successMessage}
-              </motion.div>
-            )}
-
             <AnimatePresence mode="wait">
               {activeStep === 0 && (
                 <motion.div
@@ -247,7 +220,7 @@ const Exams: React.FC = () => {
                       <input
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-lg font-bold text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                        className="admin-input text-lg font-bold"
                         placeholder="e.g., Mathematics - Final Assessment 2024"
                       />
                     </div>
@@ -257,7 +230,7 @@ const Exams: React.FC = () => {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={3}
-                        className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                        className="admin-input h-auto resize-none"
                         placeholder="Provide brief context for the students..."
                       />
                     </div>
@@ -267,7 +240,7 @@ const Exams: React.FC = () => {
                         value={rulesText}
                         onChange={(e) => setRulesText(e.target.value)}
                         rows={4}
-                        className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white font-medium placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                        className="admin-input h-auto resize-none font-medium"
                         placeholder="One rule per line"
                         />
                         <p className="text-[10px] text-slate-500 italic ml-2">*Each line will be treated as a separate rule.</p>
@@ -357,7 +330,7 @@ const Exams: React.FC = () => {
                                         type="number" 
                                         value={timeAllocationMinutes} 
                                         onChange={e => setTimeAllocationMinutes(Number(e.target.value))} 
-                                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" 
+                                        className="admin-input pr-16" 
                                     />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 text-[10px] font-black uppercase tracking-widest">Mins</span>
                                 </div>
@@ -369,7 +342,7 @@ const Exams: React.FC = () => {
                                         type="number" 
                                         value={passingScorePercent} 
                                         onChange={e => setPassingScorePercent(Number(e.target.value))} 
-                                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" 
+                                        className="admin-input pr-12" 
                                     />
                                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-600 text-xs font-bold uppercase">%</span>
                                 </div>

@@ -4,11 +4,12 @@ import { motion } from 'framer-motion';
 import { 
     ChevronLeft, Clock, CheckCircle2, 
     BookOpen, ClipboardList, Calendar,
-    AlertCircle, FileText, ListChecks
+    AlertCircle, FileText, ListChecks, Loader2
 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import { adminService } from '../services/admin.service';
 import { parseExamConfig } from '../utils/exam';
+import { toast } from 'react-hot-toast';
 
 const ExamDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -25,7 +26,9 @@ const ExamDetails: React.FC = () => {
                 const data = await adminService.findOne(id);
                 setExam(data);
             } catch (err: any) {
-                setError(err.response?.data?.message || 'Failed to load exam details');
+                const msg = err.response?.data?.message || 'Failed to load exam details';
+                setError(msg);
+                toast.error(msg);
             } finally {
                 setLoading(false);
             }
@@ -224,7 +227,7 @@ const ExamDetails: React.FC = () => {
                     <div className="space-y-6">
                         <motion.div 
                             initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
+                            animate={{ opacity: 1, y: 0 }}
                             className="glass-card"
                         >
                             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 border-b border-white/5 pb-4">Quick Stats</h3>
@@ -263,7 +266,7 @@ const ExamDetails: React.FC = () => {
 
                         <motion.div 
                             initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
+                            animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
                             className="glass-card bg-indigo-600/5 border-indigo-500/20"
                         >

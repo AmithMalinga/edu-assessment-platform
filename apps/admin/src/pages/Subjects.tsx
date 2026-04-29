@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Edit2, AlertCircle, Book, X, Layers, Search, GraduationCap } from 'lucide-react';
 import ConfirmModal from '../components/common/ConfirmModal';
 import CustomSelect from '../components/common/CustomSelect';
+import { toast } from 'react-hot-toast';
 
 const Subjects: React.FC = () => {
   const { subjects, loading: subjectsLoading, error: subjectsError, createSubject, updateSubject, deleteSubject } = useSubjects();
@@ -13,7 +14,6 @@ const Subjects: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<any>(null);
   const [subjectForm, setSubjectForm] = useState({ name: '', gradeId: '' });
-  const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // New Confirm Modal State
@@ -29,13 +29,11 @@ const Subjects: React.FC = () => {
       setEditingSubject(null);
       setSubjectForm({ name: '', gradeId: '' });
     }
-    setFormError('');
     setIsModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError('');
     setIsSubmitting(true);
     try {
       if (editingSubject) {
@@ -43,17 +41,19 @@ const Subjects: React.FC = () => {
           name: subjectForm.name,
           gradeId: Number.parseInt(subjectForm.gradeId, 10)
         });
+        toast.success('Subject updated successfully!');
       } else {
         await createSubject({
           name: subjectForm.name,
           gradeId: Number.parseInt(subjectForm.gradeId, 10)
         });
+        toast.success('Subject created successfully!');
       }
       setIsModalOpen(false);
       setSubjectForm({ name: '', gradeId: '' });
       setEditingSubject(null);
     } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Failed to save subject');
+      toast.error(err.response?.data?.message || 'Failed to save subject');
     } finally {
       setIsSubmitting(false);
     }
@@ -63,9 +63,10 @@ const Subjects: React.FC = () => {
     if (!confirmDeleteId) return;
     try {
       await deleteSubject(confirmDeleteId);
+      toast.success('Subject deleted successfully!');
       setConfirmDeleteId(null);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to delete subject');
+      toast.error(err.response?.data?.message || 'Failed to delete subject');
     }
   };
 
@@ -79,6 +80,7 @@ const Subjects: React.FC = () => {
       return matchesGrade && matchesSearch;
     });
   }, [subjects, selectedGradeFilter, searchQuery]);
+
   const renderTableBody = () => {
     if (loading) {
       return Array.from({ length: 5 }).map((_, i) => (
@@ -253,7 +255,7 @@ const Subjects: React.FC = () => {
                     type="text" 
                     value={subjectForm.name} 
                     onChange={(e) => setSubjectForm({...subjectForm, name: e.target.value})}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium"
+                    className="admin-input"
                     placeholder="e.g. Mathematics" 
                     required
                   />
@@ -273,13 +275,6 @@ const Subjects: React.FC = () => {
                   />
                 </div>
 
-                {formError && (
-                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
-                    <AlertCircle size={14} /> 
-                    {formError}
-                  </div>
-                )}
-
                 <div className="flex gap-3 pt-4">
                   <button 
                     type="button" 
@@ -293,7 +288,7 @@ const Subjects: React.FC = () => {
                     disabled={isSubmitting}
                     className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all"
                   >
-                    {isSubmitting ? 'Saving...' : editingSubject ? 'Update Subject' : 'Create Subject'}
+                    {isSubmitting ? <Loader2 className="animate-spin mx-auto" size={20} /> : editingSubject ? 'Update Subject' : 'Create Subject'}
                   </button>
                 </div>
               </form>

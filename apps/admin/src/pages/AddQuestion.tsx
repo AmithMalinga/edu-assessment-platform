@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import CustomSelect from '../components/common/CustomSelect';
 import { adminService } from '../services/admin.service';
+import { toast } from 'react-hot-toast';
 
 const AddQuestion: React.FC = () => {
   const { createQuestion } = useQuestions();
@@ -20,8 +21,6 @@ const AddQuestion: React.FC = () => {
   const { grades } = useGrades();
   const navigate = useNavigate();
 
-  const [error, setError] = useState('');
-  const [imageError, setImageError] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,15 +56,15 @@ const AddQuestion: React.FC = () => {
     if (!file) return;
 
     setImageUploading(true);
-    setImageError('');
     try {
       const { url } = await adminService.uploadQuestionImage(file);
       setNewQuestion(prev => ({
         ...prev,
         images: [...(prev.images || []), url]
       }));
+      toast.success('Image uploaded successfully');
     } catch (err: any) {
-      setImageError(err.response?.data?.message || 'Failed to upload image');
+      toast.error(err.response?.data?.message || 'Failed to upload image');
     } finally {
       setImageUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -77,6 +76,7 @@ const AddQuestion: React.FC = () => {
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
     }));
+    toast.success('Image removed');
   };
 
   const handleChoiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -92,8 +92,9 @@ const AddQuestion: React.FC = () => {
         ...prev,
         choiceImages: newChoiceImages
       }));
+      toast.success('Choice image uploaded');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to upload choice image');
+      toast.error(err.response?.data?.message || 'Failed to upload choice image');
     } finally {
       setChoiceUploadingIdx(null);
       if (choiceFileInputRefs.current[index]) {
@@ -109,11 +110,11 @@ const AddQuestion: React.FC = () => {
       ...prev,
       choiceImages: newChoiceImages
     }));
+    toast.success('Choice image removed');
   };
 
   const handleAddQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setIsSubmitting(true);
     
     try {
@@ -137,7 +138,6 @@ const AddQuestion: React.FC = () => {
         const finalChoices = processedChoices.filter((_, i) => validIndices.includes(i));
         const finalChoiceImages = newQuestion.choiceImages.filter((_, i) => validIndices.includes(i));
         
-        // Map the correct answer index to the new filtered array's text
         const correctChoiceOriginalIndex = newQuestion.correctAnswerIndex;
         const correctChoiceText = processedChoices[correctChoiceOriginalIndex];
 
@@ -158,9 +158,10 @@ const AddQuestion: React.FC = () => {
         });
       }
       
+      toast.success('Question added successfully!');
       navigate('/questions');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to add question');
+      toast.error(err.response?.data?.message || err.message || 'Failed to add question');
     } finally {
       setIsSubmitting(false);
     }
@@ -214,7 +215,7 @@ const AddQuestion: React.FC = () => {
                   placeholder="What would you like to ask?" 
                   required={newQuestion.images.length === 0}
                   rows={4}
-                  className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-lg leading-relaxed resize-none"
+                  className="admin-input h-auto resize-none text-lg leading-relaxed"
                 />
               </div>
 
@@ -235,12 +236,12 @@ const AddQuestion: React.FC = () => {
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Category / Topic</label>
                   <div className="relative">
-                    <HelpCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <HelpCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
                     <input 
                       type="text" 
                       value={newQuestion.lesson} 
                       onChange={(e) => setNewQuestion({...newQuestion, lesson: e.target.value})}
-                      className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all"
+                      className="admin-input pl-12"
                       placeholder="e.g. Ancient Civilizations"
                     />
                   </div>
@@ -325,7 +326,6 @@ const AddQuestion: React.FC = () => {
                     onChange={handleImageUpload} 
                   />
                 </div>
-                {imageError && <p className="text-red-400 text-xs">{imageError}</p>}
               </div>
 
               <AnimatePresence mode="wait">
@@ -353,13 +353,11 @@ const AddQuestion: React.FC = () => {
                                 
                                 const newChoiceImages = [...newQuestion.choiceImages];
                                 
-                                // Automatically add a new empty choice if the last one was typed into
                                 if (i === newChoices.length - 1 && e.target.value.trim() !== '') {
                                   newChoices.push('');
                                   newChoiceImages.push('');
                                 }
                                 
-                                // If this is the current correct answer, update the string value as well for the preview
                                 const updates: any = { choices: newChoices, choiceImages: newChoiceImages };
                                 if (newQuestion.correctAnswerIndex === i) {
                                   updates.correctAnswer = e.target.value;
@@ -368,10 +366,10 @@ const AddQuestion: React.FC = () => {
                                 setNewQuestion({...newQuestion, ...updates});
                               }}
                               placeholder={newQuestion.choiceImages[i] ? `Label for Image (Optional)` : `Choice ${i+1} Text`}
-                              className={`w-full pl-5 pr-12 py-4 bg-white/5 border rounded-2xl text-white placeholder:text-slate-600 focus:outline-none transition-all ${
+                              className={`admin-input pr-12 ${
                                   newQuestion.correctAnswerIndex === i 
                                   ? 'border-emerald-500/50 ring-1 ring-emerald-500/30 bg-emerald-500/5' 
-                                  : 'border-white/10 focus:border-indigo-500/50'
+                                  : ''
                               }`}
                             />
                             <button 
@@ -436,17 +434,6 @@ const AddQuestion: React.FC = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {error && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm flex items-center gap-3"
-                >
-                  <AlertCircle size={20} className="text-red-500 shrink-0" /> 
-                  <span className="font-medium">{error}</span>
-                </motion.div>
-              )}
               
               <div className="flex gap-4 pt-8">
                 <button 
@@ -463,7 +450,7 @@ const AddQuestion: React.FC = () => {
                 >
                   {isSubmitting ? (
                       <>
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <Loader2 size={20} className="animate-spin" />
                           <span>Publishing...</span>
                       </>
                   ) : (
@@ -569,13 +556,6 @@ const AddQuestion: React.FC = () => {
                             Submit Answer
                         </div>
                     </div>
-                </div>
-
-                <div className="mt-6 flex items-start gap-3 p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10">
-                    <Info size={18} className="text-indigo-400 shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-                        Your changes are saved to the bank. Questions can be edited later from the repository dashboard.
-                    </p>
                 </div>
             </div>
         </div>
