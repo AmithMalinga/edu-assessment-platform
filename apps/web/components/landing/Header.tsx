@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useScroll } from "framer-motion"
 import { Zap, Menu, X, Globe, ChevronRight } from "lucide-react"
 
 const DEFAULT_NAV_ITEMS = [
+    { label: "Home", href: "/" },
     { label: "Features", href: "#features" },
     { label: "Tutors", href: "#tutor" },
     { label: "Testimonials", href: "#testimonials" },
@@ -55,6 +56,7 @@ export function Header() {
     }, [])
 
     const t = {
+        Home: lang === 'si' ? "මුල් පිටුව" : lang === 'ta' ? "முகப்பு" : "Home",
         Features: lang === 'si' ? "විශේෂාංග" : lang === 'ta' ? "அம்சங்கள்" : "Features",
         Tutors: lang === 'si' ? "ගුරුවරුන්" : lang === 'ta' ? "ஆசிரியர்கள்" : "Tutors",
         Testimonials: lang === 'si' ? "සාක්ෂි" : lang === 'ta' ? "சான்றுகள்" : "Testimonials",
@@ -64,10 +66,11 @@ export function Header() {
     }
 
     const navItems = [
+        { label: t.Home, href: lang === 'en' ? "/" : `/${lang}` },
         { label: t.Features, href: "#features" },
         { label: t.Tutors, href: "#tutor" },
         { label: t.Testimonials, href: "#testimonials" },
-        { label: t.Contact, href: "/contact" },
+        { label: t.Contact, href: lang === 'en' ? "/contact" : `/${lang}/contact` },
         { label: t.Dashboard, href: dashboardHref }
     ]
 
@@ -80,7 +83,7 @@ export function Header() {
             }`}
         >
             <div className="max-w-[1440px] mx-auto h-full px-6 lg:px-12 flex items-center justify-between">
-                <Link className="flex items-center gap-3 group relative" href="/">
+                <Link className="flex items-center gap-3 group relative" href={lang === 'en' ? "/" : `/${lang}`}>
                     <motion.div
                         whileHover={{ rotate: 12, scale: 1.1 }}
                         className="relative"

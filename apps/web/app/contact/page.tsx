@@ -58,7 +58,7 @@ const socials = [
     { icon: Instagram, href: "#", label: "Instagram", color: "hover:text-[#E4405F] hover:bg-rose-50" },
 ]
 
-export default function ContactPage() {
+export default function ContactPage({ lang = 'en' }: { lang?: 'en' | 'si' | 'ta' }) {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [subject, setSubject] = useState("")
@@ -68,12 +68,36 @@ export default function ContactPage() {
     const [error, setError] = useState("")
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
 
+    const t = {
+        back: lang === 'si' ? "මුල් පිටුවට" : lang === 'ta' ? "முகப்புக்குத் திரும்பு" : "Back to Home",
+        badge: lang === 'si' ? "ExamMaster සහාය" : lang === 'ta' ? "ExamMaster ஆதரவு" : "ExamMaster Support",
+        title1: lang === 'si' ? "අපගේ විශේෂඥ සහාය කණ්ඩායම සමඟ " : lang === 'ta' ? "எங்கள் நிபுணர் ஆதரவு குழுவுடன் " : "Get in Touch with Our ",
+        title2: lang === 'si' ? "සම්බන්ධ වන්න" : lang === 'ta' ? "தொடர்பு கொள்ளுங்கள்" : "Expert Support Team",
+        desc: lang === 'si' 
+            ? "අපගේ විභාග එන්ජිම, පාලන විශේෂාංග හෝ නිශ්චිත අධ්‍යාපනික අන්තර්ගතයන් පිළිබඳව ඔබට ප්‍රශ්න තිබේද? ඔබට විශිෂ්ටත්වය ළඟා කර ගැනීමට උදවු කිරීමට අප මෙහි සිටිමු."
+            : lang === 'ta'
+            ? "எங்கள் பரீட்சை இயந்திரம், மேற்பார்வை அம்சங்கள் அல்லது குறிப்பிட்ட கல்வி உள்ளடக்கம் பற்றி கேள்விகள் உள்ளதா? நீங்கள் சிறந்து விளங்க உதவ நாங்கள் இங்கே இருக்கிறோம்."
+            : "Have questions about our exam engine, proctoring features, or specific educational content? We're here to help you excel.",
+        name: lang === 'si' ? "සම්පූර්ණ නම" : lang === 'ta' ? "முழு பெயர்" : "Full Name",
+        email: lang === 'si' ? "ඊමේල් ලිපිනය" : lang === 'ta' ? "மின்னஞ்சல் முகவரி" : "Email Address",
+        subject: lang === 'si' ? "විෂය" : lang === 'ta' ? "பொருள்" : "Subject",
+        message: lang === 'si' ? "ඔබේ පණිවිඩය" : lang === 'ta' ? "உங்கள் செய்தி" : "Your Message",
+        send: lang === 'si' ? "පණිවිඩය යවන්න" : lang === 'ta' ? "செய்தியை அனுப்பு" : "Send Message",
+        successTitle: lang === 'si' ? "පණිවිඩය යවන ලදි!" : lang === 'ta' ? "செய்தி அனுப்பப்பட்டது!" : "Message Sent!",
+        successDesc: lang === 'si' 
+            ? "අප හා සම්බන්ධ වීම ගැන ස්තුතියි. අපට ඔබේ විමසීම ලැබී ඇති අතර අපගේ කණ්ඩායම ඉක්මනින් ඔබ හා සම්බන්ධ වනු ඇත."
+            : lang === 'ta'
+            ? "எங்களைத் தொடர்பு கொண்டதற்கு நன்றி. உங்கள் விசாரணை எங்களுக்கு கிடைத்துள்ளது, எங்கள் குழு விரைவில் உங்களைத் தொடர்பு கொள்ளும்."
+            : "Thank you for reaching out. We've received your inquiry and our team will get back to you shortly.",
+        another: lang === 'si' ? "තවත් පණිවිඩයක් යවන්න" : lang === 'ta' ? "மற்றொரு செய்தியை அனுப்பு" : "Send another message",
+    }
+
     const validate = () => {
         const errors: { [key: string]: string } = {}
-        if (!name || name.length < 2) errors.name = "Name is required (min 2 chars)."
-        if (!isValidEmail(email)) errors.email = "Valid email is required."
-        if (!subject || subject.length < 3) errors.subject = "Subject is required."
-        if (!message || message.length < 10) errors.message = "Message must be at least 10 characters."
+        if (!name || name.length < 2) errors.name = lang === 'si' ? "නම අවශ්‍යයි (අවම වශයෙන් අකුරු 2)." : lang === 'ta' ? "பெயர் தேவை (குறைந்தது 2 எழுத்துக்கள்)." : "Name is required (min 2 chars)."
+        if (!isValidEmail(email)) errors.email = lang === 'si' ? "වලංගු ඊමේල් ලිපිනයක් අවශ්‍යයි." : lang === 'ta' ? "செல்லுபடியாகும் மின்னஞ்சல் தேவை." : "Valid email is required."
+        if (!subject || subject.length < 3) errors.subject = lang === 'si' ? "විෂය අවශ්‍යයි." : lang === 'ta' ? "பொருள் தேவை." : "Subject is required."
+        if (!message || message.length < 10) errors.message = lang === 'si' ? "පණිවිඩය අවම වශයෙන් අකුරු 10 ක් විය යුතුය." : lang === 'ta' ? "செய்தி குறைந்தது 10 எழுத்துக்கள் இருக்க வேண்டும்." : "Message must be at least 10 characters."
         return errors
     }
 
@@ -107,24 +131,24 @@ export default function ContactPage() {
             setValidationErrors({})
         } catch (err) {
             console.error("Failed to send message", err)
-            setError("Something went wrong. Please try again later.")
+            setError(lang === 'si' ? "යම් වැරැද්දක් සිදු විය. කරුණාකර පසුව නැවත උත්සාහ කරන්න." : lang === 'ta' ? "ஏதோ தவறு நடந்துவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்." : "Something went wrong. Please try again later.")
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <main className="min-h-screen relative overflow-hidden bg-white pt-24 pb-12 selection:bg-indigo-100">
+        <main className={`min-h-screen relative overflow-hidden bg-white pt-24 pb-12 selection:bg-indigo-100 ${lang === 'si' ? 'font-sinhala' : lang === 'ta' ? 'font-tamil' : ''}`}>
             {/* Back Button */}
             <div className="absolute top-8 left-8 z-20">
                 <Link 
-                    href="/" 
+                    href={lang === 'en' ? "/" : `/${lang}`} 
                     className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-bold transition-all group"
                 >
                     <div className="p-2 rounded-full bg-slate-100 group-hover:bg-indigo-50 transition-colors">
                         <ArrowLeft className="h-5 w-5" />
                     </div>
-                    <span className="hidden sm:inline">Back to Home</span>
+                    <span className="hidden sm:inline">{t.back}</span>
                 </Link>
             </div>
 
@@ -143,17 +167,16 @@ export default function ContactPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <Link href="/" className="inline-flex items-center gap-2 mb-8 group bg-slate-100 border border-slate-200 px-4 py-2 rounded-full hover:bg-slate-200 transition-colors">
+                        <Link href={lang === 'en' ? "/" : `/${lang}`} className="inline-flex items-center gap-2 mb-8 group bg-slate-100 border border-slate-200 px-4 py-2 rounded-full hover:bg-slate-200 transition-colors">
                             <Zap className="h-4 w-4 text-indigo-600 fill-current" />
-                            <span className="text-xs font-bold text-slate-600 tracking-widest uppercase">ExamMaster Support</span>
+                            <span className="text-xs font-bold text-slate-600 tracking-widest uppercase">{t.badge}</span>
                         </Link>
                         <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight leading-[1.1]">
-                            Get in Touch with Our <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">Expert Support Team</span>
+                            {t.title1} <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">{t.title2}</span>
                         </h1>
                         <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                            Have questions about our exam engine, proctoring features, or specific 
-                            educational content? We're here to help you excel.
+                            {t.desc}
                         </p>
                     </motion.div>
                 </div>
@@ -229,101 +252,100 @@ export default function ContactPage() {
                                     >
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-slate-600 ml-1">Full Name</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="e.g. Ruwan Perera"
-                                                    value={name}
-                                                    onChange={e => setName(e.target.value)}
-                                                    className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                                                />
-                                                {validationErrors.name && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.name}</div>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-bold text-slate-600 ml-1">Email Address</label>
-                                                <input
-                                                    type="email"
-                                                    placeholder="e.g. name@example.com"
-                                                    value={email}
-                                                    onChange={e => setEmail(e.target.value)}
-                                                    className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                                                />
-                                                {validationErrors.email && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.email}</div>}
-                                            </div>
-                                        </div>
+                                                 <label className="text-sm font-bold text-slate-600 ml-1">{t.name}</label>
+                                                 <input
+                                                     type="text"
+                                                     placeholder="e.g. Ruwan Perera"
+                                                     value={name}
+                                                     onChange={e => setName(e.target.value)}
+                                                     className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                                 />
+                                                 {validationErrors.name && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.name}</div>}
+                                             </div>
+                                             <div className="space-y-2">
+                                                 <label className="text-sm font-bold text-slate-600 ml-1">{t.email}</label>
+                                                 <input
+                                                     type="email"
+                                                     placeholder="e.g. name@example.com"
+                                                     value={email}
+                                                     onChange={e => setEmail(e.target.value)}
+                                                     className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                                 />
+                                                 {validationErrors.email && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.email}</div>}
+                                             </div>
+                                         </div>
 
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-slate-600 ml-1">Subject</label>
-                                            <input
-                                                type="text"
-                                                placeholder="What is this regarding?"
-                                                value={subject}
-                                                onChange={e => setSubject(e.target.value)}
-                                                className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                                            />
-                                            {validationErrors.subject && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.subject}</div>}
-                                        </div>
+                                         <div className="space-y-2">
+                                             <label className="text-sm font-bold text-slate-600 ml-1">{t.subject}</label>
+                                             <input
+                                                 type="text"
+                                                 placeholder="What is this regarding?"
+                                                 value={subject}
+                                                 onChange={e => setSubject(e.target.value)}
+                                                 className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                             />
+                                             {validationErrors.subject && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.subject}</div>}
+                                         </div>
 
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-slate-600 ml-1">Your Message</label>
-                                            <textarea
-                                                placeholder="Tell us how we can help..."
-                                                value={message}
-                                                onChange={e => setMessage(e.target.value)}
-                                                className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all min-h-[160px] resize-none"
-                                            />
-                                            {validationErrors.message && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.message}</div>}
-                                        </div>
+                                         <div className="space-y-2">
+                                             <label className="text-sm font-bold text-slate-600 ml-1">{t.message}</label>
+                                             <textarea
+                                                 placeholder="Tell us how we can help..."
+                                                 value={message}
+                                                 onChange={e => setMessage(e.target.value)}
+                                                 className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all min-h-[160px] resize-none"
+                                             />
+                                             {validationErrors.message && <div className="text-rose-600 text-xs mt-1 ml-1 flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> {validationErrors.message}</div>}
+                                         </div>
 
-                                        {error && (
-                                            <motion.div 
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-medium flex items-center gap-2"
-                                            >
-                                                <AlertCircle className="h-4 w-4" />
-                                                {error}
-                                            </motion.div>
-                                        )}
+                                         {error && (
+                                             <motion.div 
+                                                 initial={{ opacity: 0, y: -10 }}
+                                                 animate={{ opacity: 1, y: 0 }}
+                                                 className="p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-medium flex items-center gap-2"
+                                             >
+                                                 <AlertCircle className="h-4 w-4" />
+                                                 {error}
+                                             </motion.div>
+                                         )}
 
-                                        <button
-                                            type="submit"
-                                            disabled={loading}
-                                            className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] hover:bg-[position:100%_0] transition-all duration-500 text-white font-black text-lg py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-indigo-200 active:scale-[0.98] group/btn disabled:opacity-70"
-                                        >
-                                            {loading ? (
-                                                <Loader2 className="h-6 w-6 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <Send className="h-5 w-5 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-                                                    Send Message
-                                                </>
-                                            )}
-                                        </button>
-                                    </motion.form>
-                                ) : (
-                                    <motion.div 
-                                        key="success-message"
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="text-center py-12 px-4"
-                                    >
-                                        <div className="w-24 h-24 bg-green-50 rounded-full border-4 border-green-100 flex items-center justify-center mx-auto mb-8 shadow-xl shadow-green-100/50">
-                                            <CheckCircle2 className="h-12 w-12 text-green-600" />
-                                        </div>
-                                        <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">Message Sent!</h2>
-                                        <p className="text-slate-600 text-lg mb-10 max-w-sm mx-auto">
-                                            Thank you for reaching out. We've received your inquiry and our 
-                                            team will get back to you shortly.
-                                        </p>
-                                        <button 
-                                            onClick={() => setSuccess(false)}
-                                            className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 transition-colors"
-                                        >
-                                            Send another message <ArrowRight className="h-4 w-4" />
-                                        </button>
-                                    </motion.div>
-                                )}
+                                         <button
+                                             type="submit"
+                                             disabled={loading}
+                                             className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] hover:bg-[position:100%_0] transition-all duration-500 text-white font-black text-lg py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-indigo-200 active:scale-[0.98] group/btn disabled:opacity-70"
+                                         >
+                                             {loading ? (
+                                                 <Loader2 className="h-6 w-6 animate-spin" />
+                                             ) : (
+                                                 <>
+                                                     <Send className="h-5 w-5 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                                                     {t.send}
+                                                 </>
+                                             )}
+                                         </button>
+                                     </motion.form>
+                                 ) : (
+                                     <motion.div 
+                                         key="success-message"
+                                         initial={{ opacity: 0, scale: 0.9 }}
+                                         animate={{ opacity: 1, scale: 1 }}
+                                         className="text-center py-12 px-4"
+                                     >
+                                         <div className="w-24 h-24 bg-green-50 rounded-full border-4 border-green-100 flex items-center justify-center mx-auto mb-8 shadow-xl shadow-green-100/50">
+                                             <CheckCircle2 className="h-12 w-12 text-green-600" />
+                                         </div>
+                                         <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">{t.successTitle}</h2>
+                                         <p className="text-slate-600 text-lg mb-10 max-w-sm mx-auto">
+                                             {t.successDesc}
+                                         </p>
+                                         <button 
+                                             onClick={() => setSuccess(false)}
+                                             className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 transition-colors"
+                                         >
+                                             {t.another} <ArrowRight className="h-4 w-4" />
+                                         </button>
+                                     </motion.div>
+                                 )}
                             </AnimatePresence>
                         </div>
                     </motion.div>
