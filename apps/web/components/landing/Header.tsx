@@ -66,11 +66,11 @@ export function Header() {
     }
 
     const navItems = [
-        { label: t.Home, href: "/" },
+        { label: t.Home, href: lang === 'en' ? "/" : `/${lang}` },
         { label: t.Features, href: "#features" },
         { label: t.Tutors, href: "#tutor" },
         { label: t.Testimonials, href: "#testimonials" },
-        { label: t.Contact, href: "/contact" },
+        { label: t.Contact, href: lang === 'en' ? "/contact" : `/${lang}/contact` },
         { label: t.Dashboard, href: dashboardHref }
     ]
 
@@ -83,7 +83,7 @@ export function Header() {
             }`}
         >
             <div className="max-w-[1440px] mx-auto h-full px-6 lg:px-12 flex items-center justify-between">
-                <Link className="flex items-center gap-3 group relative" href="/">
+                <Link className="flex items-center gap-3 group relative" href={lang === 'en' ? "/" : `/${lang}`}>
                     <motion.div
                         whileHover={{ rotate: 12, scale: 1.1 }}
                         className="relative"

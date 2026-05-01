@@ -1,5 +1,7 @@
 export * from "./Header";
 export * from "./Hero";
+export * from "./SinhalaHero";
+export * from "./TamilHero";
 export * from "./Marquee";
 export * from "./Features";
 export * from "./HowItWorks";

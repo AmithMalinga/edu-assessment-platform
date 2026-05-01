@@ -39,7 +39,7 @@ export function Footer() {
             Explore: {
                 title: lang === 'si' ? "ගවේෂණය කරන්න" : lang === 'ta' ? "ஆராயுங்கள்" : "Explore",
                 items: [
-                    { name: lang === 'si' ? "මුල් පිටුව" : lang === 'ta' ? "முகப்பு" : "Home", href: "#home" },
+                    { name: lang === 'si' ? "මුල් පිටුව" : lang === 'ta' ? "முகப்பு" : "Home", href: lang === 'en' ? "/" : `/${lang}` },
                     { name: lang === 'si' ? "විශේෂාංග" : lang === 'ta' ? "அம்சங்கள்" : "Features", href: "#features" },
                     { name: lang === 'si' ? "ගුරුවරුන්" : lang === 'ta' ? "ஆசிரியர்கள்" : "Tutors", href: "#tutors" },
                     { name: lang === 'si' ? "අදහස්" : lang === 'ta' ? "சான்றுகள்" : "Testimonials", href: "#testimonials" }
@@ -110,7 +110,7 @@ export function Footer() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 lg:gap-8 mb-20">
                     {/* Brand Column */}
                     <div className="col-span-1 sm:col-span-2 lg:col-span-2">
-                        <Link className="flex items-center gap-2.5 mb-8 group" href="/">
+                        <Link className="flex items-center gap-2.5 mb-8 group" href={lang === 'en' ? "/" : `/${lang}`}>
                             <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-2.5 rounded-2xl shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow duration-300">
                                 <Zap className="text-white h-6 w-6 fill-current" />
                                 <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
