@@ -36,40 +36,28 @@ export function Footer() {
         madeIn: lang === 'si' ? "ශ්‍රී ලංකාවේ ආඩම්බර නිෂ්පාදනයකි 🇱🇰" : lang === 'ta' ? "இலங்கையின் பெருமைக்குரிய தயாரிப்பு 🇱🇰" : "Made in Sri Lanka 🇱🇰",
         developedBy: lang === 'si' ? "විසින් නිර්මාණය කරන ලදී" : lang === 'ta' ? "உருவாக்கியது" : "Developed with ❤️ by",
         links: {
-            Product: {
-                title: lang === 'si' ? "නිෂ්පාදන" : lang === 'ta' ? "தயாரிப்பு" : "Product",
+            Explore: {
+                title: lang === 'si' ? "ගවේෂණය කරන්න" : lang === 'ta' ? "ஆராயுங்கள்" : "Explore",
                 items: [
-                    { name: lang === 'si' ? "මූලික විශේෂාංග" : lang === 'ta' ? "முக்கிய அம்சங்கள்" : "Core Features", href: "#features" },
-                    { name: lang === 'si' ? "විභාග එන්ජිම" : lang === 'ta' ? "பரீட்சை இயந்திரம்" : "Exam Engine", href: "#engine" },
-                    { name: lang === 'si' ? "ආරක්ෂාව" : lang === 'ta' ? "பாதுகாப்பு" : "Proctoring", href: "#proctoring" },
-                    { name: lang === 'si' ? "මිල ගණන්" : lang === 'ta' ? "விலை" : "Pricing", href: "#pricing" }
+                    { name: lang === 'si' ? "මුල් පිටුව" : lang === 'ta' ? "முகப்பு" : "Home", href: "#home" },
+                    { name: lang === 'si' ? "විශේෂාංග" : lang === 'ta' ? "அம்சங்கள்" : "Features", href: "#features" },
+                    { name: lang === 'si' ? "ගුරුවරුන්" : lang === 'ta' ? "ஆசிரியர்கள்" : "Tutors", href: "#tutors" },
+                    { name: lang === 'si' ? "අදහස්" : lang === 'ta' ? "சான்றுகள்" : "Testimonials", href: "#testimonials" }
                 ]
             },
             Company: {
                 title: lang === 'si' ? "සමාගම" : lang === 'ta' ? "நிறுவனம்" : "Company",
                 items: [
                     { name: lang === 'si' ? "අප ගැන" : lang === 'ta' ? "எங்களை பற்றி" : "About Us", href: "#about" },
-                    { name: lang === 'si' ? "රැකියා" : lang === 'ta' ? "வேலைவாய்ப்புகள்" : "Careers", href: "#careers" },
-                    { name: lang === 'si' ? "සාර්ථක කතා" : lang === 'ta' ? "வெற்றிக் கதைகள்" : "Success Stories", href: "#success" },
-                    { name: lang === 'si' ? "අමතන්න" : lang === 'ta' ? "தொடர்பு" : "Contact", href: "/contact" }
+                    { name: lang === 'si' ? "මිල ගණන්" : lang === 'ta' ? "விலை" : "Pricing", href: "#pricing" }
                 ]
             },
-            Resources: {
-                title: lang === 'si' ? "සම්පත්" : lang === 'ta' ? "வளங்கள்" : "Resources",
+            Contact: {
+                title: lang === 'si' ? "අපව අමතන්න" : lang === 'ta' ? "எங்களைத் தொடர்பு கொள்ளுங்கள்" : "Contact Us",
                 items: [
-                    { name: lang === 'si' ? "ලිපි ලේඛන" : lang === 'ta' ? "ஆவணங்கள்" : "Documentation", href: "#docs" },
-                    { name: lang === 'si' ? "උදව් මධ්‍යස්ථානය" : lang === 'ta' ? "உதவி மையம்" : "Help Center", href: "#help" },
-                    { name: lang === 'si' ? "API යොමුව" : lang === 'ta' ? "API குறிப்பு" : "API Reference", href: "#api" },
-                    { name: lang === 'si' ? "ප්‍රජාව" : lang === 'ta' ? "சமூகம்" : "Community", href: "#community" }
-                ]
-            },
-            Legal: {
-                title: lang === 'si' ? "නීතිමය" : lang === 'ta' ? "சட்டப்பூர்வமான" : "Legal",
-                items: [
-                    { name: lang === 'si' ? "රහස්‍යතා ප්‍රතිපත්තිය" : lang === 'ta' ? "தனியுரிமைக் கொள்கை" : "Privacy Policy", href: "#privacy" },
-                    { name: lang === 'si' ? "සේවා කොන්දේසි" : lang === 'ta' ? "சேவை விதிமுறைகள்" : "Terms of Service", href: "#terms" },
-                    { name: lang === 'si' ? "කුකී ප්‍රතිපත්තිය" : lang === 'ta' ? "குக்கீ கொள்கை" : "Cookie Policy", href: "#cookies" },
-                    { name: lang === 'si' ? "ආරක්ෂාව" : lang === 'ta' ? "பாதுகாப்பு" : "Security", href: "#security" }
+                    { name: "info@exammaster.lk", href: "mailto:info@exammaster.lk", icon: Mail },
+                    { name: "+94 11 234 5678", href: "tel:+94112345678", icon: Globe },
+                    { name: "Colombo, Sri Lanka", href: "#", icon: Sparkles }
                 ]
             }
         }
@@ -119,9 +107,9 @@ export function Footer() {
                 </div>
 
                 {/* Footer Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 lg:gap-8 mb-20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 lg:gap-8 mb-20">
                     {/* Brand Column */}
-                    <div className="col-span-2 lg:col-span-2">
+                    <div className="col-span-1 sm:col-span-2 lg:col-span-2">
                         <Link className="flex items-center gap-2.5 mb-8 group" href="/">
                             <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-2.5 rounded-2xl shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow duration-300">
                                 <Zap className="text-white h-6 w-6 fill-current" />
@@ -152,14 +140,18 @@ export function Footer() {
                         <div key={key} className="col-span-1">
                             <h3 className="text-white font-bold text-sm uppercase tracking-widest mb-6">{category.title}</h3>
                             <ul className="space-y-4">
-                                {category.items.map((link) => (
+                                {category.items.map((link: any) => (
                                     <li key={link.name}>
                                         <Link
                                             href={link.href}
-                                            className="text-slate-400 hover:text-indigo-400 transition-colors text-[15px] flex items-center group"
+                                            className="text-slate-400 hover:text-indigo-400 transition-colors text-[15px] flex items-start gap-3 group"
                                         >
-                                            <span className="w-0 h-[1.5px] bg-indigo-500 mr-0 group-hover:w-3 group-hover:mr-2 transition-all duration-300" />
-                                            {link.name}
+                                            {link.icon ? (
+                                                <link.icon className="h-4 w-4 mt-1 text-indigo-500/50 group-hover:text-indigo-500 transition-colors flex-shrink-0" />
+                                            ) : (
+                                                <span className="w-0 h-[1.5px] bg-indigo-500 mt-[10px] group-hover:w-3 transition-all duration-300 flex-shrink-0" />
+                                            )}
+                                            <span className="leading-relaxed">{link.name}</span>
                                         </Link>
                                     </li>
                                 ))}
@@ -186,11 +178,6 @@ export function Footer() {
                         <div className="flex items-center gap-2 text-indigo-400 font-medium font-sans">
                             <Globe className="h-4 w-4" />
                             <span>EN / සිං / தமிழ்</span>
-                        </div>
-                        <div className="hidden md:flex gap-6">
-                            <Link href="#" className="hover:text-white transition-colors font-sans">Legal</Link>
-                            <Link href="#" className="hover:text-white transition-colors font-sans">Trust Center</Link>
-                            <Link href="#" className="hover:text-white transition-colors font-sans">Status</Link>
                         </div>
                     </div>
                 </div>

@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useScroll } from "framer-motion"
 import { Zap, Menu, X, Globe, ChevronRight } from "lucide-react"
 
 const DEFAULT_NAV_ITEMS = [
+    { label: "Home", href: "/" },
     { label: "Features", href: "#features" },
     { label: "Tutors", href: "#tutor" },
     { label: "Testimonials", href: "#testimonials" },
@@ -55,6 +56,7 @@ export function Header() {
     }, [])
 
     const t = {
+        Home: lang === 'si' ? "මුල් පිටුව" : lang === 'ta' ? "முகப்பு" : "Home",
         Features: lang === 'si' ? "විශේෂාංග" : lang === 'ta' ? "அம்சங்கள்" : "Features",
         Tutors: lang === 'si' ? "ගුරුවරුන්" : lang === 'ta' ? "ஆசிரியர்கள்" : "Tutors",
         Testimonials: lang === 'si' ? "සාක්ෂි" : lang === 'ta' ? "சான்றுகள்" : "Testimonials",
@@ -64,6 +66,7 @@ export function Header() {
     }
 
     const navItems = [
+        { label: t.Home, href: "/" },
         { label: t.Features, href: "#features" },
         { label: t.Tutors, href: "#tutor" },
         { label: t.Testimonials, href: "#testimonials" },
