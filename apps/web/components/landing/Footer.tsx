@@ -73,7 +73,7 @@ export function Footer() {
 
             <div className="container mx-auto px-6 relative z-10">
                 {/* Newsletter Section */}
-                <div className="relative mb-20 p-8 md:p-12 rounded-[2.5rem] bg-indigo-600/5 border border-white/10 backdrop-blur-sm overflow-hidden group">
+                {/* <div className="relative mb-20 p-8 md:p-12 rounded-[2.5rem] bg-indigo-600/5 border border-white/10 backdrop-blur-sm overflow-hidden group">
                     <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[100px] group-hover:bg-indigo-500/30 transition-colors duration-700" />
                     
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
@@ -104,7 +104,7 @@ export function Footer() {
                             </p>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Footer Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 lg:gap-8 mb-20">
